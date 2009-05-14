@@ -5,4 +5,18 @@
   <name>Crappy db - server</name>
   <version>0.0.1-SNAPSHOT</version>
   <description>A memcached implementation with persistency and sharding</description>
+  <repositories>
+  	<repository>
+  		<id>oracleReleases</id>
+  		<name>Oracle Released Java Packages</name>
+  		<url>http://download.oracle.com/maven</url>
+  	</repository>
+  </repositories>
+  <dependencies>
+  	<dependency>
+  		<groupId>com.sleepycat</groupId>
+  		<artifactId>je</artifactId>
+  		<version>3.3.75</version>
+  	</dependency>
+  </dependencies>
 </project>
