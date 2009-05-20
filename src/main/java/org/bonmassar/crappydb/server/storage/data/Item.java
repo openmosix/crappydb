@@ -56,11 +56,14 @@ public class Item {
 		return this.expire;
 	}
 	
+	public Key getKey() {
+		return storagekey;
+	}
+	
 	private void init(Key storagekey, Serializable data, Integer flags){
 		this.data = data;
 		this.flags = flags;
 		this.storagekey = storagekey;
 	}
-	
 	
 }
