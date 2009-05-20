@@ -19,7 +19,6 @@
 package org.bonmassar.crappydb.server.storage.data;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
