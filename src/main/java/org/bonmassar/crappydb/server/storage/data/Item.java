@@ -26,6 +26,7 @@ public class Item {
 	private Integer flags;
 	private Serializable data;
 	private Cas internalcas;
+	private Long expire;
 	
 	public Item(Key storagekey, Serializable data){
 		init(storagekey, data, null);
@@ -47,9 +48,19 @@ public class Item {
 		this.internalcas = newcas;
 	}
 	
+	public void setExpire(Long newexpire){
+		this.expire = newexpire;
+	}
+	
+	public Long getExpire(){
+		return this.expire;
+	}
+	
 	private void init(Key storagekey, Serializable data, Integer flags){
 		this.data = data;
 		this.flags = flags;
 		this.storagekey = storagekey;
 	}
+	
+	
 }
