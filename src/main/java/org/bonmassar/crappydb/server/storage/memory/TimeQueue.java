@@ -32,14 +32,14 @@ public interface TimeQueue {
 	 * Add an elem to the queue
 	 * @param elem The elem to be added
 	 */
-	void add(Item elem);
+	TimeQueue add(Item elem);
 	
 	/**
 	 * Remove an element from the queue
 	 * The element will be stopped and the expireNow() will not find it
 	 * @param elem The element to be removed from the queue 
 	 */
-	void stop(Item elem);
+	TimeQueue stop(Item elem);
 	
 	/**
 	 * Check all keys that must be expired now.

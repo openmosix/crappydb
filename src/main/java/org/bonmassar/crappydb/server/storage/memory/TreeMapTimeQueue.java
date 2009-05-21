@@ -33,11 +33,11 @@ public class TreeMapTimeQueue implements TimeQueue {
 		queue = new TreeMap<Long, List<Key>>();
 	}
 
-	public void add(Item elem) {
+	public TimeQueue add(Item elem) {
 		if(null == elem || null == elem.getExpire())
-			return;
+			return this;
 		
-		add(elem.getExpire(), elem.getKey());
+		return add(elem.getExpire(), elem.getKey());
 	}
 
 	public List<Key> expireNow() {
@@ -55,11 +55,11 @@ public class TreeMapTimeQueue implements TimeQueue {
 		return expired;
 	}
 
-	public void stop(Item ie) {
+	public TimeQueue stop(Item ie) {
 		if(null == ie || null == ie.getExpire())
-			return;
+			return this;
 		
-		stop(ie.getExpire(), ie.getKey());
+		return stop(ie.getExpire(), ie.getKey());
 	}
 	
 	protected Long getNow() {
@@ -70,26 +70,28 @@ public class TreeMapTimeQueue implements TimeQueue {
 		return queue.firstKey();
 	}
 
-	private void add(Long expire, Key k){
+	private TimeQueue add(Long expire, Key k){
 		synchronized(queue){
 			List<Key> keys = getTimerOrCreateIt(expire);
 
 			keys.add(k);
 			queue.put(expire, keys);
 		}
+		return this;
 	}
 	
-	private void stop(Long expire, Key key) {
+	private TimeQueue stop(Long expire, Key key) {
 		synchronized(queue){
 			List<Key> keys = queue.get(expire);
 			if(null == keys)
-				return;
+				return this;
 			if(isLastElement(keys)){
 				queue.remove(expire);
-				return;
+				return this;
 			}
 			keys.remove(key);			
 		}
+		return this;
 	}
 
 	private boolean isLastElement(List<Key> keys) {
