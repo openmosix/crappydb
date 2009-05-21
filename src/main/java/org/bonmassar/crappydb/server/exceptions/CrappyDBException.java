@@ -14,7 +14,7 @@ public abstract class CrappyDBException extends Exception{
 	}
 	
 	public String toString(){
-		return getClass().getSimpleName() +"["+ getReason() +"]";
+		return getClass().getSimpleName() +" ["+ getReason() +"]";
 	}
 
 	private String getReason() {
