@@ -60,6 +60,10 @@ public class Item {
 		return storagekey;
 	}
 	
+	public Cas getCas() {
+		return internalcas;
+	}
+	
 	private void init(Key storagekey, Serializable data, Integer flags){
 		this.data = data;
 		this.flags = flags;
