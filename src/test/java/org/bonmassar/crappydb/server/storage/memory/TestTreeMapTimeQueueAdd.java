@@ -43,6 +43,12 @@ public class TestTreeMapTimeQueueAdd {
 	}
 	
 	@Test
+	public void testAddWithNull(){
+		queue.add(null);
+		assertEquals(0, queue.queue.size());
+	}
+	
+	@Test
 	public void testAddWithNoExpiration(){
 		queue.add(item);
 		assertEquals(0, queue.queue.size());
@@ -59,8 +65,7 @@ public class TestTreeMapTimeQueueAdd {
 	public void testAddWithTwoExpirationsSameExpiration(){
 		item.setExpire(999L);
 		item2.setExpire(999L);
-		queue.add(item);
-		queue.add(item2);
+		queue.add(item).add(item2);
 		assertEquals(1, queue.queue.size());
 	}
 	
@@ -68,8 +73,7 @@ public class TestTreeMapTimeQueueAdd {
 	public void testAddWithTwoExpirationsDifferentExpiration(){
 		item.setExpire(999L);
 		item2.setExpire(998L);
-		queue.add(item);
-		queue.add(item2);
+		queue.add(item).add(item2);
 		assertEquals(2, queue.queue.size());
 	}
 	

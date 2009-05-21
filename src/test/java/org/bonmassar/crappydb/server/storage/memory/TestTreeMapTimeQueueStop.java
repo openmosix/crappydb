@@ -29,28 +29,44 @@ import org.junit.Test;
 public class TestTreeMapTimeQueueStop {
 
 	private TreeMapTimeQueue queue;
-	private Item item;
-	private Item item2;
-	private Item item3;
-	private Item item4;
-	private Key key;
-	private Key key2;
-	private Key key3;
-	private Key key4;
+	private Item item1, item2, item3, item4;
+	private Key key1, key2, key3, key4;
 	
 	@Before
 	public void setUp() {
 		queue = new TreeMapTimeQueue();
 		stubItems();
-		queue.add(item);
-		queue.add(item2);
-		queue.add(item3);
-		queue.add(item4);
+		queue.add(item1).add(item2).add(item3).add(item4);
+	}
+
+	@Test
+	public void testKillItemDoesNotExists(){
+		Key fakekey = new Key("does not matter");
+		Item notExists = new Item(fakekey, new String("some data"));
+		queue.stop(notExists);
+		assertTrue(queue.queue.containsKey(997L));
+		assertTrue(queue.queue.containsKey(998L));
+		assertTrue(queue.queue.containsKey(999L));
+		assertEquals(2, queue.queue.get(999L).size());
+		assertTrue(queue.queue.get(999L).contains(key1));
+		assertTrue(queue.queue.get(999L).contains(key1));
+	}
+
+	
+	@Test
+	public void testKillNull(){
+		queue.stop(null);
+		assertTrue(queue.queue.containsKey(997L));
+		assertTrue(queue.queue.containsKey(998L));
+		assertTrue(queue.queue.containsKey(999L));
+		assertEquals(2, queue.queue.get(999L).size());
+		assertTrue(queue.queue.get(999L).contains(key1));
+		assertTrue(queue.queue.get(999L).contains(key1));
 	}
 	
 	@Test
 	public void testKillItem1(){
-		queue.stop(item);
+		queue.stop(item1);
 		assertTrue(queue.queue.containsKey(997L));
 		assertTrue(queue.queue.containsKey(998L));
 		assertTrue(queue.queue.containsKey(999L));
@@ -65,7 +81,7 @@ public class TestTreeMapTimeQueueStop {
 		assertTrue(queue.queue.containsKey(998L));
 		assertTrue(queue.queue.containsKey(999L));
 		assertEquals(1, queue.queue.get(999L).size());
-		assertEquals(key, queue.queue.get(999L).get(0));
+		assertEquals(key1, queue.queue.get(999L).get(0));
 	}
 	
 	@Test
@@ -74,8 +90,8 @@ public class TestTreeMapTimeQueueStop {
 		assertTrue(queue.queue.containsKey(997L));
 		assertTrue(queue.queue.containsKey(999L));
 		assertEquals(2, queue.queue.get(999L).size());
-		assertTrue(queue.queue.get(999L).contains(key));
-		assertTrue(queue.queue.get(999L).contains(key));
+		assertTrue(queue.queue.get(999L).contains(key1));
+		assertTrue(queue.queue.get(999L).contains(key1));
 	}
 	
 	@Test
@@ -84,17 +100,17 @@ public class TestTreeMapTimeQueueStop {
 		assertTrue(queue.queue.containsKey(998L));
 		assertTrue(queue.queue.containsKey(999L));
 		assertEquals(2, queue.queue.get(999L).size());
-		assertTrue(queue.queue.get(999L).contains(key));
-		assertTrue(queue.queue.get(999L).contains(key));
+		assertTrue(queue.queue.get(999L).contains(key1));
+		assertTrue(queue.queue.get(999L).contains(key1));
 	}
 	
 	private void stubItems(){
-		key = new Key("terminenzio");
+		key1 = new Key("terminenzio");
 		key2 = new Key("terminenzio2");
 		key3 = new Key("terminenzio3");
 		key4 = new Key("terminenzio4");
-		item = new Item(key, new String("gioconno"));
-		item.setExpire(999L);
+		item1 = new Item(key1, new String("gioconno"));
+		item1.setExpire(999L);
 		item2 = new Item(key2, new String("gioconno2"));
 		item2.setExpire(999L);
 		item3 = new Item(key3, new String("gioconno3"));
