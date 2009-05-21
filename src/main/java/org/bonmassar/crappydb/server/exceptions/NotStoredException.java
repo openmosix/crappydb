@@ -18,6 +18,10 @@
 
 package org.bonmassar.crappydb.server.exceptions;
 
-public class NotStoredException extends Exception {
+public class NotStoredException extends CrappyDBException {
+	
+	public NotStoredException(String reason) {
+		super(reason);
+	}
 
 }
