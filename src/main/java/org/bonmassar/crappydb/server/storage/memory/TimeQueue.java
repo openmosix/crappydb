@@ -23,12 +23,29 @@ import java.util.List;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
+/**
+ * A queue of pending keys that need to be expired
+ */
 public interface TimeQueue {
 
+	/**
+	 * Add an elem to the queue
+	 * @param elem The elem to be added
+	 */
 	void add(Item elem);
 	
+	/**
+	 * Remove an element from the queue
+	 * The element will be stopped and the expireNow() will not find it
+	 * @param elem The element to be removed from the queue 
+	 */
 	void stop(Item elem);
 	
+	/**
+	 * Check all keys that must be expired now.
+	 * This method can be polled regularly and all keys expired are returned
+	 * @return List of the keys that are expired
+	 */
 	List<Key> expireNow();
 	
 }
