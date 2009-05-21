@@ -32,15 +32,19 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UnboundedMap implements StorageAccessLayer {
 
-	private Map<Key, Item> repository;
+	protected Map<Key, Item> repository;
 	
 	public UnboundedMap () {
 		repository = new ConcurrentHashMap<Key, Item>();
 	}
 	
 	public void add(Item item) throws NotStoredException, StorageException {
-		// TODO Auto-generated method stub
-
+		if(null == item)
+			throw new NotStoredException("Null item");
+		if(null == item.getKey())
+			throw new NotStoredException("Invalid key");
+		
+		repository.put(item.getKey(), item);
 	}
 
 	public void append(Item item) throws StorageException {
