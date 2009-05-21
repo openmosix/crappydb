@@ -37,9 +37,9 @@ public class TestTreeMapTimeQueueAdd {
 	public void setUp() {
 		queue = new TreeMapTimeQueue();
 		key = new Key("terminenzio");
-		key2 = new Key("terminenzio");
+		key2 = new Key("terminenzio2");
 		item = new Item(key, new String("gioconno"));
-		item2 = new Item(key2, new String("gioconno"));
+		item2 = new Item(key2, new String("gioconno2"));
 	}
 	
 	@Test
