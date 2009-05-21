@@ -46,7 +46,7 @@ public class TreeMapTimeQueue implements TimeQueue {
 		synchronized(queue){
 			Long cursor = 0L;
 			while(null != (cursor = getFirstTimer())){
-				if(cursor < now)
+				if(now < cursor)
 					break;
 				
 				expired.addAll(queue.remove(cursor));
