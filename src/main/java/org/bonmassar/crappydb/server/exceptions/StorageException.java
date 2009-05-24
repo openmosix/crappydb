@@ -18,6 +18,10 @@
 
 package org.bonmassar.crappydb.server.exceptions;
 
-public class StorageException extends Exception {
+public class StorageException extends CrappyDBException  {
+
+	public StorageException(String reason) {
+		super(reason);
+	}
 
 }
