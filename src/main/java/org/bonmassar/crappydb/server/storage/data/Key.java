@@ -44,6 +44,14 @@ public class Key {
 		return value.equals(((Key)dest).value);
 	}
 
+	@Override
+	public int hashCode() {
+		if(null == value)
+			return super.hashCode();
+		
+		return value.hashCode();
+	}
+	
 	private void importKeyValue(String value) {
 		this.value = value;
 		checkInvalidKey();

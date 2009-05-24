@@ -67,6 +67,10 @@ public class Item {
 		return data;
 	}
 	
+	public void setData(byte[] newdata){
+		data = newdata;
+	}
+	
 	private void init(Key storagekey, byte[] data, Integer flags){
 		this.data = data;
 		this.flags = flags;
