@@ -18,29 +18,28 @@
 
 package org.bonmassar.crappydb.server.storage.data;
 
-import java.io.Serializable;
 
 public class Item {
 
 	private Key	storagekey;
 	private Integer flags;
-	private Serializable data;
+	private byte[] data;
 	private Cas internalcas;
 	private Long expire;
 	
-	public Item(Key storagekey, Serializable data){
+	public Item(Key storagekey, byte[] data){
 		init(storagekey, data, null);
 	}
 	
-	public Item(Key storagekey, Serializable data, Integer flags){
+	public Item(Key storagekey, byte[] data, Integer flags){
 		init(storagekey, data, flags);
 	}
 	
-	public Item(Serializable data){
+	public Item(byte[] data){
 		init(null, data, null);
 	}
 	
-	public Item(Serializable data, Integer flags){
+	public Item(byte[] data, Integer flags){
 		init( null, data, flags );
 	}
 	
@@ -64,7 +63,11 @@ public class Item {
 		return internalcas;
 	}
 	
-	private void init(Key storagekey, Serializable data, Integer flags){
+	public byte[] getData() {
+		return data;
+	}
+	
+	private void init(Key storagekey, byte[] data, Integer flags){
 		this.data = data;
 		this.flags = flags;
 		this.storagekey = storagekey;
