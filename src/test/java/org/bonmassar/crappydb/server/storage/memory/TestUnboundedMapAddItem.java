@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
+import org.bonmassar.crappydb.server.storage.data.Cas;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.Before;
@@ -43,9 +44,9 @@ public class TestUnboundedMapAddItem {
 	public void testNullObject() {
 		try {
 			um.add(null);
-		} catch (NotStoredException e) {
-			assertEquals("NotStoredException [Null item]", e.toString());
 		} catch (StorageException e) {
+			assertEquals("StorageException [Null item]", e.toString());
+		} catch (NotStoredException e) {
 			fail();
 		}
 	}
@@ -55,9 +56,9 @@ public class TestUnboundedMapAddItem {
 		try {
 			Item it = new Item (null, "some data");
 			um.add(it);
-		} catch (NotStoredException e) {
-			assertEquals("NotStoredException [Invalid key]", e.toString());
 		} catch (StorageException e) {
+			assertEquals("StorageException [Invalid key]", e.toString());
+		} catch (NotStoredException e) {
 			fail();
 		}
 	}
@@ -65,15 +66,34 @@ public class TestUnboundedMapAddItem {
 	@Test
 	public void testKeyAdded() {
 		try {
-			Key k = new Key("Yuppi");
-			Item it = new Item (k, "some data");
+			Item it = getDataToAdd();
 			um.add(it);
 			assertEquals(1, um.repository.size());
-			assertEquals(it, um.repository.get(k));
-			assertNotNull(um.repository.get(k).getCas());
-			assertTrue(um.repository.get(k).getCas().toString().length() > 0);
+			assertEquals(it, um.repository.get(it.getKey()));
+			assertNotNull(um.repository.get(it.getKey()).getCas());
+			assertTrue(um.repository.get(it.getKey()).getCas().toString().length() > 0);
 		} catch (Exception e) {
 			fail();
 		}
+	}
+	
+	@Test
+	public void testFailDataAlreadyExisting() throws NotStoredException, StorageException {
+		Item it = getDataToAdd();
+		um.add(it);
+		
+		try {
+			um.add(it);
+			fail();
+		} catch (NotStoredException e) {
+			assertEquals("NotStoredException [Data already exists for this key.]", e.toString());
+		}
+	}
+	
+	private Item getDataToAdd(){
+		Key k = new Key("Yuppi");
+		Item it = new Item (k, "some data");
+		it.setCas(new Cas(1234L));
+		return it;
 	}
 }
