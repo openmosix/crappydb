@@ -30,6 +30,8 @@ public class CommandFactory {
 	public CommandFactory() {
 		commands = new HashMap<String, Class<?>>();
 		commands.put(SetServerCommand.getCmdName(), SetServerCommand.class);
+		commands.put(GetServerCommand.getCmdName(), GetServerCommand.class);
+		commands.put(DeleteServerCommand.getCmdName(), DeleteServerCommand.class);
 	}
 	
 	public ServerCommand getCommand(String cmd) throws ErrorException{
