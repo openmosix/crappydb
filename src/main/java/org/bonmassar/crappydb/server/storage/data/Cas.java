@@ -20,4 +20,8 @@ package org.bonmassar.crappydb.server.storage.data;
 
 public class Cas {
 	private Long uniquecas;
+	
+	public Cas(Long cas){
+		uniquecas = cas;
+	}
 }
