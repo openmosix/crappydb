@@ -18,6 +18,8 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,14 +30,13 @@ import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class UnboundedMap implements StorageAccessLayer {
 
 	protected Map<Key, Item> repository;
 	
 	public UnboundedMap () {
-		repository = new ConcurrentHashMap<Key, Item>();
+		repository = new HashMap<Key, Item>();
 	}
 	
 	public void add(Item item) throws NotStoredException, StorageException {
@@ -46,14 +47,17 @@ public class UnboundedMap implements StorageAccessLayer {
 
 	public void append(Item item) throws StorageException {
 		checkItem(item);
-		Item prevstored = repository.get(item.getKey());
+		blowIfItemDoesNotExists(item);
+		if(noInternalData(item))
+			return;
 		
+		Item prevstored = repository.get(item.getKey());
+		prevstored.setData(concatData(item, prevstored));
 	}
 
 	public Item decrease(Key id, Long value) throws NotFoundException,
 			StorageException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new StorageException("Not Implemented");
 	}
 
 	public void delete(Key id) throws NotFoundException, StorageException {
@@ -63,24 +67,35 @@ public class UnboundedMap implements StorageAccessLayer {
 
 	public List<Item> get(List<Key> ids) throws NotFoundException,
 			StorageException {
-		// TODO Auto-generated method stub
-		return null;
+		checkValidIds(ids);
+		List<Item> resp = new LinkedList<Item>();
+		for (Key k : ids){
+			if(null == k)
+				continue;
+			
+			Item elem = repository.get(k);
+			if(null != elem)
+				resp.add(elem);
+		}
+		
+		if(0 == resp.size())
+			throw new NotFoundException("No data found");
+		
+		return resp;
 	}
+
 
 	public Item increase(Key id, Long value) throws NotFoundException,
 			StorageException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new StorageException("Not Implemented");
 	}
 
 	public void prepend(Item item) throws StorageException {
-		// TODO Auto-generated method stub
-
+		throw new StorageException("Not Implemented");
 	}
 
 	public void replace(Item item) throws NotStoredException, StorageException {
-		// TODO Auto-generated method stub
-
+		throw new StorageException("Not Implemented");
 	}
 
 	public void set(Item item) throws StorageException {
@@ -90,8 +105,7 @@ public class UnboundedMap implements StorageAccessLayer {
 
 	public void swap(Item item) throws NotFoundException, ExistsException,
 			StorageException {
-		// TODO Auto-generated method stub
-
+		throw new StorageException("Not Implemented");
 	}
 	
 	private void checkItem(Item item) throws StorageException {
@@ -103,7 +117,46 @@ public class UnboundedMap implements StorageAccessLayer {
 	
 	private void blowIfItemExists(Item item) throws NotStoredException {
 		if(repository.containsKey(item.getKey()))
-			throw new NotStoredException("Data already exists for this key.");
+			throw new NotStoredException("Data already exists for this key");
+	}
+	
+	private void blowIfItemDoesNotExists(Item item) throws StorageException {
+		if(!repository.containsKey(item.getKey()))
+			throw new StorageException("Unknown key");
+	}
+	
+	private boolean noInternalData(Item item) {
+		return noBinaryData(item.getData());
+	}
+	
+	private boolean noBinaryData(byte[] data){
+		return null == data || 0 == data.length;
+	}
+
+	private byte[] concatData(Item item, Item prevstored) {
+		byte[] concatdata = new byte[computeNewInternalDataLength(prevstored.getData(), item.getData())];
+		
+		int cursor = 0;
+		if(!noInternalData(prevstored)){
+			cursor = prevstored.getData().length;
+			System.arraycopy(prevstored.getData(), 0, concatdata, 0, prevstored.getData().length);
+		}
+		
+		System.arraycopy(item.getData(), 0, concatdata, cursor, item.getData().length);
+		return concatdata;
+	}
+
+	
+	private int computeNewInternalDataLength(byte[] olddata, byte[] newdata){
+		if(!noBinaryData(olddata))
+			return olddata.length + newdata.length;
+		
+		return newdata.length;
+	}
+
+	private void checkValidIds(List<Key> ids) throws StorageException {
+		if(null == ids || 0 == ids.size())
+			throw new StorageException("No valid ids");
 	}
 
 
