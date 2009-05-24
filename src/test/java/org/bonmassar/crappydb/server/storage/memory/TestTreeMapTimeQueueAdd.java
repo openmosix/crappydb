@@ -38,8 +38,8 @@ public class TestTreeMapTimeQueueAdd {
 		queue = new TreeMapTimeQueue();
 		key = new Key("terminenzio");
 		key2 = new Key("terminenzio2");
-		item = new Item(key, new String("gioconno"));
-		item2 = new Item(key2, new String("gioconno2"));
+		item = new Item(key, new String("gioconno").getBytes());
+		item2 = new Item(key2, new String("gioconno2").getBytes());
 	}
 	
 	@Test

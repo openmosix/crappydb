@@ -54,7 +54,7 @@ public class TestUnboundedMapAddItem {
 	@Test
 	public void testInvalidKey() {
 		try {
-			Item it = new Item (null, "some data");
+			Item it = new Item (null, "some data".getBytes());
 			um.add(it);
 		} catch (StorageException e) {
 			assertEquals("StorageException [Invalid key]", e.toString());
@@ -92,7 +92,7 @@ public class TestUnboundedMapAddItem {
 	
 	private Item getDataToAdd(){
 		Key k = new Key("Yuppi");
-		Item it = new Item (k, "some data");
+		Item it = new Item (k, "some data".getBytes());
 		it.setCas(new Cas(1234L));
 		return it;
 	}
