@@ -86,7 +86,7 @@ public class TestUnboundedMapAddItem {
 			um.add(it);
 			fail();
 		} catch (NotStoredException e) {
-			assertEquals("NotStoredException [Data already exists for this key.]", e.toString());
+			assertEquals("NotStoredException [Data already exists for this key]", e.toString());
 		}
 	}
 	
