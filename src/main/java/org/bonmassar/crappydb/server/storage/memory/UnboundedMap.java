@@ -56,8 +56,9 @@ public class UnboundedMap implements StorageAccessLayer {
 	}
 
 	public void delete(Key id) throws NotFoundException, StorageException {
-		// TODO Auto-generated method stub
-
+		checkValidId(id);
+		blowIfItemDoesNotExists(id);
+		repository.remove(id);
 	}
 
 	public List<Item> get(List<Key> ids) throws NotFoundException,
@@ -122,7 +123,11 @@ public class UnboundedMap implements StorageAccessLayer {
 	}
 	
 	private void blowIfItemDoesNotExists(Item item) throws StorageException {
-		if(!repository.containsKey(item.getKey()))
+		blowIfItemDoesNotExists(item.getKey());
+	}
+	
+	private void blowIfItemDoesNotExists(Key k) throws StorageException {
+		if(!repository.containsKey(k))
 			throw new StorageException("Unknown key");
 	}
 	
@@ -158,6 +163,11 @@ public class UnboundedMap implements StorageAccessLayer {
 	private void checkValidIds(List<Key> ids) throws StorageException {
 		if(null == ids || 0 == ids.size())
 			throw new StorageException("No valid ids");
+	}
+	
+	private void checkValidId(Key id) throws StorageException {
+		if(null == id)
+			throw new StorageException("No valid id");
 	}
 
 
