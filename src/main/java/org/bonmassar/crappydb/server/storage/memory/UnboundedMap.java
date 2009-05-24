@@ -55,11 +55,6 @@ public class UnboundedMap implements StorageAccessLayer {
 		prevstored.setData(concatData(item, prevstored));
 	}
 
-	public Item decrease(Key id, Long value) throws NotFoundException,
-			StorageException {
-		throw new StorageException("Not Implemented");
-	}
-
 	public void delete(Key id) throws NotFoundException, StorageException {
 		// TODO Auto-generated method stub
 
@@ -84,9 +79,25 @@ public class UnboundedMap implements StorageAccessLayer {
 		return resp;
 	}
 
-
-	public Item increase(Key id, Long value) throws NotFoundException,
+	public void set(Item item) throws StorageException {
+		checkItem(item);
+		repository.put(item.getKey(), item);
+	}
+	
+	
+	
+	public Item decrease(Key id, Long value) throws NotFoundException,
+	StorageException {
+		throw new StorageException("Not Implemented");
+	}
+	
+	public void swap(Item item) throws NotFoundException, ExistsException,
 			StorageException {
+		throw new StorageException("Not Implemented");
+	}
+	
+	public Item increase(Key id, Long value) throws NotFoundException,
+	StorageException {
 		throw new StorageException("Not Implemented");
 	}
 
@@ -95,16 +106,6 @@ public class UnboundedMap implements StorageAccessLayer {
 	}
 
 	public void replace(Item item) throws NotStoredException, StorageException {
-		throw new StorageException("Not Implemented");
-	}
-
-	public void set(Item item) throws StorageException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void swap(Item item) throws NotFoundException, ExistsException,
-			StorageException {
 		throw new StorageException("Not Implemented");
 	}
 	
