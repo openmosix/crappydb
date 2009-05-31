@@ -18,12 +18,12 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
-import org.bonmassar.crappydb.server.io.IOChannel;
+import org.bonmassar.crappydb.server.io.OutputService;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
 public abstract class ServerCommand {
 
 	protected StorageAccessLayer storage;
-	protected IOChannel channel;
+	protected OutputService channel;
 	
 }
