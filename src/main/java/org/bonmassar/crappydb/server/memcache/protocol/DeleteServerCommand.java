@@ -23,5 +23,23 @@ public class DeleteServerCommand extends ServerCommand {
 	public static String getCmdName() {
 		return "delete";
 	}
+
+	@Override
+	public void parseCommandParams(String commandParams) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int payloadContentLength() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void addPayloadContentPart(byte[] data) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

@@ -18,12 +18,21 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
-import org.bonmassar.crappydb.server.io.OutputService;
+import org.bonmassar.crappydb.server.io.ServerCommandWriter;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
 public abstract class ServerCommand {
 
 	protected StorageAccessLayer storage;
-	protected OutputService channel;
+	protected ServerCommandWriter channel;
 	
+	public abstract void parseCommandParams(String commandParams);
+	
+	public abstract int payloadContentLength();
+	
+	public abstract void addPayloadContentPart(byte[] data);
+
+	public void attachCommandWriter(ServerCommandWriter writer) {
+		channel = writer;
+	}
 }

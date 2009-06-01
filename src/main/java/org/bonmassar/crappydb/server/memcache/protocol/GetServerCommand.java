@@ -23,4 +23,22 @@ public class GetServerCommand extends ServerCommand {
 	public static String getCmdName() {
 		return "get";
 	}
+
+	@Override
+	public void parseCommandParams(String commandParams) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int payloadContentLength() {
+		// TODO Auto-generated method stub
+		return 5;
+	}
+
+	@Override
+	public void addPayloadContentPart(byte[] data) {
+		// TODO Auto-generated method stub
+		
+	}
 }

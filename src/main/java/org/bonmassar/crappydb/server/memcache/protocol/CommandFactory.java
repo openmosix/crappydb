@@ -34,6 +34,16 @@ public class CommandFactory {
 		commands.put(DeleteServerCommand.getCmdName(), DeleteServerCommand.class);
 	}
 	
+	public ServerCommand getCommandFromCommandLine(String commandLine) throws ErrorException{
+		if(null == commandLine || commandLine.length() == 0)
+			checkInvalidCommand(null);
+		
+		String cmd = getCommandName(commandLine);
+		ServerCommand serverCmd = getCommand(cmd);
+		serverCmd.parseCommandParams(getCommandParams(commandLine));
+		return serverCmd;
+	}
+
 	public ServerCommand getCommand(String cmd) throws ErrorException{
 		checkInvalidCommand(cmd);
 		Class<?> handler = commands.get(cmd);
@@ -69,6 +79,19 @@ public class CommandFactory {
 	private void checkInvalidCommand(String cmd) throws ErrorException {
 		if(null == cmd || 0 == cmd.length())
 			throw new ErrorException("Invalid command");
+	}
+	
+	private String getCommandName(String commandLine) {
+		commandLine = commandLine.trim();
+		int firstSpace = commandLine.indexOf(' ');
+		if(-1 == firstSpace)
+			return null;
+		
+		return commandLine.substring(0, firstSpace);
+	}
+
+	private String getCommandParams(String commandLine) {
+		return commandLine.substring(commandLine.indexOf(' '));
 	}
 	
 }
