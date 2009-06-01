@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
@@ -38,6 +39,8 @@ public class ServerCommandReader {
 	private ServerCommand decodedCmd;
 	private static CommandFactory cmdFactory = new CommandFactory();
 
+	private Logger logger = Logger.getLogger(ServerCommandReader.class); 
+	
 	public ServerCommandReader(SelectionKey requestsDescriptor) {
 		this.requestsDescriptor = requestsDescriptor;
 		buffer = ByteBuffer.allocate(ServerCommandReader.buffSize);
@@ -65,7 +68,7 @@ public class ServerCommandReader {
 	private boolean read(SocketChannel channel) throws IOException{
 		buffer.clear();
 		int len = channel.read(buffer);
-		System.out.println("read len=" + len);
+		logger.debug(String.format("read len=%d", len));
 		checkInvalidRead(len);
 		
 		return len > 0;
@@ -104,7 +107,7 @@ public class ServerCommandReader {
 			return;
 		
 		String receivedCommand = readStringStopCrLf(crlfpos);		
-		System.out.println("cmd: "+receivedCommand);
+		logger.debug("cmd: "+receivedCommand);
 		
 		decodedCmd = cmdFactory.getCommandFromCommandLine(receivedCommand);	
 		contentLength = decodedCmd.payloadContentLength();

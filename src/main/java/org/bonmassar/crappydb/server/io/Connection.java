@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
@@ -31,6 +32,8 @@ public class Connection {
 		private ServerCommandWriter commandWriter;
 		private SelectionKey selector;
 		private String name;
+		
+		private Logger logger = Logger.getLogger(Connection.class);
 		
 		private enum ConnectionStatus{
 			OPENED,
@@ -54,12 +57,9 @@ public class Connection {
 					cmd.attachCommandWriter(commandWriter);
 				return cmd;
 			} catch (CrappyDBException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 				commandWriter.write(e.toString().getBytes());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Error reading remote data", e);
 				close();
 			}
 			return null;
@@ -71,26 +71,25 @@ public class Connection {
 
 			SocketChannel sc = (SocketChannel)selector.channel();
 			if(sc.isOpen()) {
-				System.out.println("closing connection");
+				logger.debug("Closing connection");
 				try {
                     sc.close();
                     selector.selector().wakeup();
                     selector.attach(null);
                 }
-				catch(IOException ce){System.err.println("close failed");}
+				catch(IOException ce){logger.error("close failed");}
 			}
-			else System.out.println("already closed");
+			else logger.warn("Connection already closed");
 			state = ConnectionStatus.CLOSED;
 		}
 	
 		public void doWrite() {
-			System.out.println("write ready");
+			logger.debug("write ready");
 			selector.interestOps(SelectionKey.OP_READ);
 			try {
 				commandWriter.flushOnSocket();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn(e);
 				close();
 			}
 		}	

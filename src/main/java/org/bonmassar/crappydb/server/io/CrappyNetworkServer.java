@@ -30,6 +30,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
+
 public class CrappyNetworkServer {
 	
 	private final static int newClientInterests = SelectionKey.OP_READ;
@@ -40,13 +42,15 @@ public class CrappyNetworkServer {
 	private Selector serverSelector;		
 	private int serverPort;
 	
+	private Logger logger = Logger.getLogger(CrappyNetworkServer.class);
+	
 	public CrappyNetworkServer(int port) {
 		super();
 		serverPort = port;
 	}
 	
 	public void serverSetup() {
-		System.out.println("listening on port="+serverPort);
+		logger.info(String.format("listening on port %d", serverPort));
 		try
 		{
 			initListenChannel();
@@ -55,7 +59,7 @@ public class CrappyNetworkServer {
 		}
 		catch(IOException ie)
 		{
-			ie.printStackTrace();
+			logger.fatal("Cannot init the network server", ie);
 			System.exit(0);
 		}
 	}
@@ -79,7 +83,7 @@ public class CrappyNetworkServer {
 	private void processRequest(SelectionKey key) {
 		int availOps = key.readyOps();
 
-		System.out.println("kro="+availOps);
+		logger.debug(String.format("kro=%d",availOps));
 		read(key, availOps);
 		write(key, availOps);
 		accept(key, availOps);
@@ -88,9 +92,9 @@ public class CrappyNetworkServer {
 	private Iterator<SelectionKey> select() {
 		try{
 			int pendingio = serverSelector.select();
-			System.out.println("select pendingio="+pendingio);
+			logger.debug(String.format("select pendingio %d"+pendingio));
 		}
-		catch(Exception e){System.err.println("select failed");}
+		catch(Exception e){logger.error("select failed");}
 		return serverSelector.selectedKeys().iterator();
 	}
 
@@ -124,10 +128,10 @@ public class CrappyNetworkServer {
 		{
 			SocketChannel clientChannel = forkSocketChannel(listenerSocketChannel);
 			Socket clientSocket = getInnerSocketData(clientChannel);
-			System.out.println("[<=>] " + printRemoteAddress(clientSocket));
+			logger.info("[<=>] " + printRemoteAddress(clientSocket));
 			registerNewSocketToSelector(clientChannel, printRemoteAddress(clientSocket));
  		}
-		catch(IOException re){System.out.println("[<=>] :");}
+		catch(IOException re){logger.error("[<=>] :", re);}
 	}
 	
 	private void registerNewSocketToSelector(SocketChannel clientChannel, String connectionName) 

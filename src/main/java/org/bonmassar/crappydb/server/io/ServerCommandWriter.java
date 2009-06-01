@@ -25,10 +25,14 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.apache.log4j.Logger;
+
 public class ServerCommandWriter implements OutputCommandWriter {
 	
 	private LinkedList<ByteBuffer> bufferList;
 	private SelectionKey requestsDescriptor;
+	
+	private Logger logger = Logger.getLogger(ServerCommandWriter.class);
 	
 	public ServerCommandWriter(SelectionKey requestsDescriptor) {
 		this.requestsDescriptor = requestsDescriptor;
@@ -50,7 +54,7 @@ public class ServerCommandWriter implements OutputCommandWriter {
 	public void flushOnSocket() throws IOException {
 		SocketChannel sc = (SocketChannel)requestsDescriptor.channel();
 		if(!sc.isOpen()) {
-			System.out.println("write closed");
+			logger.warn("write closed");
 			return;
 		}
 		
@@ -74,7 +78,7 @@ public class ServerCommandWriter implements OutputCommandWriter {
 			return true;
 		
 		if(buffer.hasRemaining()) {
-			System.out.println("write blocked");
+			logger.debug("write blocked");
 			requestsDescriptor.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 			return false;
 		}
