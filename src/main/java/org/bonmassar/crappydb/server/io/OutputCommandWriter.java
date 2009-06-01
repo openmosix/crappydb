@@ -18,6 +18,8 @@
 
 package org.bonmassar.crappydb.server.io;
 
-public class IOChannel {
+public interface OutputCommandWriter {
 
+	void write(byte[] data);
+	
 }
