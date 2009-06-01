@@ -18,6 +18,8 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
+import org.bonmassar.crappydb.server.exceptions.ErrorException;
+
 public class DeleteServerCommand extends ServerCommand {
 
 	public static String getCmdName() {
@@ -25,7 +27,7 @@ public class DeleteServerCommand extends ServerCommand {
 	}
 
 	@Override
-	public void parseCommandParams(String commandParams) {
+	public void parseCommandParams(String commandParams) throws ErrorException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -38,6 +40,12 @@ public class DeleteServerCommand extends ServerCommand {
 
 	@Override
 	public void addPayloadContentPart(byte[] data) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void execCommand() {
 		// TODO Auto-generated method stub
 		
 	}
