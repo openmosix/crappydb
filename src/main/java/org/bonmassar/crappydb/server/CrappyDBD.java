@@ -30,11 +30,11 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
-import org.bonmassar.crappydb.server.io.NIOChannel;
+import org.bonmassar.crappydb.server.io.Connection;
  
 public class CrappyDBD {
 	
-	private final static int newClientInterests = SelectionKey.OP_READ|SelectionKey.OP_WRITE;
+	private final static int newClientInterests = SelectionKey.OP_READ;
 	private final static boolean asyncOperations = true;
 	
 	private ServerSocket listenSock;
@@ -147,7 +147,7 @@ public class CrappyDBD {
 	}
 
 	private void attachNewChannel(SelectionKey registeredSelectionKey, String connectionName) {
-		NIOChannel connHandler = new NIOChannel(registeredSelectionKey);
+		Connection connHandler = new Connection(registeredSelectionKey);
 		connHandler.setConnectionId(connectionName);
 		registeredSelectionKey.attach(connHandler);
 	}
@@ -180,7 +180,7 @@ public class CrappyDBD {
 		if(!isOpAvailable(availOperations, SelectionKey.OP_READ))
 			return;
 		
-		NIOChannel connHandler = getChannel(sk);
+		Connection connHandler = getChannel(sk);
 		connHandler.doRead();
 	}
  
@@ -188,7 +188,7 @@ public class CrappyDBD {
 		if(!isOpAvailable(availOperations, SelectionKey.OP_WRITE))
 			return;
 
-		NIOChannel connHandler = getChannel(sk);
+		Connection connHandler = getChannel(sk);
 		connHandler.doWrite();
 	}
 	
@@ -196,8 +196,8 @@ public class CrappyDBD {
 		return (availOperations & reqOp) == reqOp;
 	}
 	
-	private NIOChannel getChannel(SelectionKey sk){
-		return (NIOChannel)sk.attachment();
+	private Connection getChannel(SelectionKey sk){
+		return (Connection)sk.attachment();
 	}
 	
 }
