@@ -56,6 +56,7 @@ public class CrappyNetworkServer {
 			initListenChannel();
 			initListenSocket();
 			registerMainSocketToListener();
+			logger.info(String.format("Server up!"));
 		}
 		catch(IOException ie)
 		{
