@@ -26,6 +26,7 @@ public class CrappyDBD {
 	{
 		int port = 11211;
 		CrappyNetworkServer newinstance = new CrappyNetworkServer(port);
+		(new HomerBoot()).splashScreen();
 		newinstance.serverSetup();
 		newinstance.start();
 	} 
