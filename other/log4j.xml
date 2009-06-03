@@ -9,6 +9,18 @@
 		
 	<!-- This section defines appender - it defines where to log (file, stdout) 
 		and the format of the log -->
+
+	<!-- Define an appender to write messages on consolle-->		
+	<appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
+		<param name="Encoding" value="UTF-8" />
+	
+ 		<layout class="org.apache.log4j.PatternLayout">
+		<!-- See http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html 
+			for the desired format -->
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%t] [%c] [%-5p] %m%n" />
+		</layout>
+
+ 	</appender>	
 		
 	<!-- Define an appender to write error messages -->
 	<appender name="ErrorAppender" class="org.apache.log4j.DailyRollingFileAppender">
@@ -44,7 +56,7 @@
 		<param name="File" value="/var/log/crappydb/access.log" />
 		
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] %X{signature}[%-5p] %m%n" />
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5p] %m%n" />
 		</layout>
 	</appender>
 
@@ -66,7 +78,6 @@
 	 - see http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/AsyncAppender.html -->	
 	<appender name="AsyncError" class="org.apache.log4j.AsyncAppender">
 		<param name="BufferSize" value="65536" />
-		<param name="Blocking" value="false" />
 		<filter class="org.apache.log4j.varia.LevelRangeFilter">
 			<!--  TRACE, DEBUG, INFO, WARN, ERROR, FATAL -->
 			<param name="LevelMin" value="WARN" />
@@ -132,6 +143,7 @@
 		<appender-ref ref="AsyncError" />
         <appender-ref ref="AsyncDebug" />
 		<appender-ref ref="AsyncStandard" />
+		<appender-ref ref="ConsoleAppender" />
 	</root>
 
 </log4j:configuration>
