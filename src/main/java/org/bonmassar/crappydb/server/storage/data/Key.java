@@ -24,7 +24,7 @@ public class Key {
 	 * Maximum size for an item key as defined by memcache protocol.
 	 * See 'Keys' in http://code.sixapart.com/svn/memcached/trunk/server/doc/protocol.txt
 	 */
-	private final int MAX_KEY_SIZE=250;
+	private final static int MAX_KEY_SIZE=250;
 
 	private String value;
 	
