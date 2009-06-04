@@ -33,7 +33,7 @@ public abstract class ServerCommand {
 		if(null == commandParams || commandParams.length() == 0)
 			throw new ErrorException("Null parameters");
 		
-		String[] params = commandParams.split("\\s");
+		params = commandParams.split("\\s");
 		if(null == params)
 			throw new ErrorException("Null parameters");
 	}
