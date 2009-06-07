@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
-public class LoopbackMemcacheClient {
+public class TestLoopbackMemcacheClient {
 
 	private MemcachedSandbox crappydb;
 	private ExternalTestMemcacheSet client;
