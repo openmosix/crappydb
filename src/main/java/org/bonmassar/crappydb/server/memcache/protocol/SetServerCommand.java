@@ -18,6 +18,7 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
+import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 
 //set <key> <flags> <exptime> <bytes> [noreply]\r\n
@@ -30,6 +31,8 @@ public class SetServerCommand extends ServerCommand {
 	private static final int NOREPLY_POS=4;
 	private byte[] payload;
 	private int payloadCursor;
+	
+	private Logger logger = Logger.getLogger(SetServerCommand.class);
 
 	public static String getCmdName() {
 		return "set";
@@ -70,8 +73,10 @@ public class SetServerCommand extends ServerCommand {
 
 	@Override
 	public void execCommand() {
-		// TODO Auto-generated method stub
-		
+		logger.debug("Exectued command set");
+		channel.write("pong!".getBytes());
+		channel.write("bla bla bla".getBytes());
+		channel.write("piripong".getBytes());
 	}
 
 }
