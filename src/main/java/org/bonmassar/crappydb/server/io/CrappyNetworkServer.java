@@ -29,24 +29,58 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
 public class CrappyNetworkServer {
 	
 	private final static int newClientInterests = SelectionKey.OP_READ;
 	private final static boolean asyncOperations = true;
+	private final static int nBackendThread=5;
+	private final static int nFrontendThread=5;
 	
+	private Logger logger = Logger.getLogger(CrappyNetworkServer.class);
+
 	private ServerSocket listenSock;
 	private ServerSocketChannel listenChannel;
 	private Selector serverSelector;		
 	private int serverPort;
-	
-	private Logger logger = Logger.getLogger(CrappyNetworkServer.class);
+	private LinkedBlockingQueue<ServerCommand> commandsQueue;
+	private ExecutorService commandsExecutor;
+
+	public class RemoteCommandCall implements Callable<Integer>
+	{
+		private LinkedBlockingQueue<ServerCommand> queue;
+		
+		public RemoteCommandCall(LinkedBlockingQueue<ServerCommand> queue){
+			this.queue = queue;
+		}
+		
+		public Integer call() throws Exception {
+			while(true){
+				ServerCommand cmd = queue.take();
+				cmd.execCommand();
+			}
+		}
+	}
 	
 	public CrappyNetworkServer(int port) {
 		super();
 		serverPort = port;
+		initBackendThreads();
+	}
+
+	private void initBackendThreads() {
+		commandsQueue = new LinkedBlockingQueue<ServerCommand>();
+		commandsExecutor = Executors.newFixedThreadPool(CrappyNetworkServer.nBackendThread);
+		for(int i = 0; i < CrappyNetworkServer.nBackendThread; i++)
+			commandsExecutor.submit (new FutureTask<Integer> (new RemoteCommandCall(commandsQueue)));
 	}
 	
 	public void serverSetup() {
@@ -176,9 +210,19 @@ public class CrappyNetworkServer {
 			return;
 		
 		Connection connHandler = getChannel(sk);
-		connHandler.doRead();
+		ServerCommand gotIt = connHandler.doRead();
+		if(null != gotIt)
+			newCommand(gotIt);
 	}
  
+	private void newCommand(ServerCommand cmd) {
+		boolean result = commandsQueue.offer(cmd);
+		if(result)
+			logger.debug(String.format("Added new server command to queue (%s)", cmd));
+		else
+			logger.debug(String.format("Failed to add new server command to queue (%s)", cmd));
+	}
+
 	private void write(SelectionKey sk, int availOperations) {
 		if(!isOpAvailable(availOperations, SelectionKey.OP_WRITE))
 			return;
