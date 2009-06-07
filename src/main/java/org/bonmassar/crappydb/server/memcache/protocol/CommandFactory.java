@@ -49,12 +49,6 @@ public class CommandFactory {
 		Class<?> handler = commands.get(cmd);
 		checkValidHandler(handler);
 		
-		/*
-		    Constructor c = A.class.getConstructor(new Class[]{Integer.TYPE,
-			Float.TYPE});
-			A a = (A)c.newInstance(new Object[]{new Integer(1), new Float(1.0f)});
-		 */
-		
 		return getNewInstance(handler);
 	}
 
@@ -91,7 +85,7 @@ public class CommandFactory {
 	}
 
 	private String getCommandParams(String commandLine) {
-		return commandLine.substring(commandLine.indexOf(' '));
+		return commandLine.substring(commandLine.indexOf(' ')+1);
 	}
 	
 }
