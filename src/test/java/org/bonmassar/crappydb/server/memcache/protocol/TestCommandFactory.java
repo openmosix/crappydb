@@ -31,7 +31,7 @@ public class TestCommandFactory {
 	
 	@Before
 	public void setUp(){
-		factory = new CommandFactory();
+		factory = new CommandFactory(null);
 	}
 	
 	@Test
