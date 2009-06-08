@@ -28,6 +28,7 @@ import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
+import org.bonmassar.crappydb.server.storage.memory.UnboundedMap;
 
 public class ServerCommandReader {
 	private static final byte CR = 0x0D;
@@ -37,7 +38,7 @@ public class ServerCommandReader {
 	private ByteBuffer buffer;
 	private int contentLength;
 	private ServerCommand decodedCmd;
-	private static CommandFactory cmdFactory = new CommandFactory();
+	private static CommandFactory cmdFactory = new CommandFactory(new UnboundedMap());
 
 	private Logger logger = Logger.getLogger(ServerCommandReader.class); 
 	
