@@ -18,8 +18,17 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
-import org.bonmassar.crappydb.server.exceptions.ErrorException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.bonmassar.crappydb.server.exceptions.ErrorException;
+import org.bonmassar.crappydb.server.exceptions.NotFoundException;
+import org.bonmassar.crappydb.server.exceptions.StorageException;
+import org.bonmassar.crappydb.server.storage.data.Cas;
+import org.bonmassar.crappydb.server.storage.data.Item;
+import org.bonmassar.crappydb.server.storage.data.Key;
+
+// get <key>*\r\n
 public class GetServerCommand extends ServerCommand {
 
 	public static String getCmdName() {
@@ -28,25 +37,78 @@ public class GetServerCommand extends ServerCommand {
 
 	@Override
 	public void parseCommandParams(String commandParams) throws ErrorException {
-		// TODO Auto-generated method stub
-		
+		super.parseCommandParams(commandParams);
+		if(0 == params.length)
+			throw new ErrorException("No keys.");
 	}
 
 	@Override
 	public int payloadContentLength() {
-		// TODO Auto-generated method stub
-		return 5;
+		return 0;
 	}
 
 	@Override
 	public void addPayloadContentPart(byte[] data) {
-		// TODO Auto-generated method stub
-		
+		throw new IllegalArgumentException();
 	}
 
 	@Override
 	public void execCommand() {
-		// TODO Auto-generated method stub
+		List<Key> keys = getKeys();
+		if(keys.size() == 0)
+			return;	//FIXME: I have to return something
 		
+		try {
+			List<Item> result = storage.get(keys);
+			writeResult(result);
+		} catch (NotFoundException e) {
+			channel.write(e.toString().getBytes());
+		} catch (StorageException e) {
+			channel.write(e.toString().getBytes());
+		}
+	}
+
+	private void writeResult(List<Item> result) {
+		for(Item it : result){
+			if(null == it)
+				continue;
+			
+			writeOneItem(it);
+		}
+		
+		channel.write("END\r\n".getBytes());
+	}
+
+	private void writeOneItem(Item it) {
+		Cas cas = it.getCas();
+		byte[] data = it.getData();
+		int length = (data != null) ? data.length : 0;
+		if(null == cas)
+			channel.write(String.format("VALUE %s %d %d\r\n", it.getKey(), it.getFlags(), length).getBytes());
+		else
+			channel.write(String.format("VALUE %s %d %d %d\r\n", it.getKey(), it.getFlags(), length, cas.getUniquecas()).getBytes());
+		
+		if(length > 0)
+			channel.write(data);
+		
+		channel.write("\r\n".getBytes());
+	}
+
+	private List<Key> getKeys() {
+		List<Key> keys = new ArrayList<Key>(params.length);
+		for(int i = 0; i < params.length; i++){
+			Key k = getKey(params[i]);
+			if(null == k)
+				continue;
+			keys.add(k);
+		}
+		return keys;
+	}
+
+	private Key getKey(String key) {
+		if(null == key || key.length() == 0 )
+			return null;
+		
+		return new Key(key);
 	}
 }

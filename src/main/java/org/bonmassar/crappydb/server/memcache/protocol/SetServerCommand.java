@@ -20,6 +20,9 @@ package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
+import org.bonmassar.crappydb.server.exceptions.StorageException;
+import org.bonmassar.crappydb.server.storage.data.Item;
+import org.bonmassar.crappydb.server.storage.data.Key;
 
 //set <key> <flags> <exptime> <bytes> [noreply]\r\n
 public class SetServerCommand extends ServerCommand {
@@ -73,10 +76,40 @@ public class SetServerCommand extends ServerCommand {
 
 	@Override
 	public void execCommand() {
-		logger.debug("Exectued command set");
-		channel.write("pong!".getBytes());
-		channel.write("bla bla bla".getBytes());
-		channel.write("piripong".getBytes());
+		logger.debug("Executed command set");
+
+		Item it = new Item(getKey(), getPayload(), getFlags());
+		it.setExpire(getExpire());
+		try {
+			storage.set(it);
+			channel.write("STORED\r\n".getBytes());
+		} catch (StorageException e) {
+			channel.write(e.toString().getBytes());
+		}
+	}
+
+	private Long getExpire() {
+		try{
+			return Long.parseLong(params[SetServerCommand.EXPTIME_POS]);
+		}catch(NumberFormatException nfe){
+			return 0L;
+		}
+	}
+
+	private Integer getFlags() {
+		try{
+			return Integer.parseInt(params[SetServerCommand.FLAGS_POS]);
+		}catch(NumberFormatException nfe){
+			return 0;
+		}
+	}
+
+	private Key getKey() {
+		return new Key(params[SetServerCommand.KEY_POS]);
+	}
+
+	private byte[] getPayload() {
+		return payload;
 	}
 
 }

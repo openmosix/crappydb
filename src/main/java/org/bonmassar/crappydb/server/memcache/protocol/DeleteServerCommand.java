@@ -19,35 +19,58 @@
 package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
+import org.bonmassar.crappydb.server.exceptions.NotFoundException;
+import org.bonmassar.crappydb.server.exceptions.StorageException;
+import org.bonmassar.crappydb.server.storage.data.Key;
 
+// delete <key> [<time>] [noreply]\r\n
 public class DeleteServerCommand extends ServerCommand {
 
+	private static final int KEY_POS=0;
+	
 	public static String getCmdName() {
 		return "delete";
 	}
 
 	@Override
 	public void parseCommandParams(String commandParams) throws ErrorException {
-		// TODO Auto-generated method stub
-		
+		super.parseCommandParams(commandParams);
+		if(0 == params.length)
+			throw new ErrorException("Invalid number of parameters");
 	}
 
 	@Override
 	public int payloadContentLength() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void addPayloadContentPart(byte[] data) {
-		// TODO Auto-generated method stub
-		
+		throw new IllegalArgumentException();		
 	}
 
 	@Override
 	public void execCommand() {
-		// TODO Auto-generated method stub
+		Key k = getKey(params[DeleteServerCommand.KEY_POS]);
+		if(null == k)
+			channel.write("Invalid key\r\n".getBytes());
 		
+		try {
+			storage.delete(k);
+			channel.write("DELETED\r\n".getBytes());
+		} catch (NotFoundException e) {
+			channel.write(e.toString().getBytes());
+		} catch (StorageException e) {			
+			channel.write(e.toString().getBytes());
+		}
 	}
+	
+	private Key getKey(String key) {
+		if(null == key || key.length() == 0 )
+			return null;
+		
+		return new Key(key);
+	}
+
 	
 }

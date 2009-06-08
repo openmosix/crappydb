@@ -22,16 +22,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
+import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
 public class CommandFactory {
 	
 	private Map<String, Class<?>> commands;
+	private StorageAccessLayer sal;
 	
-	public CommandFactory() {
+	public CommandFactory(StorageAccessLayer sal) {
 		commands = new HashMap<String, Class<?>>();
 		commands.put(SetServerCommand.getCmdName(), SetServerCommand.class);
 		commands.put(GetServerCommand.getCmdName(), GetServerCommand.class);
 		commands.put(DeleteServerCommand.getCmdName(), DeleteServerCommand.class);
+		this.sal = sal;
 	}
 	
 	public ServerCommand getCommandFromCommandLine(String commandLine) throws ErrorException{
@@ -49,7 +52,10 @@ public class CommandFactory {
 		Class<?> handler = commands.get(cmd);
 		checkValidHandler(handler);
 		
-		return getNewInstance(handler);
+		ServerCommand serverCmd = getNewInstance(handler);
+		serverCmd.setStorage(sal);
+		
+		return serverCmd;
 	}
 
 	private ServerCommand getNewInstance(Class<?> handler) {

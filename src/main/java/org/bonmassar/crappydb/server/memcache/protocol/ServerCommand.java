@@ -47,5 +47,9 @@ public abstract class ServerCommand {
 	}
 	
 	public abstract void execCommand();
+
+	public void setStorage(StorageAccessLayer storage) {
+		this.storage = storage;
+	}
 	
 }
