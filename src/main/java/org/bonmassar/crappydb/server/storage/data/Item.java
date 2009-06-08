@@ -76,5 +76,9 @@ public class Item {
 		this.flags = flags;
 		this.storagekey = storagekey;
 	}
+
+	public Integer getFlags() {
+		return flags;
+	}
 	
 }

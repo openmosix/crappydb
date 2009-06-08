@@ -24,4 +24,8 @@ public class Cas {
 	public Cas(Long cas){
 		uniquecas = cas;
 	}
+
+	public Long getUniquecas() {
+		return uniquecas;
+	}
 }
