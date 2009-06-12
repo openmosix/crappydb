@@ -39,50 +39,70 @@ public class ServerCommandWriter implements OutputCommandWriter {
 		bufferList = new LinkedList<ByteBuffer>();
 	}
 	
-	public void write(byte[] data) {
-		synchronized(bufferList){
-			ByteBuffer bb = ByteBuffer.allocate(data.length);
-			bb.clear();
-			bb.put(data);
-			bb.flip();
-			bufferList.addLast(bb);
-
-			requestsDescriptor.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-		}
+	public void writeToOutstanding(byte[] data) {
+		addToQueue(newBufferItem(data));
 	}
 	
-	public void flushOnSocket() throws IOException {
+	public void writeToOutstanding(String text) {
+		if(null == text || 0 == text.length())
+			return;
+		
+		writeToOutstanding(text.getBytes());
+	}
+	
+	public void write() throws IOException {
 		SocketChannel sc = (SocketChannel)requestsDescriptor.channel();
 		if(!sc.isOpen()) {
 			logger.warn("write closed");
 			return;
 		}
 		
+		writeToSocketChannel(sc);
+	}
+	
+	private ByteBuffer newBufferItem(byte[] data) {
+		ByteBuffer bb = ByteBuffer.allocate(data.length);
+		bb.clear();
+		bb.put(data).flip();
+		return bb;
+	}
+
+	private void addToQueue(ByteBuffer bb) {
+		synchronized(bufferList){
+			bufferList.addLast(bb);
+			requestsDescriptor.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+		}
+	}
+
+	private void writeToSocketChannel(SocketChannel sc) throws IOException {
 		synchronized(bufferList){
 			if(0 == bufferList.size())
 				return;
 			
 			for(Iterator<ByteBuffer> bit = bufferList.iterator(); bit.hasNext();){
-				ByteBuffer buffer  = bit.next();
-				if(!flushOnSocket(sc, buffer))
+				if(!writeBufferElementToSocketChannel(sc, bit.next()))
 					break;
 				bit.remove();
 			}
 		}
 	}
-
-	private boolean flushOnSocket(SocketChannel sc, ByteBuffer buffer) throws IOException {
-		if(buffer.hasRemaining())
-			sc.write(buffer);
-		else 
+	
+	private boolean writeBufferElementToSocketChannel(SocketChannel sc, ByteBuffer buffer) throws IOException {
+		if(!buffer.hasRemaining())
 			return true;
 		
-		if(buffer.hasRemaining()) {
-			logger.debug("write blocked");
-			requestsDescriptor.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-			return false;
-		}
-		return true;
+		sc.write(buffer);
+		
+		return continueWritingIfCurrentCompleted(buffer);
+	}
+
+	private boolean continueWritingIfCurrentCompleted(ByteBuffer buffer) {
+		if(!buffer.hasRemaining()) 
+			return true;
+		
+		logger.debug("write blocked");
+		requestsDescriptor.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+		return false;
 	}
 
 }

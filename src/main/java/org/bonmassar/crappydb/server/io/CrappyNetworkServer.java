@@ -36,6 +36,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
 public class CrappyNetworkServer {
@@ -53,6 +54,7 @@ public class CrappyNetworkServer {
 	private int serverPort;
 	private LinkedBlockingQueue<ServerCommand> commandsQueue;
 	private ExecutorService commandsExecutor;
+	private CommandFactory commandFactory;
 
 	public class RemoteCommandCall implements Callable<Integer>
 	{
@@ -70,8 +72,9 @@ public class CrappyNetworkServer {
 		}
 	}
 	
-	public CrappyNetworkServer(int port) {
+	public CrappyNetworkServer(CommandFactory cmdFactory, int port) {
 		super();
+		commandFactory = cmdFactory;
 		serverPort = port;
 		initBackendThreads();
 	}
@@ -176,7 +179,7 @@ public class CrappyNetworkServer {
 	}
 
 	private void attachNewChannel(SelectionKey registeredSelectionKey, String connectionName) {
-		Connection connHandler = new Connection(registeredSelectionKey);
+		DBConnection connHandler = new DBConnection(registeredSelectionKey, commandFactory);
 		connHandler.setConnectionId(connectionName);
 		registeredSelectionKey.attach(connHandler);
 	}
@@ -209,7 +212,7 @@ public class CrappyNetworkServer {
 		if(!isOpAvailable(availOperations, SelectionKey.OP_READ))
 			return;
 		
-		Connection connHandler = getChannel(sk);
+		DBConnection connHandler = getChannel(sk);
 		ServerCommand gotIt = connHandler.doRead();
 		if(null != gotIt)
 			newCommand(gotIt);
@@ -227,7 +230,7 @@ public class CrappyNetworkServer {
 		if(!isOpAvailable(availOperations, SelectionKey.OP_WRITE))
 			return;
 
-		Connection connHandler = getChannel(sk);
+		DBConnection connHandler = getChannel(sk);
 		connHandler.doWrite();
 	}
 	
@@ -235,7 +238,7 @@ public class CrappyNetworkServer {
 		return (availOperations & reqOp) == reqOp;
 	}
 	
-	private Connection getChannel(SelectionKey sk){
-		return (Connection)sk.attachment();
+	private DBConnection getChannel(SelectionKey sk){
+		return (DBConnection)sk.attachment();
 	}
 }
