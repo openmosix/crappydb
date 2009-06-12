@@ -19,13 +19,17 @@
 package org.bonmassar.crappydb.server;
 
 import org.bonmassar.crappydb.server.io.CrappyNetworkServer;
+import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.bonmassar.crappydb.server.storage.memory.UnboundedMap;
  
 public class CrappyDBD {
 	
 	static public void main(String [] args)
 	{
 		int port = 11211;
-		CrappyNetworkServer newinstance = new CrappyNetworkServer(port);
+		CommandFactory cmdFactory = new CommandFactory(new UnboundedMap());
+
+		CrappyNetworkServer newinstance = new CrappyNetworkServer(cmdFactory, port);
 		(new HomerBoot()).splashScreen();
 		newinstance.serverSetup();
 		newinstance.start();
