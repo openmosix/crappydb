@@ -82,9 +82,9 @@ public class SetServerCommand extends ServerCommand {
 		it.setExpire(getExpire());
 		try {
 			storage.set(it);
-			channel.write("STORED\r\n".getBytes());
+			channel.writeToOutstanding("STORED\r\n".getBytes());
 		} catch (StorageException e) {
-			channel.write(e.toString().getBytes());
+			channel.writeToOutstanding(e.toString().getBytes());
 		}
 	}
 

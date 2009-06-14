@@ -62,9 +62,9 @@ public class GetServerCommand extends ServerCommand {
 			List<Item> result = storage.get(keys);
 			writeResult(result);
 		} catch (NotFoundException e) {
-			channel.write(e.toString().getBytes());
+			channel.writeToOutstanding(e.toString().getBytes());
 		} catch (StorageException e) {
-			channel.write(e.toString().getBytes());
+			channel.writeToOutstanding(e.toString().getBytes());
 		}
 	}
 
@@ -76,7 +76,7 @@ public class GetServerCommand extends ServerCommand {
 			writeOneItem(it);
 		}
 		
-		channel.write("END\r\n".getBytes());
+		channel.writeToOutstanding("END\r\n".getBytes());
 	}
 
 	private void writeOneItem(Item it) {
@@ -84,14 +84,14 @@ public class GetServerCommand extends ServerCommand {
 		byte[] data = it.getData();
 		int length = (data != null) ? data.length : 0;
 		if(null == cas)
-			channel.write(String.format("VALUE %s %d %d\r\n", it.getKey(), it.getFlags(), length).getBytes());
+			channel.writeToOutstanding(String.format("VALUE %s %d %d\r\n", it.getKey(), it.getFlags(), length).getBytes());
 		else
-			channel.write(String.format("VALUE %s %d %d %d\r\n", it.getKey(), it.getFlags(), length, cas.getUniquecas()).getBytes());
+			channel.writeToOutstanding(String.format("VALUE %s %d %d %d\r\n", it.getKey(), it.getFlags(), length, cas.getUniquecas()).getBytes());
 		
 		if(length > 0)
-			channel.write(data);
+			channel.writeToOutstanding(data);
 		
-		channel.write("\r\n".getBytes());
+		channel.writeToOutstanding("\r\n".getBytes());
 	}
 
 	private List<Key> getKeys() {
