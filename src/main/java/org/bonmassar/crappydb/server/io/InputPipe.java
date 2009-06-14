@@ -26,23 +26,66 @@ import java.nio.channels.SocketChannel;
 import org.apache.log4j.Logger;
 
 public class InputPipe {
-
-	private static final int maxChunkSize = 8 * 1024;
+	private static final byte CR = 0x0D;
+	private static final byte LF = 0x0A;
+	protected static final int maxChunkSize = 8 * 1024;
+	
 	private SelectionKey requestsDescriptor;
-	private ByteBuffer buffer;
+	protected ByteBuffer buffer;
+	private int lastLengthRead;
 	private Logger logger = Logger.getLogger(InputPipe.class);
 	
 	public InputPipe(SelectionKey requestsDescriptor){
 		this.requestsDescriptor = requestsDescriptor;
 		buffer = ByteBuffer.allocate(InputPipe.maxChunkSize);
+		lastLengthRead = 0;
 	}
 	
-	public void getDataFromRemote() throws IOException{
+	public void precacheDataFromRemote() throws IOException{
 		SocketChannel channel = (SocketChannel) requestsDescriptor.channel();
-		if (!channel.isOpen())
+		if (invalidSocket(channel))
 			throw new IOException("Read descriptor is closed");
 
 		getReceivedData(channel);
+	}
+	
+	public boolean noDataAvailable(){
+		return null == buffer || 0 == buffer.remaining() || lastLengthRead <= 0 ;
+	}
+	
+	public String readTextLine() {
+		int crlfposition = getEndOfLinePosition();
+		if(-1 == crlfposition)
+			return "";
+
+		byte[] rawString = getBytes(crlfposition+1-buffer.position());
+		if(null == rawString || 0 == rawString.length)
+			return "";
+		
+		return new String(rawString);
+	}
+	
+	public String getRemainingDataAsText() {
+		byte[] data = getBytes(buffer.remaining());
+		if(null!=data)
+			return new String(data);
+		
+		return "";
+	}
+	
+	public byte[] getBytes(int nBytes){
+		if(nBytes <= 0 )
+			return new byte[0];
+		
+		int nBytesToRead = (nBytes > buffer.remaining()) ? buffer.remaining() : nBytes;
+		
+		byte[] tmpBuffer = new byte[nBytesToRead];
+		buffer.get(tmpBuffer);
+		return tmpBuffer;
+	}
+	
+	protected boolean invalidSocket(SocketChannel channel) {
+		return null == channel || !channel.isOpen();
 	}
 	
 	private void getReceivedData(SocketChannel channel) throws IOException {
@@ -55,16 +98,42 @@ public class InputPipe {
 	
 	private boolean read(SocketChannel channel) throws IOException{
 		buffer.clear();
-		int len = channel.read(buffer);
-		logger.debug(String.format("read len=%d", len));
-		checkInvalidRead(len);
+		lastLengthRead = channelRead(channel);
+		logger.debug(String.format("read len=%d", lastLengthRead));
+		checkInvalidRead();
 		
-		return len > 0;
+		return lastLengthRead > 0;
+	}
+
+	protected Integer channelRead(SocketChannel channel) throws IOException {
+		//Mockito does not stub properly function that returns boolean/int
+		try{
+			return channel.read(buffer);
+		}catch(java.nio.BufferOverflowException boe){
+			logger.fatal("Buffer overflow writing data into chunk buffer", boe);
+			throw new IOException("Chunk too large");
+		}
 	}
 	
-	private void checkInvalidRead(int len) throws IOException{
-		if (len < 0)
+	private void checkInvalidRead() throws IOException{
+		if (lastLengthRead < 0)
 			throw new IOException("Error reading from stream");
 	}
+	
+	private int getEndOfLinePosition(){
+		if(brokenLinePacketBeginning())
+			return 0;
+		
+		for(int i = buffer.position()+1; i < buffer.limit(); i++){
+			if(InputPipe.LF == buffer.get(i) && InputPipe.CR == buffer.get(i-1))
+				return i;
+		}
+		return -1;
+	}
+
+	private boolean brokenLinePacketBeginning() {
+		return buffer.position() == 0 && InputPipe.LF == buffer.get(0);
+	}
+
 
 }
