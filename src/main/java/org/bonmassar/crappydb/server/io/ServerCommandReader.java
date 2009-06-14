@@ -19,129 +19,109 @@
 package org.bonmassar.crappydb.server.io;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
-import org.bonmassar.crappydb.server.storage.memory.UnboundedMap;
 
 public class ServerCommandReader {
-	private static final byte CR = 0x0D;
-	private static final byte LF = 0x0A;
-	private static final int buffSize = 8 * 1024;
-	private SelectionKey requestsDescriptor;
-	private ByteBuffer buffer;
-	private int contentLength;
+	private int payloadContentLength;
 	private ServerCommand decodedCmd;
-	private static CommandFactory cmdFactory = new CommandFactory(new UnboundedMap());
 
-	private Logger logger = Logger.getLogger(ServerCommandReader.class); 
+	private Logger logger = Logger.getLogger(ServerCommandReader.class);
+	private InputPipe input;
+	private CommandFactory commandFactory; 
 	
-	public ServerCommandReader(SelectionKey requestsDescriptor) {
-		this.requestsDescriptor = requestsDescriptor;
-		buffer = ByteBuffer.allocate(ServerCommandReader.buffSize);
-		contentLength = 0;
+	public ServerCommandReader(SelectionKey requestsDescriptor, CommandFactory cmdFactory) {
+		payloadContentLength = 0;
 		decodedCmd = null;
+		commandFactory = cmdFactory;
+		input = new InputPipe(requestsDescriptor);
 	}
 
 	public ServerCommand decodeCommand() throws CrappyDBException, IOException {
-		SocketChannel channel = (SocketChannel) requestsDescriptor.channel();
-		if (!channel.isOpen())
-			throw new IOException("Read descriptor is closed");
-			
-		getReceivedData(channel);
+		input.precacheDataFromRemote();
 		return decodeIncomingData();
-	}
-	
-	private void getReceivedData(SocketChannel channel) throws IOException {
-		boolean executed = read(channel);
-		if (!executed) 
-			return;
-		
-		buffer.flip();
-	}
-	
-	private boolean read(SocketChannel channel) throws IOException{
-		buffer.clear();
-		int len = channel.read(buffer);
-		logger.debug(String.format("read len=%d", len));
-		checkInvalidRead(len);
-		
-		return len > 0;
-	}
-	
-	private void checkInvalidRead(int len) throws IOException{
-		if (len < 0)
-			throw new IOException("Error reading from stream");
 	}
 
 	private ServerCommand decodeIncomingData() throws ErrorException {
-		if (null == buffer || buffer.remaining() == 0) 
+		if (input.noDataAvailable() || !decodeCommandFromIncomingData())
 			return null;
-		
-		if(null == decodedCmd)
-			decodeCommandFromIncomingData();
-		
-		if(null == decodedCmd)
-			return null;
-				
-		if(0 == contentLength)
-			return reset();
-		
-		if(buffer.remaining() > 0)
-			decodedCmd.addPayloadContentPart(getPayloadData());
-		
-		if(0 == contentLength)
-			return reset();
-		
-		return null;
+						
+		return commandRead();
 	}
 	
-	private void decodeCommandFromIncomingData() throws ErrorException {
-		int crlfpos = getEndOfLinePosition();
-		if(-1 == crlfpos)
-			return;
+	private boolean decodeCommandFromIncomingData() throws ErrorException {
+		if(commandAlreadyDecoded())
+			return true;
 		
-		String receivedCommand = readStringStopCrLf(crlfpos);		
-		logger.debug("cmd: "+receivedCommand);
+		String receivedCommand = input.readTextLine();		
+		if(null == receivedCommand || 0 == receivedCommand.length())
+			return false;
 		
-		decodedCmd = cmdFactory.getCommandFromCommandLine(receivedCommand);	
-		contentLength = decodedCmd.payloadContentLength();
+		getCommandFromCommandLine(receivedCommand);
+		return true;
 	}
 
-	private ServerCommand reset() {
-		contentLength = 0;
+	private void getCommandFromCommandLine(String receivedCommand)
+			throws ErrorException {
+		logger.debug("cmd: "+receivedCommand);
+		
+		decodedCmd = commandFactory.getCommandFromCommandLine(removeCrLfOnTail(receivedCommand));	
+		payloadContentLength = decodedCmd.payloadContentLength();
+	}
+
+	private boolean commandAlreadyDecoded() {
+		return null != decodedCmd;
+	}
+
+	private ServerCommand commandRead() {
+		if(payloadReadCompleted())
+			return commandReadCompleted();
+		
+		return readCommandPayload();
+	}
+
+	private ServerCommand readCommandPayload() {
+		if(input.noDataAvailable())
+			return null;
+			
+		decodedCmd.addPayloadContentPart(getPayloadData());
+		
+		if(payloadReadCompleted())
+			return commandReadCompleted();
+	
+		return null;
+	}
+
+	private boolean payloadReadCompleted() {
+		return 0 == payloadContentLength;
+	}
+	
+
+	private String removeCrLfOnTail(String receivedCommand) {
+		if(null== receivedCommand || receivedCommand.length()<2)
+			return receivedCommand;
+			
+		return receivedCommand.trim().replace("\r\n", "");	
+	}
+
+	private ServerCommand commandReadCompleted() {
+		payloadContentLength = 0;
 		ServerCommand cmd = decodedCmd;
 		decodedCmd = null;
 		return cmd;
 	}
 	
-	private byte[] getPayloadData() {
-		int toRead = (contentLength > buffer.remaining()) ? buffer.remaining() : contentLength;
-		contentLength -= toRead;
-		byte[] read = new byte[toRead];
+	private byte[] getPayloadData() {		
+		byte[] rawdata = input.getBytes(payloadContentLength);
+		if(null == rawdata)
+			return new byte[0];
 		
-		buffer.get(read);
-		
-		return read;
-	}
-
-	private String readStringStopCrLf(int crlfpos) {
-		byte[] bytebuffer = new byte[crlfpos+1];
-		buffer.get(bytebuffer, 0, crlfpos+1);
-		return new String(bytebuffer);
-	}
-
-	private int getEndOfLinePosition(){
-		for(int i = 0; i < buffer.remaining()-1; i++){
-			if(CR == buffer.get(i) && LF == buffer.get(i+1))
-				return i+1;
-		}
-		return -1;
+		payloadContentLength -= rawdata.length;
+		return rawdata;
 	}
 }
