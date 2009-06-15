@@ -24,7 +24,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
@@ -48,7 +48,7 @@ public class TestInputPipePrecacheDataFromRemote {
 	
 	@Test
 	public void testChannelIsNull() {
-		stub(fakeSelector.channel()).toReturn(null);
+		when(fakeSelector.channel()).thenReturn(null);
 		
 		try{
 			input.precacheDataFromRemote();
@@ -62,7 +62,7 @@ public class TestInputPipePrecacheDataFromRemote {
 	
 	@Test
 	public void testChannelIsClosed() {
-		stub(fakeSelector.channel()).toReturn(socketchannel);
+		when(fakeSelector.channel()).thenReturn(socketchannel);
 		
 		try{
 			input.precacheDataFromRemote();
@@ -77,7 +77,7 @@ public class TestInputPipePrecacheDataFromRemote {
 	@Test
 	public void testErrorWhileReading() {
 		input.openChannel();
-		stub(fakeSelector.channel()).toReturn(socketchannel);
+		when(fakeSelector.channel()).thenReturn(socketchannel);
 		try {
 			input.precacheDataFromRemote();
 			fail();
@@ -92,7 +92,7 @@ public class TestInputPipePrecacheDataFromRemote {
 	public void testReadWithNoData() throws IOException {
 		input.openChannel();
 		input.addChunk("".getBytes());
-		stub(fakeSelector.channel()).toReturn(socketchannel);
+		when(fakeSelector.channel()).thenReturn(socketchannel);
 		
 		input.precacheDataFromRemote();
 		assertTrue(input.noDataAvailable());
@@ -103,7 +103,7 @@ public class TestInputPipePrecacheDataFromRemote {
 		input.openChannel();
 		input.addChunk("A".getBytes());
 
-		stub(fakeSelector.channel()).toReturn(socketchannel);
+		when(fakeSelector.channel()).thenReturn(socketchannel);
 		input.precacheDataFromRemote();
 		assertFalse(input.noDataAvailable());
 		
@@ -117,7 +117,7 @@ public class TestInputPipePrecacheDataFromRemote {
 		input.openChannel();
 		input.addChunk("This is a string".getBytes());
 
-		stub(fakeSelector.channel()).toReturn(socketchannel);
+		when(fakeSelector.channel()).thenReturn(socketchannel);
 		input.precacheDataFromRemote();
 		
 		assertTrue(input.buffer.hasRemaining());
@@ -135,7 +135,7 @@ public class TestInputPipePrecacheDataFromRemote {
 		input.addChunk("ring that sh".getBytes());
 		input.addChunk( "ould be concatenated\r\n".getBytes());
 
-		stub(fakeSelector.channel()).toReturn(socketchannel);
+		when(fakeSelector.channel()).thenReturn(socketchannel);
 		input.precacheDataFromRemote();
 		input.precacheDataFromRemote();
 		input.precacheDataFromRemote();
@@ -153,7 +153,7 @@ public class TestInputPipePrecacheDataFromRemote {
 		input.openChannel();
 		input.addChunk(longLongText().getBytes());
 
-		stub(fakeSelector.channel()).toReturn(socketchannel);
+		when(fakeSelector.channel()).thenReturn(socketchannel);
 		input.precacheDataFromRemote();
 		
 		assertTrue(input.buffer.hasRemaining());
@@ -169,7 +169,7 @@ public class TestInputPipePrecacheDataFromRemote {
 		input.openChannel();
 		input.addChunk((longLongText()+"A").getBytes());
 
-		stub(fakeSelector.channel()).toReturn(socketchannel);
+		when(fakeSelector.channel()).thenReturn(socketchannel);
 		try{
 			input.precacheDataFromRemote();
 			fail();
