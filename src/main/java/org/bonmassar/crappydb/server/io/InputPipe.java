@@ -74,14 +74,17 @@ public class InputPipe {
 	}
 	
 	public byte[] getBytes(int nBytes){
-		if(nBytes <= 0 )
+		if( nBytes <= 0 )
 			return new byte[0];
 		
-		int nBytesToRead = (nBytes > buffer.remaining()) ? buffer.remaining() : nBytes;
-		
+		int nBytesToRead = getMaximumBytesLength(nBytes);
 		byte[] tmpBuffer = new byte[nBytesToRead];
 		buffer.get(tmpBuffer);
 		return tmpBuffer;
+	}
+
+	private int getMaximumBytesLength(int nBytes) {
+		return (nBytes > buffer.remaining()) ? buffer.remaining() : nBytes;
 	}
 	
 	protected boolean invalidSocket(SocketChannel channel) {
