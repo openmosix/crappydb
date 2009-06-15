@@ -20,6 +20,8 @@ package org.bonmassar.crappydb.server.io;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
@@ -31,8 +33,8 @@ public class ServerCommandReader {
 	private int payloadContentLength;
 	private ServerCommand decodedCmd;
 
+	protected InputPipe input;
 	private Logger logger = Logger.getLogger(ServerCommandReader.class);
-	private InputPipe input;
 	private CommandFactory commandFactory; 
 	
 	public ServerCommandReader(SelectionKey requestsDescriptor, CommandFactory cmdFactory) {
@@ -42,12 +44,22 @@ public class ServerCommandReader {
 		input = new InputPipe(requestsDescriptor);
 	}
 
-	public ServerCommand decodeCommand() throws CrappyDBException, IOException {
+	public List<ServerCommand> decodeCommand() throws CrappyDBException, IOException {
 		input.precacheDataFromRemote();
 		return decodeIncomingData();
 	}
 
-	private ServerCommand decodeIncomingData() throws ErrorException {
+	private List<ServerCommand> decodeIncomingData() throws ErrorException {
+		List<ServerCommand> commands = new LinkedList<ServerCommand>();
+
+		ServerCommand cmd = null;
+		while(null != (cmd = decodeOneCommand()))
+			commands.add(cmd);
+		
+		return commands;
+	}
+	
+	private ServerCommand decodeOneCommand() throws ErrorException {
 		if (input.noDataAvailable() || !decodeCommandFromIncomingData())
 			return null;
 						

@@ -20,6 +20,7 @@ package org.bonmassar.crappydb.server.io;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
@@ -45,11 +46,13 @@ public class DBConnection {
 			commandCloser = new ServerCommandCloser(selector);
 		}
 		
-		public ServerCommand doRead()
+		public List<ServerCommand> doRead()
 		{
 			try {
-				ServerCommand cmd = commandReader.decodeCommand();
-				return injectWriter(cmd);
+				List<ServerCommand> cmdlist = commandReader.decodeCommand();
+				for(ServerCommand cmd : cmdlist)
+					injectWriter(cmd);
+				return cmdlist;
 			} catch (CrappyDBException e) {
 				commandWriter.writeToOutstanding(e.toString().getBytes());
 			} catch (IOException e) {

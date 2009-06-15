@@ -29,6 +29,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -213,9 +214,10 @@ public class CrappyNetworkServer {
 			return;
 		
 		DBConnection connHandler = getChannel(sk);
-		ServerCommand gotIt = connHandler.doRead();
-		if(null != gotIt)
-			newCommand(gotIt);
+		List<ServerCommand> cmdlist = connHandler.doRead();
+		if(null != cmdlist)
+			for(ServerCommand cmd : cmdlist)
+				newCommand(cmd);
 	}
  
 	private void newCommand(ServerCommand cmd) {
