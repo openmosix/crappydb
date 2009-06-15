@@ -59,6 +59,18 @@ public class TestInputGetBytes {
 	}
 	
 	@Test
+	public void testReadWhenEmpty() throws IOException {
+		input.addChunk("\0\0\0\0".getBytes());
+		input.precacheDataFromRemote();
+		byte[] result = input.getBytes(4);
+		assertNotNull(result);
+		assertEquals("\0\0\0\0", new String(result));
+		result = input.getBytes(4);
+		assertEquals(0, result.length);
+		assertTrue(input.noDataAvailable());
+	}
+	
+	@Test
 	public void testReadMoreBytesThanAvailables() throws IOException {
 		input.addChunk("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0".getBytes());
 		input.precacheDataFromRemote();
@@ -102,5 +114,17 @@ public class TestInputGetBytes {
 		assertEquals(32, result.length);
 		assertEquals("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",new String(result) );
 		assertTrue(input.noDataAvailable());
+	}
+	
+	@Test
+	public void testMultipleReads() throws IOException {
+		input.addChunk("taralilalla\r\nparalilalla\r\n".getBytes());
+		input.precacheDataFromRemote();
+		assertEquals("taralilall", new String(input.getBytes( 10 )));
+		assertEquals("a\r\nparal", new String(input.getBytes( 8 )));
+		assertEquals("ila", new String(input.getBytes( 3 )));
+		assertEquals("lla\r", new String(input.getBytes( 4 )));
+		
+		assertFalse(input.noDataAvailable());
 	}
 }
