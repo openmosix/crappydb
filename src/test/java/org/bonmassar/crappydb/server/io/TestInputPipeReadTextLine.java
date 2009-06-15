@@ -53,6 +53,7 @@ public class TestInputPipeReadTextLine {
 		input.precacheDataFromRemote();
 		assertEquals("ma che bel castello marcondirondirondello!\r\n", input.readTextLine());
 		assertTrue(input.noDataAvailable());
+		assertEquals("", input.getRemainingDataAsText());
 	}
 	
 	@Test
@@ -61,6 +62,7 @@ public class TestInputPipeReadTextLine {
 		input.precacheDataFromRemote();
 		assertEquals("ma che bel castello marcondirondirondello!\r\n", input.readTextLine());
 		assertFalse(input.noDataAvailable());
+		assertEquals("MiaoMiaoMiaoooooo", input.getRemainingDataAsText());
 	}
 	
 	@Test
@@ -69,6 +71,7 @@ public class TestInputPipeReadTextLine {
 		input.precacheDataFromRemote();
 		assertEquals("ma che bel castello marcondirondirondello!\r\n", input.readTextLine());
 		assertFalse(input.noDataAvailable());
+		assertEquals("MiaoMiaoMiaoooooo\r\n", input.getRemainingDataAsText());
 	}
 	
 	@Test
@@ -78,6 +81,8 @@ public class TestInputPipeReadTextLine {
 		assertEquals("ma che bel castello marcondirondirondello!\r\n", input.readTextLine());
 		assertFalse(input.noDataAvailable());
 		assertEquals("MiaoMiaoMiaoooooo\r\n", input.readTextLine());
+		assertTrue(input.noDataAvailable());
+		assertEquals("", input.getRemainingDataAsText());
 	}
 	
 	@Test
