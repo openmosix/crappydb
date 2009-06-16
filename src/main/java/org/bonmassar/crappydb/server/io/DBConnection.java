@@ -53,8 +53,6 @@ public class DBConnection {
 				for(ServerCommand cmd : cmdlist)
 					injectWriter(cmd);
 				return cmdlist;
-			} catch (CrappyDBException e) {
-				commandWriter.writeToOutstanding(e.toString().getBytes());
 			} catch (IOException e) {
 				logger.error("Error reading remote data", e);
 				commandCloser.closeConnection();

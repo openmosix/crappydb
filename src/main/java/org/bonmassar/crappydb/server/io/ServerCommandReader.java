@@ -24,32 +24,86 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
-import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
 public class ServerCommandReader {
-	private int payloadContentLength;
-	private ServerCommand decodedCmd;
+	
+	private class ServerCommandFragment {
+		private CommandFactory commandFactory; 
+
+		private StringBuilder commandLine;
+		private int payloadContentLength;
+		private ServerCommand decodedCmd;
+		
+		ServerCommandFragment(CommandFactory factory) {
+			commandFactory = factory;
+			reset();
+		}
+		
+		public void reset() {
+			payloadContentLength = 0;
+			decodedCmd = null;
+			commandLine = new StringBuilder();
+		}
+		
+		public void getCommandFromCommandLine() {
+			String receivedCommand = commandLine.toString();
+			logger.debug("cmd: "+receivedCommand);
+			
+			decodedCmd = commandFactory.getCommandFromCommandLine(removeCrLfOnTail(receivedCommand));	
+			payloadContentLength = decodedCmd.payloadContentLength();
+		}
+
+		public boolean commandAlreadyDecoded() {
+			return null != decodedCmd;
+		}
+		
+		public boolean payloadReadCompleted() {
+			return 0 == payloadContentLength;
+		}
+		
+		public ServerCommand getCommand() {
+			return decodedCmd;
+		}
+
+		public int getContentLength() {
+			return payloadContentLength;
+		}
+		
+		public void addCommandLineFragment(String line){
+			if(null == line)
+				return;
+			
+			commandLine.append(line);
+		}
+		
+		public void addPayloadContentPart(byte[] data){
+			decodedCmd.addPayloadContentPart(data);
+			payloadContentLength -= data.length;
+		}
+
+		public boolean isCommandLineCompleted() {
+			return commandLine.length() > 0 && commandLine.indexOf("\r\n") >= 0;
+		}
+		
+	}
 
 	protected InputPipe input;
 	private Logger logger = Logger.getLogger(ServerCommandReader.class);
-	private CommandFactory commandFactory; 
+	private ServerCommandFragment lastCommand;
 	
 	public ServerCommandReader(SelectionKey requestsDescriptor, CommandFactory cmdFactory) {
-		payloadContentLength = 0;
-		decodedCmd = null;
-		commandFactory = cmdFactory;
 		input = new InputPipe(requestsDescriptor);
+		lastCommand = new ServerCommandFragment(cmdFactory);
 	}
 
-	public List<ServerCommand> decodeCommand() throws CrappyDBException, IOException {
+	public List<ServerCommand> decodeCommand() throws IOException{
 		input.precacheDataFromRemote();
 		return decodeIncomingData();
 	}
 
-	private List<ServerCommand> decodeIncomingData() throws ErrorException {
+	private List<ServerCommand> decodeIncomingData() {
 		List<ServerCommand> commands = new LinkedList<ServerCommand>();
 
 		ServerCommand cmd = null;
@@ -59,39 +113,27 @@ public class ServerCommandReader {
 		return commands;
 	}
 	
-	private ServerCommand decodeOneCommand() throws ErrorException {
+	private ServerCommand decodeOneCommand() {
 		if (input.noDataAvailable() || !decodeCommandFromIncomingData())
 			return null;
 						
 		return commandRead();
 	}
 	
-	private boolean decodeCommandFromIncomingData() throws ErrorException {
-		if(commandAlreadyDecoded())
+	private boolean decodeCommandFromIncomingData() {
+		if(lastCommand.commandAlreadyDecoded())
 			return true;
 		
-		String receivedCommand = input.readTextLine();		
-		if(null == receivedCommand || 0 == receivedCommand.length())
+		lastCommand.addCommandLineFragment(input.readTextLine());
+		if(!lastCommand.isCommandLineCompleted())
 			return false;
 		
-		getCommandFromCommandLine(receivedCommand);
+		lastCommand.getCommandFromCommandLine();
 		return true;
 	}
 
-	private void getCommandFromCommandLine(String receivedCommand)
-			throws ErrorException {
-		logger.debug("cmd: "+receivedCommand);
-		
-		decodedCmd = commandFactory.getCommandFromCommandLine(removeCrLfOnTail(receivedCommand));	
-		payloadContentLength = decodedCmd.payloadContentLength();
-	}
-
-	private boolean commandAlreadyDecoded() {
-		return null != decodedCmd;
-	}
-
 	private ServerCommand commandRead() {
-		if(payloadReadCompleted())
+		if(lastCommand.payloadReadCompleted())
 			return commandReadCompleted();
 		
 		return readCommandPayload();
@@ -101,18 +143,13 @@ public class ServerCommandReader {
 		if(input.noDataAvailable())
 			return null;
 			
-		decodedCmd.addPayloadContentPart(getPayloadData());
+		lastCommand.addPayloadContentPart(getPayloadData());
 		
-		if(payloadReadCompleted())
+		if(lastCommand.payloadReadCompleted())
 			return commandReadCompleted();
 	
 		return null;
-	}
-
-	private boolean payloadReadCompleted() {
-		return 0 == payloadContentLength;
-	}
-	
+	}	
 
 	private String removeCrLfOnTail(String receivedCommand) {
 		if(null== receivedCommand || receivedCommand.length()<2)
@@ -122,18 +159,16 @@ public class ServerCommandReader {
 	}
 
 	private ServerCommand commandReadCompleted() {
-		payloadContentLength = 0;
-		ServerCommand cmd = decodedCmd;
-		decodedCmd = null;
+		ServerCommand cmd = lastCommand.getCommand();
+		lastCommand.reset();
 		return cmd;
 	}
 	
 	private byte[] getPayloadData() {		
-		byte[] rawdata = input.getBytes(payloadContentLength);
+		byte[] rawdata = input.getBytes(lastCommand.getContentLength());
 		if(null == rawdata)
 			return new byte[0];
 		
-		payloadContentLength -= rawdata.length;
 		return rawdata;
 	}
 }
