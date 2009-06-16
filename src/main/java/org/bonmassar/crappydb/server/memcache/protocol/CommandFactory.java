@@ -18,6 +18,7 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +38,15 @@ public class CommandFactory {
 		this.sal = sal;
 	}
 	
-	public ServerCommand getCommandFromCommandLine(String commandLine) throws ErrorException{
+	public ServerCommand getCommandFromCommandLine(String commandLine) {
+		try {
+			return findCommandFromCommandLine(commandLine);
+		} catch (ErrorException e) {
+			return new ExceptionCommand(e);
+		}
+	}
+	
+	private ServerCommand findCommandFromCommandLine(String commandLine) throws ErrorException{
 		if(null == commandLine || commandLine.length() == 0)
 			checkInvalidCommand(null);
 		
@@ -92,6 +101,10 @@ public class CommandFactory {
 
 	private String getCommandParams(String commandLine) {
 		return commandLine.substring(commandLine.indexOf(' ')+1);
+	}
+
+	public ServerCommand createErrorCommand(Exception e) {
+		return new ExceptionCommand(new ErrorException(e.getMessage()));
 	}
 	
 }
