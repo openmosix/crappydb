@@ -307,4 +307,26 @@ public class TestServerCommandReader {
 		assertEquals(1, cmds2.size());
 		assertEquals(command2, cmds2.get(0));
 	}
+	
+	@Test
+	public void testCrappyDataBetweenCommands() throws IOException{
+		when(input.noDataAvailable()).thenReturn(false, false, false, true);
+		when(input.readTextLine()).thenReturn("get testkey noreply\r\n     ", "     set testkey 888 0 20\r\n      ");
+		when(input.getBytes(22)).thenReturn("aaaabbbbccccddddeeee\r\n".getBytes());
+		
+		ServerCommand command1 = mock(ServerCommand.class);
+		when(commandFactory.getCommandFromCommandLine("get testkey noreply")).thenReturn(command1);
+		when(command1.payloadContentLength()).thenReturn(0);
+		ServerCommand command2 = mock(ServerCommand.class);
+		when(commandFactory.getCommandFromCommandLine("set testkey 888 0 20")).thenReturn(command2);
+		when(command2.payloadContentLength()).thenReturn(22);
+				
+		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		assertEquals(2, cmds.size());
+		assertEquals(command1, cmds.get(0));
+		assertEquals(command2, cmds.get(1));
+		verify(input, times(1)).precacheDataFromRemote();
+		verify(command2, times(1)).addPayloadContentPart(aryEq("aaaabbbbccccddddeeee\r\n".getBytes()));
+
+	}
 }
