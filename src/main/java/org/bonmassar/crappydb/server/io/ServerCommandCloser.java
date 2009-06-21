@@ -26,18 +26,15 @@ import org.apache.log4j.Logger;
 
 public class ServerCommandCloser {
 
+	protected DBConnectionStatus state;
 	private Logger logger = Logger.getLogger(ServerCommandCloser.class);
-	private DBConnectionStatus state;
 	private SelectionKey selector;
 
-	private enum DBConnectionStatus{
-		OPENED,
-		CLOSED;
-	}
+	protected enum DBConnectionStatus{ OPENED, CLOSED; }
 
 	public ServerCommandCloser(SelectionKey selector){
 		state = DBConnectionStatus.OPENED;
-
+		this.selector = selector;
 	}
 	
 	public void closeConnection() {
@@ -51,20 +48,32 @@ public class ServerCommandCloser {
 	}
 
 	private void closeSocketChannel(SocketChannel sc) {
-		if(!sc.isOpen()) {
+		if(!isChannelOpen(sc)) {
 			logger.warn("Connection already closed");
 			return;
 		}
 
 		logger.debug("Closing connection");
+		closeChannel(sc);
+	}
+
+	private void closeChannel(SocketChannel sc) {
 		try {
-            sc.close();
-            selector.selector().wakeup();
-            selector.attach(null);
+            closeDescriptor(sc);
         }
 		catch(IOException ce){
-			logger.error("close failed");
+			logger.error("close failed", ce);
 		}
+	}
+
+	protected void closeDescriptor(SocketChannel sc) throws IOException {
+		sc.close();
+		selector.selector().wakeup();
+		selector.attach(null);
+	}
+	
+	protected boolean isChannelOpen(SocketChannel sc){
+		return null != sc && sc.isOpen();
 	}
 	
 }

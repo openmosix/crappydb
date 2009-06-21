@@ -23,74 +23,12 @@ import java.nio.channels.SelectionKey;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
 public class ServerCommandReader {
-	
-	private class ServerCommandFragment {
-		private CommandFactory commandFactory; 
-
-		private StringBuilder commandLine;
-		private int payloadContentLength;
-		private ServerCommand decodedCmd;
-		
-		ServerCommandFragment(CommandFactory factory) {
-			commandFactory = factory;
-			reset();
-		}
-		
-		public void reset() {
-			payloadContentLength = 0;
-			decodedCmd = null;
-			commandLine = new StringBuilder();
-		}
-		
-		public void getCommandFromCommandLine() {
-			String receivedCommand = commandLine.toString();
-			logger.debug("cmd: "+receivedCommand);
-			
-			decodedCmd = commandFactory.getCommandFromCommandLine(removeCrLfOnTail(receivedCommand));	
-			payloadContentLength = decodedCmd.payloadContentLength();
-		}
-
-		public boolean commandAlreadyDecoded() {
-			return null != decodedCmd;
-		}
-		
-		public boolean payloadReadCompleted() {
-			return 0 == payloadContentLength;
-		}
-		
-		public ServerCommand getCommand() {
-			return decodedCmd;
-		}
-
-		public int getContentLength() {
-			return payloadContentLength;
-		}
-		
-		public void addCommandLineFragment(String line){
-			if(null == line)
-				return;
-			
-			commandLine.append(line);
-		}
-		
-		public void addPayloadContentPart(byte[] data){
-			decodedCmd.addPayloadContentPart(data);
-			payloadContentLength -= data.length;
-		}
-
-		public boolean isCommandLineCompleted() {
-			return commandLine.length() > 0 && commandLine.indexOf("\r\n") >= 0;
-		}
-		
-	}
 
 	protected InputPipe input;
-	private Logger logger = Logger.getLogger(ServerCommandReader.class);
 	private ServerCommandFragment lastCommand;
 	
 	public ServerCommandReader(SelectionKey requestsDescriptor, CommandFactory cmdFactory) {
@@ -124,12 +62,7 @@ public class ServerCommandReader {
 		if(lastCommand.commandAlreadyDecoded())
 			return true;
 		
-		lastCommand.addCommandLineFragment(input.readTextLine());
-		if(!lastCommand.isCommandLineCompleted())
-			return false;
-		
-		lastCommand.getCommandFromCommandLine();
-		return true;
+		return lastCommand.addCommandLineFragment(input.readTextLine());
 	}
 
 	private ServerCommand commandRead() {
@@ -150,13 +83,6 @@ public class ServerCommandReader {
 	
 		return null;
 	}	
-
-	private String removeCrLfOnTail(String receivedCommand) {
-		if(null== receivedCommand || receivedCommand.length()<2)
-			return receivedCommand;
-			
-		return receivedCommand.trim().replace("\r\n", "");	
-	}
 
 	private ServerCommand commandReadCompleted() {
 		ServerCommand cmd = lastCommand.getCommand();

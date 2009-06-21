@@ -28,9 +28,9 @@ import java.util.LinkedList;
 import org.apache.log4j.Logger;
 
 public class ServerCommandWriter implements OutputCommandWriter {
-	
-	private LinkedList<ByteBuffer> bufferList;
+
 	private SelectionKey requestsDescriptor;
+	protected LinkedList<ByteBuffer> bufferList;
 	
 	private Logger logger = Logger.getLogger(ServerCommandWriter.class);
 	
@@ -40,24 +40,31 @@ public class ServerCommandWriter implements OutputCommandWriter {
 	}
 	
 	public void writeToOutstanding(byte[] data) {
+		if(null == data || 0 == data.length)
+			return;
+
 		addToQueue(newBufferItem(data));
 	}
 	
-	public void writeToOutstanding(String text) {
-		if(null == text || 0 == text.length())
-			return;
-		
+	public void writeToOutstanding(String text) {		
 		writeToOutstanding(text.getBytes());
 	}
 	
 	public void write() throws IOException {
+		requestsDescriptor.interestOps(SelectionKey.OP_READ);
+
 		SocketChannel sc = (SocketChannel)requestsDescriptor.channel();
-		if(!sc.isOpen()) {
-			logger.warn("write closed");
-			return;
-		}
+		assertOpenChannel(sc); 
 		
 		writeToSocketChannel(sc);
+	}
+
+	protected void assertOpenChannel(SocketChannel sc) throws IOException {
+		if(null != sc && sc.isOpen())
+			return;
+		
+		logger.warn("write closed");
+		throw new IOException("Channel closed while writing");
 	}
 	
 	private ByteBuffer newBufferItem(byte[] data) {

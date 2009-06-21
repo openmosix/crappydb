@@ -23,7 +23,6 @@ import java.nio.channels.SelectionKey;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
@@ -68,7 +67,6 @@ public class DBConnection {
 			
 		public void doWrite() {
 			logger.debug("write ready");
-			selector.interestOps(SelectionKey.OP_READ);
 			try {
 				commandWriter.write();
 			} catch (IOException e) {
