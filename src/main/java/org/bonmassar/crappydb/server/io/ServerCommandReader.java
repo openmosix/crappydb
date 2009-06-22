@@ -36,7 +36,7 @@ public class ServerCommandReader {
 		lastCommand = new ServerCommandFragment(cmdFactory);
 	}
 
-	public List<ServerCommand> decodeCommand() throws IOException{
+	public List<ServerCommand> decodeCommands() throws IOException{
 		input.precacheDataFromRemote();
 		return decodeIncomingData();
 	}

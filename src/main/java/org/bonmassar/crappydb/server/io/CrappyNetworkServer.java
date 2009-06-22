@@ -89,22 +89,19 @@ public class CrappyNetworkServer {
 	
 	public void serverSetup() {
 		logger.info(String.format("listening on port %d", serverPort));
-		try
-		{
+		try {
 			initListenChannel();
 			initListenSocket();
 			registerMainSocketToListener();
 			logger.info(String.format("Server up!"));
 		}
-		catch(IOException ie)
-		{
+		catch(IOException ie) {
 			logger.fatal("Cannot init the network server", ie);
 			System.exit(0);
 		}
 	}
 
-	public void start()
-	{  
+	public void start() {  
 		while(true)
 			processRequests();
 	}
@@ -180,7 +177,7 @@ public class CrappyNetworkServer {
 	}
 
 	private void attachNewChannel(SelectionKey registeredSelectionKey, String connectionName) {
-		DBConnection connHandler = new DBConnection(registeredSelectionKey, commandFactory);
+		EstablishedConnection connHandler = new EstablishedConnection(registeredSelectionKey, commandFactory);
 		connHandler.setConnectionId(connectionName);
 		registeredSelectionKey.attach(connHandler);
 	}
@@ -213,7 +210,7 @@ public class CrappyNetworkServer {
 		if(!isOpAvailable(availOperations, SelectionKey.OP_READ))
 			return;
 		
-		DBConnection connHandler = getChannel(sk);
+		EstablishedConnection connHandler = getChannel(sk);
 		List<ServerCommand> cmdlist = connHandler.doRead();
 		if(null != cmdlist)
 			for(ServerCommand cmd : cmdlist)
@@ -232,7 +229,7 @@ public class CrappyNetworkServer {
 		if(!isOpAvailable(availOperations, SelectionKey.OP_WRITE))
 			return;
 
-		DBConnection connHandler = getChannel(sk);
+		EstablishedConnection connHandler = getChannel(sk);
 		connHandler.doWrite();
 	}
 	
@@ -240,7 +237,7 @@ public class CrappyNetworkServer {
 		return (availOperations & reqOp) == reqOp;
 	}
 	
-	private DBConnection getChannel(SelectionKey sk){
-		return (DBConnection)sk.attachment();
+	private EstablishedConnection getChannel(SelectionKey sk){
+		return (EstablishedConnection)sk.attachment();
 	}
 }

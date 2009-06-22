@@ -26,18 +26,16 @@ import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-public class DBConnection {
+public class EstablishedConnection {
 		private ServerCommandReader commandReader;
 		private ServerCommandWriter commandWriter;
 		private ServerCommandCloser commandCloser;
 
-		private SelectionKey selector;
 		private String name;
 		
-		private Logger logger = Logger.getLogger(DBConnection.class);
+		private Logger logger = Logger.getLogger(EstablishedConnection.class);
 					        
-		public DBConnection(SelectionKey selector, CommandFactory commandFactory){
-			this.selector = selector;
+		public EstablishedConnection(SelectionKey selector, CommandFactory commandFactory){
 	        selector.attach(this);
 						
 			commandReader = new ServerCommandReader(selector, commandFactory);
@@ -48,7 +46,7 @@ public class DBConnection {
 		public List<ServerCommand> doRead()
 		{
 			try {
-				List<ServerCommand> cmdlist = commandReader.decodeCommand();
+				List<ServerCommand> cmdlist = commandReader.decodeCommands();
 				for(ServerCommand cmd : cmdlist)
 					injectWriter(cmd);
 				return cmdlist;
@@ -57,12 +55,6 @@ public class DBConnection {
 				commandCloser.closeConnection();
 			}
 			return null;
-		}
-
-		private ServerCommand injectWriter(ServerCommand cmd) {
-			if(null != cmd)
-				cmd.attachCommandWriter(commandWriter);
-			return cmd;
 		}
 			
 		public void doWrite() {
@@ -74,6 +66,12 @@ public class DBConnection {
 				commandCloser.closeConnection();
 			}
 		}	
+		
+		private ServerCommand injectWriter(ServerCommand cmd) {
+			if(null != cmd)
+				cmd.attachCommandWriter(commandWriter);
+			return cmd;
+		}
 			
 		public void setConnectionId(String nm){name = nm;}	
 }

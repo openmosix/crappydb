@@ -58,7 +58,7 @@ public class TestServerCommandReader {
 	
 	@Test
 	public void testReadButNothingReceived() throws IOException, CrappyDBException {		
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(0, cmds.size());
 		verify(input, times(1)).precacheDataFromRemote();
 	}
@@ -70,7 +70,7 @@ public class TestServerCommandReader {
 		ServerCommand command = new ExceptionCommand(new NotFoundException("cause"));
 		when(commandFactory.getCommandFromCommandLine("gaat testkey noreply")).thenReturn(command);
 		
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
 		assertEquals(command, cmds.get(0));
 		verify(input, times(1)).precacheDataFromRemote();
@@ -81,7 +81,7 @@ public class TestServerCommandReader {
 		doThrow(new IOException("Crappy read!")).when(input).precacheDataFromRemote();
 
 		try{
-			cmdreader.decodeCommand();
+			cmdreader.decodeCommands();
 			fail();
 		}catch(IOException ioe){
 			return;
@@ -95,7 +95,7 @@ public class TestServerCommandReader {
 		ServerCommand command = new ExceptionCommand(new NotFoundException("cause"));
 		when(commandFactory.getCommandFromCommandLine("gaat testkey noreply")).thenReturn(command);
 		
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
 		assertEquals(command, cmds.get(0));
 		verify(input, times(1)).precacheDataFromRemote();
@@ -109,7 +109,7 @@ public class TestServerCommandReader {
 		when(commandFactory.getCommandFromCommandLine("get testkey noreply")).thenReturn(command);
 		when(command.payloadContentLength()).thenReturn(0);
 		
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
 		assertEquals(command, cmds.get(0));
 		verify(input, times(1)).precacheDataFromRemote();
@@ -126,7 +126,7 @@ public class TestServerCommandReader {
 		when(commandFactory.getCommandFromCommandLine("get testotherkey noreply")).thenReturn(command2);
 		when(command2.payloadContentLength()).thenReturn(0);
 		
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(2, cmds.size());
 		assertEquals(command1, cmds.get(0));
 		assertEquals(command2, cmds.get(1));
@@ -143,7 +143,7 @@ public class TestServerCommandReader {
 		when(commandFactory.getCommandFromCommandLine("set testkey 888 0 20")).thenReturn(command1);
 		when(command1.payloadContentLength()).thenReturn(22);
 				
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
 		assertEquals(command1, cmds.get(0));
 		verify(input, times(1)).precacheDataFromRemote();
@@ -163,7 +163,7 @@ public class TestServerCommandReader {
 		when(commandFactory.getCommandFromCommandLine("set testkey 888 0 20")).thenReturn(command2);
 		when(command2.payloadContentLength()).thenReturn(22);
 				
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(2, cmds.size());
 		assertEquals(command1, cmds.get(0));
 		assertEquals(command2, cmds.get(1));
@@ -184,7 +184,7 @@ public class TestServerCommandReader {
 		when(commandFactory.getCommandFromCommandLine("get testkey noreply")).thenReturn(command2);
 		when(command2.payloadContentLength()).thenReturn(0);
 				
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(2, cmds.size());
 		assertEquals(command1, cmds.get(0));
 		assertEquals(command2, cmds.get(1));
@@ -201,9 +201,9 @@ public class TestServerCommandReader {
 		when(command.payloadContentLength()).thenReturn(0);
 		
 		for(int i = 0; i < 7; i++)
-			assertEquals(0, cmdreader.decodeCommand().size());
+			assertEquals(0, cmdreader.decodeCommands().size());
 
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
 		assertEquals(command, cmds.get(0));
 		verify(input, times(8)).precacheDataFromRemote();
@@ -226,9 +226,9 @@ public class TestServerCommandReader {
 		when(command1.payloadContentLength()).thenReturn(22);
 		
 		for(int i = 0; i < 11; i++)
-			assertEquals(0, cmdreader.decodeCommand().size());
+			assertEquals(0, cmdreader.decodeCommands().size());
 				
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
 		assertEquals(command1, cmds.get(0));
 		verify(input, times(12)).precacheDataFromRemote();
@@ -254,9 +254,9 @@ public class TestServerCommandReader {
 		when(command1.payloadContentLength()).thenReturn(22);
 		
 		for(int i = 0; i < 10; i++)
-			assertEquals(0, cmdreader.decodeCommand().size());
+			assertEquals(0, cmdreader.decodeCommands().size());
 				
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
 		assertEquals(command1, cmds.get(0));
 		verify(input, times(11)).precacheDataFromRemote();
@@ -287,14 +287,14 @@ public class TestServerCommandReader {
 		when(command2.payloadContentLength()).thenReturn(0);
 
 		for(int i = 0; i < 10; i++)
-			assertEquals(0, cmdreader.decodeCommand().size());
+			assertEquals(0, cmdreader.decodeCommands().size());
 				
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		
 		for(int i = 0; i < 4; i++)
-			assertEquals(0, cmdreader.decodeCommand().size());
+			assertEquals(0, cmdreader.decodeCommands().size());
 
-		List<ServerCommand> cmds2 = cmdreader.decodeCommand();
+		List<ServerCommand> cmds2 = cmdreader.decodeCommands();
 		
 		assertEquals(1, cmds.size());
 		assertEquals(command1, cmds.get(0));
@@ -321,7 +321,7 @@ public class TestServerCommandReader {
 		when(commandFactory.getCommandFromCommandLine("set testkey 888 0 20")).thenReturn(command2);
 		when(command2.payloadContentLength()).thenReturn(22);
 				
-		List<ServerCommand> cmds = cmdreader.decodeCommand();
+		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(2, cmds.size());
 		assertEquals(command1, cmds.get(0));
 		assertEquals(command2, cmds.get(1));
