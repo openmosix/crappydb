@@ -27,9 +27,9 @@ import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
 public class EstablishedConnection {
-		private ServerCommandReader commandReader;
-		private ServerCommandWriter commandWriter;
-		private ServerCommandCloser commandCloser;
+		protected ServerCommandReader commandReader;
+		protected ServerCommandWriter commandWriter;
+		protected ServerCommandCloser commandCloser;
 
 		private String name;
 		
@@ -38,9 +38,7 @@ public class EstablishedConnection {
 		public EstablishedConnection(SelectionKey selector, CommandFactory commandFactory){
 	        selector.attach(this);
 						
-			commandReader = new ServerCommandReader(selector, commandFactory);
-			commandWriter = new ServerCommandWriter(selector);
-			commandCloser = new ServerCommandCloser(selector);
+			init(selector, commandFactory);
 		}
 		
 		public List<ServerCommand> doRead()
@@ -71,6 +69,12 @@ public class EstablishedConnection {
 			if(null != cmd)
 				cmd.attachCommandWriter(commandWriter);
 			return cmd;
+		}
+		
+		protected void init(SelectionKey selector, CommandFactory commandFactory) {
+			commandReader = new ServerCommandReader(selector, commandFactory);
+			commandWriter = new ServerCommandWriter(selector);
+			commandCloser = new ServerCommandCloser(selector);
 		}
 			
 		public void setConnectionId(String nm){name = nm;}	
