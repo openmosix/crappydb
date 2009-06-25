@@ -57,22 +57,6 @@ public class CrappyNetworkServer {
 	private ExecutorService commandsExecutor;
 	private CommandFactory commandFactory;
 
-	public class RemoteCommandCall implements Callable<Integer>
-	{
-		private LinkedBlockingQueue<ServerCommand> queue;
-		
-		public RemoteCommandCall(LinkedBlockingQueue<ServerCommand> queue){
-			this.queue = queue;
-		}
-		
-		public Integer call() throws Exception {
-			while(true){
-				ServerCommand cmd = queue.take();
-				cmd.execCommand();
-			}
-		}
-	}
-	
 	public CrappyNetworkServer(CommandFactory cmdFactory, int port) {
 		super();
 		commandFactory = cmdFactory;
