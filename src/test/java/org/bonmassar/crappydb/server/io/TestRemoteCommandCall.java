@@ -18,7 +18,6 @@
 
 package org.bonmassar.crappydb.server.io;
 
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
