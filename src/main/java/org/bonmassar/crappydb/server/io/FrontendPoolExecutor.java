@@ -20,41 +20,27 @@ package org.bonmassar.crappydb.server.io;
 
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import org.apache.log4j.Logger;
+import java.util.concurrent.Callable;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 
-public class FrontendPoolExecutor {
-	private final static int nFrontendThread=1;
-	private LinkedBlockingQueue<SelectionKey> operationsQueue;
-	private ExecutorService commandsExecutor;
-
-	private Logger logger = Logger.getLogger(FrontendPoolExecutor.class);
+public class FrontendPoolExecutor extends PoolThreadExecutor<SelectionKey> {
+	private final static int nFrontendThreads=1;
+	private static CommandFactory cmdFactory;
+	private static Selector serverSelectorForAccept;
+	private static BackendPoolExecutor backend;
 	
-	public FrontendPoolExecutor(CommandFactory cmdFactory, Selector serverSelectorForAccept, BackendPoolExecutor backend) {
-		initFrontendThreads(cmdFactory, serverSelectorForAccept, backend);
+	public FrontendPoolExecutor() {
+		super(FrontendPoolExecutor.nFrontendThreads);
 	}
 	
-	protected void processRequest(SelectionKey key) {
-		boolean result = operationsQueue.offer(key);
-		if(result)
-			logger.debug(String.format("Added new server operation to queue"));
-		else
-			logger.debug(String.format("Failed to add new operation command to queue"));
-
+	@Override
+	protected Callable<Integer> createNewTask() {
+		return new FrontendTask(cmdFactory, serverSelectorForAccept, backend, queue);
 	}
 	
-	protected void initFrontendThreads(CommandFactory cmdFactory, Selector serverSelectorForAccept, BackendPoolExecutor backend) {
-		operationsQueue = new LinkedBlockingQueue<SelectionKey>();
-		commandsExecutor = Executors.newFixedThreadPool(FrontendPoolExecutor.nFrontendThread);
-		for(int i = 0; i < FrontendPoolExecutor.nFrontendThread; i++)
-			commandsExecutor.submit (new FutureTask<Integer> (new FrontendTask(cmdFactory,
-					serverSelectorForAccept, backend, operationsQueue)));
+	public static void setup(CommandFactory cmdFactory, Selector serverSelectorForAccept, BackendPoolExecutor backend){
+		FrontendPoolExecutor.cmdFactory = cmdFactory;
+		FrontendPoolExecutor.serverSelectorForAccept = serverSelectorForAccept;
+		FrontendPoolExecutor.backend = backend;
 	}
-
-
 }

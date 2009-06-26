@@ -45,7 +45,8 @@ public class CrappyNetworkServer {
 	public CrappyNetworkServer(CommandFactory cmdFactory, int port) {
 		super();
 		serverPort = port;
-		frontend = new FrontendPoolExecutor(cmdFactory, serverSelector, new BackendPoolExecutor());
+		FrontendPoolExecutor.setup(cmdFactory, serverSelector, new BackendPoolExecutor());
+		frontend = new FrontendPoolExecutor();
 	}
 
 	public void serverSetup() {
@@ -58,7 +59,7 @@ public class CrappyNetworkServer {
 		}
 		catch(IOException ie) {
 			logger.fatal("Cannot init the network server", ie);
-			System.exit(0);
+			throw new RuntimeException("Failed starting daemon - see logs");
 		}
 	}
 
@@ -71,7 +72,7 @@ public class CrappyNetworkServer {
 		Iterator<SelectionKey> pendingRequests = select();
 		while(pendingRequests.hasNext()) {
 			SelectionKey key = pendingRequests.next();
-			frontend.processRequest(key);
+			frontend.offer(key);
 			pendingRequests.remove();
 		}
 	}

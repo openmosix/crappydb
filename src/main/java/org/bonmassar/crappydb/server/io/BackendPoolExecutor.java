@@ -18,39 +18,20 @@
 
 package org.bonmassar.crappydb.server.io;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import org.apache.log4j.Logger;
+import java.util.concurrent.Callable;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-public class BackendPoolExecutor {
+public class BackendPoolExecutor extends PoolThreadExecutor<ServerCommand> {
 
-	private final static int nBackendThread=5;
+	private final static int nBackendThreads=5;
 	
-	private Logger logger = Logger.getLogger(BackendPoolExecutor.class);
-	private LinkedBlockingQueue<ServerCommand> commandsQueue;
-	private ExecutorService commandsExecutor;
-
 	public BackendPoolExecutor() {
-		initBackendThreads();
+		super(BackendPoolExecutor.nBackendThreads);
 	}
 
-	public void newCommand(ServerCommand cmd) {
-		boolean result = commandsQueue.offer(cmd);
-		if(result)
-			logger.debug(String.format("Added new server command to queue (%s)", cmd));
-		else
-			logger.debug(String.format("Failed to add new server command to queue (%s)", cmd));
+	@Override
+	protected Callable<Integer> createNewTask() {
+		return new BackendTask(queue);
 	}
-	
-	protected void initBackendThreads() {
-		commandsQueue = new LinkedBlockingQueue<ServerCommand>();
-		commandsExecutor = Executors.newFixedThreadPool(BackendPoolExecutor.nBackendThread);
-		for(int i = 0; i < BackendPoolExecutor.nBackendThread; i++)
-			commandsExecutor.submit (new FutureTask<Integer> (new BackendTask(commandsQueue)));
-	}
-	
+
 }

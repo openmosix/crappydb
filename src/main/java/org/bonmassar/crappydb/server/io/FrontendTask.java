@@ -78,7 +78,7 @@ public class FrontendTask implements Callable<Integer> {
 		List<ServerCommand> cmdlist = connHandler.doRead();
 		if(null != cmdlist)
 			for(ServerCommand cmd : cmdlist)
-				backend.newCommand(cmd);
+				backend.offer(cmd);
 	}
  
 	private void write(SelectionKey sk, int availOperations) {

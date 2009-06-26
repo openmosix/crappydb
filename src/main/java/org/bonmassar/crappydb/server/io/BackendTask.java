@@ -34,7 +34,8 @@ public class BackendTask implements Callable<Integer> {
 	public Integer call() throws Exception {
 		while(true){
 			ServerCommand cmd = queue.take();
-			cmd.execCommand();
+			if(null != cmd)
+				cmd.execCommand();
 		}
 	}
 }
