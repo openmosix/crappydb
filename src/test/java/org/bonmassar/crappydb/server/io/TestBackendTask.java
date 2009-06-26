@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class TestRemoteCommandCall extends TestCase {
+public class TestBackendTask extends TestCase {
 
 	class IncreaseCounter implements Answer<Integer> {
 
@@ -55,17 +55,17 @@ public class TestRemoteCommandCall extends TestCase {
 	
 	private ExecutorService commandsExecutor;
 
-	private RemoteCommandCall caller;
+	private BackendTask caller;
 	private LinkedBlockingQueue<ServerCommand> queue;
 	
 	@Before
 	public void setUp(){
 		queue = new LinkedBlockingQueue<ServerCommand>();
-		caller = new RemoteCommandCall(queue);
+		caller = new BackendTask(queue);
 		commandsExecutor =  Executors.newFixedThreadPool(3);
 		
 		for(int i = 0; i < 3; i++)
-			commandsExecutor.submit (new FutureTask<Integer> (new RemoteCommandCall(queue)));
+			commandsExecutor.submit (new FutureTask<Integer> (new BackendTask(queue)));
 	}
 	
 	@After

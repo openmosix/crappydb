@@ -23,11 +23,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-public class RemoteCommandCall implements Callable<Integer>
-{
+public class BackendTask implements Callable<Integer> {
+	
 	private LinkedBlockingQueue<ServerCommand> queue;
 	
-	public RemoteCommandCall(LinkedBlockingQueue<ServerCommand> queue){
+	public BackendTask(LinkedBlockingQueue<ServerCommand> queue){
 		this.queue = queue;
 	}
 	
