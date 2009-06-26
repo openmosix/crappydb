@@ -31,7 +31,7 @@ import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 public class FrontendTask implements Callable<Integer> {
 	
 	private BackendPoolExecutor backend;
-	private ServerCommandAccepter accepter;
+	protected ServerCommandAccepter accepter;
 	private Logger logger = Logger.getLogger(FrontendTask.class);
 
 	private LinkedBlockingQueue<SelectionKey> queue;
@@ -55,7 +55,7 @@ public class FrontendTask implements Callable<Integer> {
 	protected void processRequest(SelectionKey key) {
 		int availOps = key.readyOps();
 
-		logger.debug(String.format("kro=%d",availOps));
+		logger.debug(String.format("ready ops=%d",availOps));
 		read(key, availOps);
 		write(key, availOps);
 		accept(key, availOps);
@@ -87,7 +87,7 @@ public class FrontendTask implements Callable<Integer> {
 		accepter.doAccept(selection);
 	}
  
-	private EstablishedConnection getChannel(SelectionKey sk){
+	protected EstablishedConnection getChannel(SelectionKey sk){
 		return (EstablishedConnection)sk.attachment();
 	}
  	
