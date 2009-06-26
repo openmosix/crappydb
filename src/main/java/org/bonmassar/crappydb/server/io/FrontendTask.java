@@ -18,14 +18,8 @@
 
 package org.bonmassar.crappydb.server.io;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.net.SocketException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -35,23 +29,20 @@ import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
 public class FrontendTask implements Callable<Integer> {
-
-	private final static int newClientInterests = SelectionKey.OP_READ;
 	
-	private CommandFactory commandFactory;
 	private BackendPoolExecutor backend;
-	private Selector serverSelector;		
+	private ServerCommandAccepter accepter;
 	private Logger logger = Logger.getLogger(FrontendTask.class);
 
 	private LinkedBlockingQueue<SelectionKey> queue;
 
 	public FrontendTask(CommandFactory cmdFactory, 
-			Selector serverSelectorForAccept, BackendPoolExecutor backend,
+			Selector parentSelector, 
+			BackendPoolExecutor backend,
 			LinkedBlockingQueue<SelectionKey> queue) {
 		this.queue = queue;
-		commandFactory = cmdFactory;
 		this.backend = backend;
-		serverSelector = serverSelectorForAccept;
+		this.accepter = new ServerCommandAccepter(cmdFactory, parentSelector);
 	}
 
 	public Integer call() throws Exception {
@@ -93,54 +84,11 @@ public class FrontendTask implements Callable<Integer> {
 		if(!isOpAvailable(availOperations, SelectionKey.OP_ACCEPT))
 			return;
 
-		accept(selection);
+		accepter.doAccept(selection);
 	}
  
-	private void accept(SelectionKey selection) {
-		ServerSocketChannel listenerSocketChannel = (ServerSocketChannel)selection.channel();
-		try {
-			SocketChannel clientChannel = forkSocketChannel(listenerSocketChannel);
-			Socket clientSocket = getInnerSocketData(clientChannel);
-			logger.info("[<=>] " + printRemoteAddress(clientSocket));
-			registerNewSocketToSelector(clientChannel, printRemoteAddress(clientSocket));
- 		}
-		catch(IOException re){logger.error("[<=>] :", re);}
-	}
-
-	private void registerNewSocketToSelector(SocketChannel clientChannel, String connectionName) 
-	throws ClosedChannelException {
-		SelectionKey registeredSelectionKey = clientChannel.register(serverSelector, FrontendTask.newClientInterests, null);
-		attachNewChannel(registeredSelectionKey, connectionName);
-	}
-
-	private void attachNewChannel(SelectionKey registeredSelectionKey, String connectionName) {
-		EstablishedConnection connHandler = new EstablishedConnection(registeredSelectionKey, commandFactory);
-		connHandler.setConnectionId(connectionName);
-		registeredSelectionKey.attach(connHandler);
-	}
-
-	private SocketChannel forkSocketChannel(ServerSocketChannel sc) throws IOException{
-		SocketChannel clientSocket = sc.accept();
-		configureBlocking(clientSocket);
-		return clientSocket;
-	}
-
-	private void configureBlocking(SocketChannel socket) throws IOException{
-		socket.configureBlocking(!CrappyNetworkServer.asyncOperations);
-	}
-	
 	private EstablishedConnection getChannel(SelectionKey sk){
 		return (EstablishedConnection)sk.attachment();
-	}
-	
-	private Socket getInnerSocketData(SocketChannel clientChannel) throws SocketException {
-		Socket innerSock = clientChannel.socket();
-		innerSock.setKeepAlive(true);
-		return innerSock;
-	}
-	
-	private String printRemoteAddress(Socket sock) {
-		return sock.getInetAddress()+":"+sock.getPort();
 	}
  	
 	private boolean isOpAvailable(int availOperations, int reqOp){
