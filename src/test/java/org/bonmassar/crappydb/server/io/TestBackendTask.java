@@ -55,13 +55,11 @@ public class TestBackendTask extends TestCase {
 	
 	private ExecutorService commandsExecutor;
 
-	private BackendTask caller;
 	private LinkedBlockingQueue<ServerCommand> queue;
 	
 	@Before
 	public void setUp(){
 		queue = new LinkedBlockingQueue<ServerCommand>();
-		caller = new BackendTask(queue);
 		commandsExecutor =  Executors.newFixedThreadPool(3);
 		
 		for(int i = 0; i < 3; i++)

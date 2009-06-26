@@ -44,7 +44,7 @@ public abstract class PoolThreadExecutor<T> {
 		initFrontendThreads();
 	}
 	
-	protected void offer(T key) {
+	public void offer(T key) {
 		boolean result = queue.offer(key);
 		if(result)
 			logger.debug(String.format("Added new item to blocking queue (%s", key.toString()));
