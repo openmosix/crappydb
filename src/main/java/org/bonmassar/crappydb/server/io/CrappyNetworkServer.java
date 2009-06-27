@@ -38,9 +38,9 @@ public class CrappyNetworkServer {
 
 	private ServerSocket listenSock;
 	private ServerSocketChannel listenChannel;
-	private Selector serverSelector;		
+	protected Selector serverSelector;		
 	private int serverPort;
-	private FrontendPoolExecutor frontend;
+	protected FrontendPoolExecutor frontend;
 
 	public CrappyNetworkServer(CommandFactory cmdFactory, int port) {
 		super();
@@ -68,7 +68,7 @@ public class CrappyNetworkServer {
 			processRequests();
 	}
 
-	private void processRequests() {
+	protected void processRequests() {
 		Iterator<SelectionKey> pendingRequests = select();
 		while(pendingRequests.hasNext()) {
 			SelectionKey key = pendingRequests.next();
@@ -80,7 +80,7 @@ public class CrappyNetworkServer {
 	private Iterator<SelectionKey> select() {
 		try{
 			int pendingio = serverSelector.select();
-			logger.debug(String.format("select pendingio %d"+pendingio));
+			logger.debug(String.format("select pending io %d"+pendingio));
 		}
 		catch(Exception e){logger.error("select failed");}
 		return serverSelector.selectedKeys().iterator();
