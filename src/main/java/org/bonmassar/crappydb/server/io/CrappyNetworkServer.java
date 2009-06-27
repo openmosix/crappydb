@@ -40,13 +40,13 @@ public class CrappyNetworkServer {
 	private ServerSocketChannel listenChannel;
 	protected Selector serverSelector;		
 	private int serverPort;
+	private CommandFactory cmdFactory;
 	protected FrontendPoolExecutor frontend;
 
 	public CrappyNetworkServer(CommandFactory cmdFactory, int port) {
 		super();
 		serverPort = port;
-		FrontendPoolExecutor.setup(cmdFactory, serverSelector, new BackendPoolExecutor());
-		frontend = new FrontendPoolExecutor();
+		this.cmdFactory = cmdFactory;
 	}
 
 	public void serverSetup() {
@@ -55,6 +55,9 @@ public class CrappyNetworkServer {
 			initListenChannel();
 			initListenSocket();
 			registerMainSocketToListener();
+			
+			FrontendPoolExecutor.setup(cmdFactory, serverSelector, new BackendPoolExecutor());
+			frontend = new FrontendPoolExecutor();
 			logger.info(String.format("Server up!"));
 		}
 		catch(IOException ie) {
