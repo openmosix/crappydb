@@ -22,7 +22,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
@@ -31,28 +30,32 @@ import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 public class FrontendTask implements Callable<Integer> {
 	
 	private BackendPoolExecutor backend;
+	private FrontendPoolExecutor frontend;
 	protected ServerCommandAccepter accepter;
 	private Logger logger = Logger.getLogger(FrontendTask.class);
 
-	private LinkedBlockingQueue<SelectionKey> queue;
 
 	public FrontendTask(CommandFactory cmdFactory, 
 			Selector parentSelector, 
 			BackendPoolExecutor backend,
-			LinkedBlockingQueue<SelectionKey> queue) {
-		this.queue = queue;
+			FrontendPoolExecutor frontend) {
 		this.backend = backend;
+		this.frontend = frontend;
 		this.accepter = new ServerCommandAccepter(cmdFactory, parentSelector);
 	}
 
 	public Integer call() throws Exception {
-		while (true) {
-			SelectionKey key = queue.take();
-			processRequest(key);
-		}
+		while (true) 
+			executeTask();
 	}
 	
-	protected void processRequest(SelectionKey key) {
+	public void executeTask() throws InterruptedException {
+		SelectionKey key = frontend.take();
+		processRequest(key);
+		frontend.waitForSyncPoint();
+	}
+	
+	private void processRequest(SelectionKey key) {
 		int availOps = key.readyOps();
 
 		logger.debug(String.format("ready ops=%d",availOps));

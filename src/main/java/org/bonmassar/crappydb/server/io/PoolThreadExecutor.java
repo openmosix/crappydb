@@ -18,7 +18,9 @@
 
 package org.bonmassar.crappydb.server.io;
 
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -32,6 +34,7 @@ public abstract class PoolThreadExecutor<T> {
 	private int nThreads;
 	protected LinkedBlockingQueue<T> queue;
 	protected ExecutorService executor;
+	protected CyclicBarrier syncPoint;
 
 	private Logger logger = Logger.getLogger(PoolThreadExecutor.class);
 
@@ -51,7 +54,27 @@ public abstract class PoolThreadExecutor<T> {
 			logger.debug(String.format("Added new item to blocking queue (%s", key.toString()));
 		else
 			logger.debug(String.format("Failed to add new item (%s) to blocking queue", key.toString()));
-
+	}
+	
+	public T take() throws InterruptedException {
+		return queue.take();
+	}
+	
+	public void enableSyncPoint() {
+		syncPoint = new CyclicBarrier(nThreads+1);
+	}
+	
+	public void waitForSyncPoint() {
+		try {
+			if(null != syncPoint)
+				syncPoint.await();
+		} catch (InterruptedException e) {
+			logger.fatal("IO Synchronization broken!", e);
+			syncPoint.reset();			
+		} catch (BrokenBarrierException e) {
+			logger.fatal("IO Synchronization broken!", e);
+			syncPoint.reset();
+		}
 	}
 	
 	protected void initFrontendThreads() {

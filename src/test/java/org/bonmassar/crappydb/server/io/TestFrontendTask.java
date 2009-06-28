@@ -44,14 +44,15 @@ public class TestFrontendTask extends TestCase {
 	private ServerCommandAccepter accepter;
 	private SelectionKey selection;
 	private EstablishedConnection esConnection;
-	private LinkedBlockingQueue<SelectionKey> queue;
+	private FrontendPoolExecutor frontendpool;
+//	private LinkedBlockingQueue<SelectionKey> queue;
 	
 	class FakeFrontendTask extends FrontendTask{
 
 		public FakeFrontendTask(CommandFactory cmdFactory,
 				Selector parentSelector, BackendPoolExecutor backend,
-				LinkedBlockingQueue<SelectionKey> queue) {
-			super(cmdFactory, parentSelector, backend, queue);
+				FrontendPoolExecutor fe) {
+			super(cmdFactory, parentSelector, backend, fe);
 			// TODO Auto-generated constructor stub
 		}
 		
@@ -67,9 +68,9 @@ public class TestFrontendTask extends TestCase {
 		cmdFactory = mock(CommandFactory.class);
 		parentSelector = mock(Selector.class);
 		backend = mock(BackendPoolExecutor.class);
-		queue = new LinkedBlockingQueue<SelectionKey>();
 		accepter = mock(ServerCommandAccepter.class);
-		frontend = new FakeFrontendTask(cmdFactory, parentSelector, backend, queue);
+		frontendpool = mock(FrontendPoolExecutor.class);
+		frontend = new FakeFrontendTask(cmdFactory, parentSelector, backend, frontendpool);
 		frontend.accepter = accepter;
 		selection = mock(SelectionKey.class);
 		esConnection = mock(EstablishedConnection.class);
@@ -77,111 +78,137 @@ public class TestFrontendTask extends TestCase {
 	
 	@Test
 	public void testNoOps() throws Exception {
+		when(frontendpool.take()).thenReturn(selection);
+
 		when(selection.readyOps()).thenReturn(0);
 		
-		frontend.processRequest(selection);
+		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());
 		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
+		verify(frontendpool, times(1)).waitForSyncPoint();
 	}
 	
 	@Test
 	public void testOnlyReadNoCmds() throws Exception {
+		when(frontendpool.take()).thenReturn(selection);
+
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		when(esConnection.doRead()).thenReturn(new ArrayList<ServerCommand>());
 		
-		frontend.processRequest(selection);
+		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
+		verify(frontendpool, times(1)).waitForSyncPoint();
 	}
 	
 	@Test
 	public void testOnlyReadIOError() throws Exception {
+		when(frontendpool.take()).thenReturn(selection);
+
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		when(esConnection.doRead()).thenReturn(null);
 		
-		frontend.processRequest(selection);
+		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
+		verify(frontendpool, times(1)).waitForSyncPoint();
 	}
 	
 	@Test
-	public void testOnlyReadMultipleCmds() {
+	public void testOnlyReadMultipleCmds() throws InterruptedException {
+		when(frontendpool.take()).thenReturn(selection);
+
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
 		ServerCommand cmd2 = mock(ServerCommand.class);
 		ServerCommand cmd3 = mock(ServerCommand.class);
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1, cmd2, cmd3));
 		
-		frontend.processRequest(selection);
+		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(1)).offer(cmd1);
 		verify(backend, times(1)).offer(cmd2);
 		verify(backend, times(1)).offer(cmd3);
 		verify(esConnection, times(0)).doWrite();
+		verify(frontendpool, times(1)).waitForSyncPoint();
 	}
 	
 	@Test
-	public void testOnlyReadOneCmd() {
+	public void testOnlyReadOneCmd() throws InterruptedException {
+		when(frontendpool.take()).thenReturn(selection);
+
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1));
 		
-		frontend.processRequest(selection);
+		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(1)).offer(cmd1);
 		verify(esConnection, times(0)).doWrite();
+		verify(frontendpool, times(1)).waitForSyncPoint();
 	}
 	
 	@Test
-	public void testOnlyWrite() {
+	public void testOnlyWrite() throws InterruptedException {
+		when(frontendpool.take()).thenReturn(selection);
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_WRITE);
 		
-		frontend.processRequest(selection);
+		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(1)).doWrite();
+		verify(frontendpool, times(1)).waitForSyncPoint();
 	}
-	
+		
 	@Test
-	public void testOnlyAccept(){
+	public void testOnlyAccept() throws InterruptedException{
+		when(frontendpool.take()).thenReturn(selection);
+
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_ACCEPT);
 		
-		frontend.processRequest(selection);
+		frontend.executeTask();
 		verify(accepter, times(1)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
+		verify(frontendpool, times(1)).waitForSyncPoint();
 	}
 	
 	@Test
-	public void testAcceptReadWrite(){
+	public void testAcceptReadWrite() throws InterruptedException{
+		when(frontendpool.take()).thenReturn(selection);
+
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_ACCEPT | SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
 		ServerCommand cmd2 = mock(ServerCommand.class);
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1, cmd2));
 		
-		frontend.processRequest(selection);
+		frontend.executeTask();
 		
 		verify(accepter, times(1)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(1)).offer(cmd1);
 		verify(backend, times(1)).offer(cmd2);
 		verify(esConnection, times(1)).doWrite();
+		verify(frontendpool, times(1)).waitForSyncPoint();
 	}
 	
 	@Test
-	public void testReadWrite(){
+	public void testReadWrite() throws InterruptedException{
+		when(frontendpool.take()).thenReturn(selection);
+
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
 		ServerCommand cmd2 = mock(ServerCommand.class);
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1, cmd2));
 		
-		frontend.processRequest(selection);
+		frontend.executeTask();
 		
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(1)).offer(cmd1);
 		verify(backend, times(1)).offer(cmd2);
 		verify(esConnection, times(1)).doWrite();
+		verify(frontendpool, times(1)).waitForSyncPoint();
 	}
 }

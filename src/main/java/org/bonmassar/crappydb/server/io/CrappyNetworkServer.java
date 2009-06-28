@@ -58,6 +58,7 @@ public class CrappyNetworkServer {
 			
 			FrontendPoolExecutor.setup(cmdFactory, serverSelector, new BackendPoolExecutor());
 			frontend = new FrontendPoolExecutor();
+			frontend.enableSyncPoint();
 			logger.info(String.format("Server up!"));
 		}
 		catch(IOException ie) {
@@ -68,8 +69,10 @@ public class CrappyNetworkServer {
 	}
 
 	public void start() {  
-		while(true)
+		while(true){
 			processRequests();
+			frontend.waitForSyncPoint();
+		}
 	}
 
 	protected void processRequests() {

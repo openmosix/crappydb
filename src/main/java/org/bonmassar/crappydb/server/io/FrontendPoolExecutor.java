@@ -35,7 +35,7 @@ public class FrontendPoolExecutor extends PoolThreadExecutor<SelectionKey> {
 	
 	@Override
 	protected Callable<Integer> createNewTask() {
-		return new FrontendTask(cmdFactory, serverSelectorForAccept, backend, queue);
+		return new FrontendTask(cmdFactory, serverSelectorForAccept, backend, this);
 	}
 	
 	public static void setup(CommandFactory cmdFactory, Selector serverSelectorForAccept, BackendPoolExecutor backend){
