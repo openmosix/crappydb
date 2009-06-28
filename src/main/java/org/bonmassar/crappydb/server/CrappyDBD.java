@@ -31,7 +31,10 @@ public class CrappyDBD {
 	{
 		CommandFactory cmdFactory = new CommandFactory(new UnboundedMap());
 		(new HomerBoot()).splashScreen();
-		
+
+		ShutdownExecutionRegister sd = new ShutdownExecutionRegister();
+		Runtime.getRuntime().addShutdownHook(sd);
+
 		CrappyDBD.serverInstance = new CrappyNetworkServer(cmdFactory, serverPort).serverSetup();
 		CrappyDBD.serverInstance.start();
 	} 
