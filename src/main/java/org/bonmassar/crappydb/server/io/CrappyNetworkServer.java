@@ -74,6 +74,9 @@ public class CrappyNetworkServer {
 
 	protected void processRequests() {
 		Iterator<SelectionKey> pendingRequests = select();
+		if(null==pendingRequests)
+			return;
+		
 		while(pendingRequests.hasNext()) {
 			SelectionKey key = pendingRequests.next();
 			frontend.offer(key);
@@ -84,9 +87,12 @@ public class CrappyNetworkServer {
 	private Iterator<SelectionKey> select() {
 		try{
 			int pendingio = serverSelector.select();
-			logger.debug(String.format("select pending io %d"+pendingio));
+			logger.debug(String.format("select pending io %d",pendingio));
 		}
-		catch(Exception e){logger.error("select failed");}
+		catch(Exception e){
+			logger.error("Select IO failed", e);
+			return null;
+		}
 		return serverSelector.selectedKeys().iterator();
 	}
 

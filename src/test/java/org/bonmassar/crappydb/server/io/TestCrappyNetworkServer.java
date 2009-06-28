@@ -21,6 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyObject;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
@@ -82,6 +83,19 @@ public class TestCrappyNetworkServer extends TestCase {
 		server.processRequests();
 		verify(server.frontend, times(1)).offer(selKey1);
 		verify(server.frontend, times(1)).offer(selKey2);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testStartServerIOException() throws IOException {
+		server = new CrappyNetworkServer(cmdFactory, 11211);
+		server.serverSelector = mock(Selector.class);
+		server.frontend = mock(FrontendPoolExecutor.class);
+
+		when(server.serverSelector.select()).thenThrow(new IOException("BOOM!"));
+		
+		server.processRequests();
+		verify(server.frontend, times(0)).offer((SelectionKey) anyObject());
 	}
 	
 }
