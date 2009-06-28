@@ -23,16 +23,20 @@ import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.storage.memory.UnboundedMap;
  
 public class CrappyDBD {
+
+	public static final int serverPort = 11211;
+	public static CrappyNetworkServer serverInstance;
 	
 	static public void main(String [] args)
 	{
-		int port = 11211;
 		CommandFactory cmdFactory = new CommandFactory(new UnboundedMap());
-
-		CrappyNetworkServer newinstance = new CrappyNetworkServer(cmdFactory, port);
 		(new HomerBoot()).splashScreen();
-		newinstance.serverSetup();
-		newinstance.start();
+		
+		CrappyDBD.serverInstance = new CrappyNetworkServer(cmdFactory, serverPort).serverSetup();
+		CrappyDBD.serverInstance.start();
 	} 
 	
+	static public void shutdown() {
+		throw new IllegalStateException();
+	}
 }

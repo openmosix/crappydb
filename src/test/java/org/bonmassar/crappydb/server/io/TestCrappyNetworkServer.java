@@ -58,7 +58,7 @@ public class TestCrappyNetworkServer extends TestCase {
 	@Test
 	public void testSetupOk() {
 		server = new CrappyNetworkServer(cmdFactory, 11211);
-		server.serverSetup();
+		assertNotNull(server.serverSetup());
 	}
 	
 	@SuppressWarnings("unchecked")

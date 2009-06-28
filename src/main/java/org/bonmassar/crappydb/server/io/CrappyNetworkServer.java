@@ -49,7 +49,7 @@ public class CrappyNetworkServer {
 		this.cmdFactory = cmdFactory;
 	}
 
-	public void serverSetup() {
+	public CrappyNetworkServer serverSetup() {
 		logger.info(String.format("listening on port %d", serverPort));
 		try {
 			initListenChannel();
@@ -64,6 +64,7 @@ public class CrappyNetworkServer {
 			logger.fatal("Cannot init the network server", ie);
 			throw new RuntimeException("Failed starting daemon - see logs");
 		}
+		return this;
 	}
 
 	public void start() {  

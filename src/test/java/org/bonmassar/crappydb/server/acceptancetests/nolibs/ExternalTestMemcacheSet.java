@@ -16,7 +16,7 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server;
+package org.bonmassar.crappydb.server.acceptancetests.nolibs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
