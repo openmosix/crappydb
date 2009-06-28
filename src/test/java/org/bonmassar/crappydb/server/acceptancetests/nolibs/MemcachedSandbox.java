@@ -37,6 +37,7 @@ public class MemcachedSandbox {
 	}
 	
 	public void stop(){
+		CrappyDBD.shutdown();
 		sandbox.stop();
 	}
 	

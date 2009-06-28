@@ -24,8 +24,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
 
 import junit.framework.TestCase;
 
@@ -38,6 +40,11 @@ public class TestBackendPoolExecutor extends TestCase {
 		backend = new BackendPoolExecutor();
 	}
 	
+	@After
+	public void tearDown() {
+		Registry.INSTANCE.clear();
+	}
+	
 	@Test
 	public void testBeingExecuted() throws InterruptedException{
 		List<ServerCommand> commands = getCommands();
@@ -48,6 +55,8 @@ public class TestBackendPoolExecutor extends TestCase {
 		
 		for (ServerCommand cmd : commands)
 			verify(cmd, times(1)).execCommand();
+		
+		assertEquals(1, Registry.INSTANCE.size());
 	}
 
 	private List<ServerCommand> getCommands() {

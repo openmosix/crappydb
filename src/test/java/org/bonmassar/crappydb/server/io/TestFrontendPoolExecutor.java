@@ -27,6 +27,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
 import org.bonmassar.crappydb.mocks.FakeSelectionKey;
+import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,6 +43,11 @@ public class TestFrontendPoolExecutor extends TestCase {
 		frontend = new FrontendPoolExecutor();
 	}
 	
+	@After
+	public void tearDown() {
+		Registry.INSTANCE.clear();
+	}
+	
 	@Test
 	public void testBeingExecuted() throws InterruptedException{
 		List<SelectionKey> keys = getKeys();
@@ -52,6 +59,8 @@ public class TestFrontendPoolExecutor extends TestCase {
 		//Not really necessary but to make it explicit
 		for (SelectionKey key : keys)
 			verify(key, times(1)).readyOps();
+		
+		assertEquals(1, Registry.INSTANCE.size());
 	}
 
 	private List<SelectionKey> getKeys() {

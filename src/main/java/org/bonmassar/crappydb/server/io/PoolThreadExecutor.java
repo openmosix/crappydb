@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
 
 import org.apache.log4j.Logger;
 
@@ -56,6 +57,7 @@ public abstract class PoolThreadExecutor<T> {
 	protected void initFrontendThreads() {
 		queue = new LinkedBlockingQueue<T>();
 		executor = Executors.newFixedThreadPool(nThreads);
+		Registry.INSTANCE.book(executor);
 		for(int i = 0; i < nThreads; i++)
 			executor.submit (new FutureTask<Integer> ( createNewTask() ));
 	}

@@ -24,22 +24,23 @@ import org.bonmassar.crappydb.server.storage.memory.UnboundedMap;
  
 public class CrappyDBD {
 
-	public static final int serverPort = 11211;
-	public static CrappyNetworkServer serverInstance;
+	private static final int serverPort = 11211;
+	private static CrappyNetworkServer serverInstance;
+	private static ShutdownExecutionRegister threadsKiller;
 	
 	static public void main(String [] args)
 	{
 		CommandFactory cmdFactory = new CommandFactory(new UnboundedMap());
 		(new HomerBoot()).splashScreen();
 
-		ShutdownExecutionRegister sd = new ShutdownExecutionRegister();
-		Runtime.getRuntime().addShutdownHook(sd);
+		threadsKiller = new ShutdownExecutionRegister();
+		Runtime.getRuntime().addShutdownHook(threadsKiller);
 
 		CrappyDBD.serverInstance = new CrappyNetworkServer(cmdFactory, serverPort).serverSetup();
 		CrappyDBD.serverInstance.start();
 	} 
 	
 	static public void shutdown() {
-		throw new IllegalStateException();
+		threadsKiller.run();
 	}
 }
