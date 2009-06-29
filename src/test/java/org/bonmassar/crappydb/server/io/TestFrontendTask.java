@@ -22,7 +22,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.LinkedBlockingQueue;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -37,6 +36,7 @@ import junit.framework.TestCase;
 
 public class TestFrontendTask extends TestCase {
 
+	private DynamicCyclicBarrier barrier;
 	private FrontendTask frontend;
 	private CommandFactory cmdFactory;
 	private Selector parentSelector; 
@@ -45,7 +45,6 @@ public class TestFrontendTask extends TestCase {
 	private SelectionKey selection;
 	private EstablishedConnection esConnection;
 	private FrontendPoolExecutor frontendpool;
-//	private LinkedBlockingQueue<SelectionKey> queue;
 	
 	class FakeFrontendTask extends FrontendTask{
 
@@ -53,7 +52,6 @@ public class TestFrontendTask extends TestCase {
 				Selector parentSelector, BackendPoolExecutor backend,
 				FrontendPoolExecutor fe) {
 			super(cmdFactory, parentSelector, backend, fe);
-			// TODO Auto-generated constructor stub
 		}
 		
 		@Override
@@ -65,6 +63,7 @@ public class TestFrontendTask extends TestCase {
 	
 	@Before
 	public void setUp() {
+		barrier = mock(DynamicCyclicBarrier.class);
 		cmdFactory = mock(CommandFactory.class);
 		parentSelector = mock(Selector.class);
 		backend = mock(BackendPoolExecutor.class);
@@ -79,19 +78,20 @@ public class TestFrontendTask extends TestCase {
 	@Test
 	public void testNoOps() throws Exception {
 		when(frontendpool.take()).thenReturn(selection);
-
+		when(frontendpool.getBarrier()).thenReturn(barrier);
 		when(selection.readyOps()).thenReturn(0);
 		
 		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());
 		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
-		verify(frontendpool, times(1)).waitForSyncPoint();
+		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
 	public void testOnlyReadNoCmds() throws Exception {
 		when(frontendpool.take()).thenReturn(selection);
+		when(frontendpool.getBarrier()).thenReturn(barrier);
 
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		when(esConnection.doRead()).thenReturn(new ArrayList<ServerCommand>());
@@ -100,12 +100,13 @@ public class TestFrontendTask extends TestCase {
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
-		verify(frontendpool, times(1)).waitForSyncPoint();
+		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
 	public void testOnlyReadIOError() throws Exception {
 		when(frontendpool.take()).thenReturn(selection);
+		when(frontendpool.getBarrier()).thenReturn(barrier);
 
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		when(esConnection.doRead()).thenReturn(null);
@@ -114,12 +115,13 @@ public class TestFrontendTask extends TestCase {
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
-		verify(frontendpool, times(1)).waitForSyncPoint();
+		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
 	public void testOnlyReadMultipleCmds() throws InterruptedException {
 		when(frontendpool.take()).thenReturn(selection);
+		when(frontendpool.getBarrier()).thenReturn(barrier);
 
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
@@ -133,12 +135,13 @@ public class TestFrontendTask extends TestCase {
 		verify(backend, times(1)).offer(cmd2);
 		verify(backend, times(1)).offer(cmd3);
 		verify(esConnection, times(0)).doWrite();
-		verify(frontendpool, times(1)).waitForSyncPoint();
+		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
 	public void testOnlyReadOneCmd() throws InterruptedException {
 		when(frontendpool.take()).thenReturn(selection);
+		when(frontendpool.getBarrier()).thenReturn(barrier);
 
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
@@ -148,24 +151,26 @@ public class TestFrontendTask extends TestCase {
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(1)).offer(cmd1);
 		verify(esConnection, times(0)).doWrite();
-		verify(frontendpool, times(1)).waitForSyncPoint();
+		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
 	public void testOnlyWrite() throws InterruptedException {
 		when(frontendpool.take()).thenReturn(selection);
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_WRITE);
-		
+		when(frontendpool.getBarrier()).thenReturn(barrier);
+
 		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(1)).doWrite();
-		verify(frontendpool, times(1)).waitForSyncPoint();
+		verify(barrier, times(1)).countDown();
 	}
 		
 	@Test
 	public void testOnlyAccept() throws InterruptedException{
 		when(frontendpool.take()).thenReturn(selection);
+		when(frontendpool.getBarrier()).thenReturn(barrier);
 
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_ACCEPT);
 		
@@ -173,12 +178,13 @@ public class TestFrontendTask extends TestCase {
 		verify(accepter, times(1)).doAccept((SelectionKey) anyObject());		
 		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
-		verify(frontendpool, times(1)).waitForSyncPoint();
+		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
 	public void testAcceptReadWrite() throws InterruptedException{
 		when(frontendpool.take()).thenReturn(selection);
+		when(frontendpool.getBarrier()).thenReturn(barrier);
 
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_ACCEPT | SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
@@ -191,12 +197,13 @@ public class TestFrontendTask extends TestCase {
 		verify(backend, times(1)).offer(cmd1);
 		verify(backend, times(1)).offer(cmd2);
 		verify(esConnection, times(1)).doWrite();
-		verify(frontendpool, times(1)).waitForSyncPoint();
+		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
 	public void testReadWrite() throws InterruptedException{
 		when(frontendpool.take()).thenReturn(selection);
+		when(frontendpool.getBarrier()).thenReturn(barrier);
 
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
@@ -209,6 +216,6 @@ public class TestFrontendTask extends TestCase {
 		verify(backend, times(1)).offer(cmd1);
 		verify(backend, times(1)).offer(cmd2);
 		verify(esConnection, times(1)).doWrite();
-		verify(frontendpool, times(1)).waitForSyncPoint();
+		verify(barrier, times(1)).countDown();
 	}
 }

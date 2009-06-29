@@ -26,6 +26,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
@@ -70,24 +71,26 @@ public class CrappyNetworkServer {
 
 	public void start() {  
 		while(true){
-			processRequests();
-			frontend.waitForSyncPoint();
+			int njobs = processRequests();
+			frontend.getBarrier().await(njobs);
 		}
 	}
 
-	protected void processRequests() {
-		Iterator<SelectionKey> pendingRequests = select();
+	protected int processRequests() {
+		Set<SelectionKey> pendingRequests = select();
 		if(null==pendingRequests)
-			return;
+			return 0;
 		
-		while(pendingRequests.hasNext()) {
-			SelectionKey key = pendingRequests.next();
+		int taskCounter = pendingRequests.size();
+		for(Iterator<SelectionKey> it = pendingRequests.iterator(); it.hasNext();) {
+			SelectionKey key = it.next();
 			frontend.offer(key);
-			pendingRequests.remove();
+			it.remove();
 		}
+		return taskCounter;
 	}
 
-	private Iterator<SelectionKey> select() {
+	private Set<SelectionKey> select() {
 		try{
 			int pendingio = serverSelector.select();
 			logger.debug(String.format("select pending io %d",pendingio));
@@ -96,7 +99,7 @@ public class CrappyNetworkServer {
 			logger.error("Select IO failed", e);
 			return null;
 		}
-		return serverSelector.selectedKeys().iterator();
+		return serverSelector.selectedKeys();
 	}
 
 	private void registerMainSocketToListener() throws IOException,

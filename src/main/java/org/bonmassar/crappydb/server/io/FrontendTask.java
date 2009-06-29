@@ -52,7 +52,7 @@ public class FrontendTask implements Callable<Integer> {
 	public void executeTask() throws InterruptedException {
 		SelectionKey key = frontend.take();
 		processRequest(key);
-		frontend.waitForSyncPoint();
+		frontend.getBarrier().countDown();
 	}
 	
 	private void processRequest(SelectionKey key) {

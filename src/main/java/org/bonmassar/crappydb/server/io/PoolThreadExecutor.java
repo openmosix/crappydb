@@ -18,9 +18,7 @@
 
 package org.bonmassar.crappydb.server.io;
 
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -34,17 +32,19 @@ public abstract class PoolThreadExecutor<T> {
 	private int nThreads;
 	protected LinkedBlockingQueue<T> queue;
 	protected ExecutorService executor;
-	protected CyclicBarrier syncPoint;
+	protected DynamicCyclicBarrier syncPoint;
 
 	private Logger logger = Logger.getLogger(PoolThreadExecutor.class);
 
 	public PoolThreadExecutor() {
 		nThreads = 1;
+		syncPoint = new NullCyclicBarrier();
 		initFrontendThreads();
 	}
 	
 	public PoolThreadExecutor(int nThreads) {
 		this.nThreads = nThreads;
+		syncPoint = new NullCyclicBarrier();
 		initFrontendThreads();
 	}
 	
@@ -61,20 +61,11 @@ public abstract class PoolThreadExecutor<T> {
 	}
 	
 	public void enableSyncPoint() {
-		syncPoint = new CyclicBarrier(nThreads+1);
+		syncPoint = new CyclicCountDownLatch();
 	}
 	
-	public void waitForSyncPoint() {
-		try {
-			if(null != syncPoint)
-				syncPoint.await();
-		} catch (InterruptedException e) {
-			logger.fatal("IO Synchronization broken!", e);
-			syncPoint.reset();			
-		} catch (BrokenBarrierException e) {
-			logger.fatal("IO Synchronization broken!", e);
-			syncPoint.reset();
-		}
+	public DynamicCyclicBarrier getBarrier() {
+		return syncPoint;
 	}
 	
 	protected void initFrontendThreads() {
