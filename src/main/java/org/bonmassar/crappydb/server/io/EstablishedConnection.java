@@ -30,8 +30,6 @@ public class EstablishedConnection {
 		protected ServerCommandReader commandReader;
 		protected ServerCommandWriter commandWriter;
 		protected ServerCommandCloser commandCloser;
-
-		private String name;
 		
 		private Logger logger = Logger.getLogger(EstablishedConnection.class);
 					        
@@ -77,5 +75,9 @@ public class EstablishedConnection {
 			commandCloser = new ServerCommandCloser(selector);
 		}
 			
-		public void setConnectionId(String nm){name = nm;}	
+		public void setConnectionId(String id){
+			commandReader.setConnectionId(id);
+			commandWriter.setConnectionId(id);
+			commandCloser.setConnectionId(id);
+		}	
 }

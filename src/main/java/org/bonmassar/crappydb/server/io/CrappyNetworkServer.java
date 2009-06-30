@@ -51,7 +51,7 @@ public class CrappyNetworkServer {
 	}
 
 	public CrappyNetworkServer serverSetup() {
-		logger.info(String.format("listening on port %d", serverPort));
+		logger.info(String.format("Listening on port %d", serverPort));
 		try {
 			initListenChannel();
 			initListenSocket();
@@ -93,7 +93,8 @@ public class CrappyNetworkServer {
 	private Set<SelectionKey> select() {
 		try{
 			int pendingio = serverSelector.select();
-			logger.debug(String.format("select pending io %d",pendingio));
+			if(logger.isDebugEnabled())
+				logger.debug(String.format("%d IO operation(s) ready to dispatch", pendingio));
 		}
 		catch(Exception e){
 			logger.error("Select IO failed", e);

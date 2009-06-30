@@ -97,4 +97,9 @@ public class ServerCommandReader {
 		
 		return rawdata;
 	}
+
+	public void setConnectionId(String id) {
+		input.setConnectionId(id);
+		lastCommand.setConnectionId(id);
+	}
 }

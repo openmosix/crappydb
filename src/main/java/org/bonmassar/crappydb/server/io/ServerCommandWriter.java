@@ -33,10 +33,12 @@ public class ServerCommandWriter implements OutputCommandWriter {
 	protected LinkedList<ByteBuffer> bufferList;
 	
 	private Logger logger = Logger.getLogger(ServerCommandWriter.class);
+	private String connectionid;
 	
 	public ServerCommandWriter(SelectionKey requestsDescriptor) {
 		this.requestsDescriptor = requestsDescriptor;
 		bufferList = new LinkedList<ByteBuffer>();
+		connectionid = "unknown";
 	}
 	
 	public void writeToOutstanding(byte[] data) {
@@ -63,7 +65,7 @@ public class ServerCommandWriter implements OutputCommandWriter {
 		if(null != sc && sc.isOpen())
 			return;
 		
-		logger.warn("write closed");
+		logger.warn(String.format("[ =>] [%s] Write closed", connectionid));
 		throw new IOException("Channel closed while writing");
 	}
 	
@@ -98,7 +100,9 @@ public class ServerCommandWriter implements OutputCommandWriter {
 		if(!buffer.hasRemaining())
 			return true;
 		
-		sc.write(buffer);
+		int nbytes = sc.write(buffer);
+		if(logger.isDebugEnabled())
+			logger.debug(String.format("[ =>] [%s] Sent %d bytes", connectionid, nbytes));
 		
 		return continueWritingIfCurrentCompleted(buffer);
 	}
@@ -107,9 +111,15 @@ public class ServerCommandWriter implements OutputCommandWriter {
 		if(!buffer.hasRemaining()) 
 			return true;
 		
-		logger.debug("write blocked");
+		if(logger.isDebugEnabled())
+			logger.debug(String.format("[ =>] [%s] Write blocked", connectionid));
+		
 		requestsDescriptor.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 		return false;
+	}
+
+	public void setConnectionId(String id) {
+		connectionid = id;
 	}
 
 }

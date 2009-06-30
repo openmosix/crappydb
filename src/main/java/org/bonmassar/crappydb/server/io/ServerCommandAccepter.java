@@ -51,10 +51,10 @@ public class ServerCommandAccepter {
 		try {
 			SocketChannel clientChannel = forkSocketChannel(listenerSocketChannel);
 			Socket clientSocket = getInnerSocketData(clientChannel);
-			logger.info("[<=>] " + printRemoteAddress(clientSocket));
+			logger.info(String.format("[<=>] New connection from %s", printRemoteAddress(clientSocket)));
 			registerNewSocketToSelector(clientChannel, printRemoteAddress(clientSocket));
  		}
-		catch(IOException re){logger.error("[<=>] :", re);}
+		catch(IOException re){logger.error("[<=>] Failure establish connection with a client", re);}
 	}
 	
 	private SocketChannel forkSocketChannel(ServerSocketChannel sc) throws IOException{

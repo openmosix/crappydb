@@ -30,9 +30,12 @@ public class ServerCommandFragment {
 	private ServerCommand decodedCmd;
 	
 	private Logger logger = Logger.getLogger(ServerCommandReader.class);
+
+	private Object connectionid;
 	
 	ServerCommandFragment(CommandFactory factory) {
 		commandFactory = factory;
+		connectionid = "unknown";
 		reset();
 	}
 	
@@ -44,7 +47,9 @@ public class ServerCommandFragment {
 	
 	public void getCommandFromCommandLine() {
 		String receivedCommand = commandLine.toString();
-		logger.debug("cmd: "+receivedCommand);
+		
+		if(logger.isDebugEnabled())
+			logger.debug(String.format("[<= ] [%s] Decoded command: %s", connectionid, receivedCommand));
 		
 		decodedCmd = commandFactory.getCommandFromCommandLine(removeCrLfOnTail(receivedCommand));	
 		payloadContentLength = decodedCmd.payloadContentLength();
@@ -92,5 +97,9 @@ public class ServerCommandFragment {
 			return receivedCommand;
 			
 		return receivedCommand.trim().replace("\r\n", "");	
+	}
+
+	public void setConnectionId(String id) {
+		connectionid = id;
 	}	
 }

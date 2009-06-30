@@ -34,11 +34,13 @@ public class InputPipe {
 	protected ByteBuffer buffer;
 	private int lastLengthRead;
 	private Logger logger = Logger.getLogger(InputPipe.class);
+	private String connectionid;
 	
 	public InputPipe(SelectionKey requestsDescriptor){
 		this.requestsDescriptor = requestsDescriptor;
 		buffer = ByteBuffer.allocate(InputPipe.maxChunkSize);
 		lastLengthRead = 0;
+		connectionid = "unknown";
 	}
 	
 	public void precacheDataFromRemote() throws IOException{
@@ -102,7 +104,8 @@ public class InputPipe {
 	private boolean read(SocketChannel channel) throws IOException{
 		buffer.clear();
 		lastLengthRead = channelRead(channel);
-		logger.debug(String.format("read len=%d", lastLengthRead));
+		if(logger.isDebugEnabled())
+			logger.debug(String.format("[<= ] [%s] Received %d bytes", connectionid, lastLengthRead));
 		checkInvalidRead();
 		
 		return lastLengthRead > 0;
@@ -113,14 +116,14 @@ public class InputPipe {
 		try{
 			return channel.read(buffer);
 		}catch(java.nio.BufferOverflowException boe){
-			logger.fatal("Buffer overflow writing data into chunk buffer", boe);
+			logger.fatal(String.format("[<= ] [%s] Buffer overflow writing data into chunk buffer", connectionid), boe);
 			throw new IOException("Chunk too large");
 		}
 	}
 	
 	private void checkInvalidRead() throws IOException{
 		if (lastLengthRead < 0)
-			throw new IOException("Error reading from stream");
+			throw new IOException(String.format("[<= ] [%s] Error reading from stream", connectionid));
 	}
 	
 	private int getEndOfLinePosition(){
@@ -136,6 +139,10 @@ public class InputPipe {
 
 	private boolean brokenLinePacketBeginning() {
 		return buffer.position() == 0 && InputPipe.LF == buffer.get(0);
+	}
+
+	public void setConnectionId(String id) {
+		connectionid = id;
 	}
 
 

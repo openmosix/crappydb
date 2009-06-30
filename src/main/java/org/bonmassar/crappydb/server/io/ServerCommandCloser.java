@@ -29,12 +29,14 @@ public class ServerCommandCloser {
 	protected DBConnectionStatus state;
 	private Logger logger = Logger.getLogger(ServerCommandCloser.class);
 	private SelectionKey selector;
+	private String connectionid;
 
 	protected enum DBConnectionStatus{ OPENED, CLOSED; }
 
 	public ServerCommandCloser(SelectionKey selector){
 		state = DBConnectionStatus.OPENED;
 		this.selector = selector;
+		connectionid = "unknown";
 	}
 	
 	public void closeConnection() {
@@ -49,12 +51,12 @@ public class ServerCommandCloser {
 
 	private void closeSocketChannel(SocketChannel sc) {
 		if(!isChannelOpen(sc)) {
-			logger.warn("Connection already closed");
+			logger.warn(String.format("[<X>] [%s] Connection already closed", connectionid));
 			return;
 		}
 
-		logger.debug("Closing connection");
 		closeChannel(sc);
+		logger.debug(String.format("[<X>] [%s] Connection closed", connectionid));
 	}
 
 	private void closeChannel(SocketChannel sc) {
@@ -62,7 +64,7 @@ public class ServerCommandCloser {
             closeDescriptor(sc);
         }
 		catch(IOException ce){
-			logger.error("close failed", ce);
+			logger.error(String.format("[<X>] [%s] Connection closed failure", connectionid), ce);
 		}
 	}
 
@@ -74,6 +76,10 @@ public class ServerCommandCloser {
 	
 	protected boolean isChannelOpen(SocketChannel sc){
 		return null != sc && sc.isOpen();
+	}
+
+	public void setConnectionId(String id) {
+		connectionid = id;
 	}
 	
 }

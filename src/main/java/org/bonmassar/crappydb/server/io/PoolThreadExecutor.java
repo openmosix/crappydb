@@ -51,9 +51,9 @@ public abstract class PoolThreadExecutor<T> {
 	public void offer(T key) {
 		boolean result = queue.offer(key);
 		if(result)
-			logger.debug(String.format("Added new item to blocking queue (%s", key.toString()));
+			logger.debug(String.format("Added new item to the processing queue (%s)", key.toString()));
 		else
-			logger.debug(String.format("Failed to add new item (%s) to blocking queue", key.toString()));
+			logger.debug(String.format("Failed to add new item (%s) to the processing queue", key.toString()));
 	}
 	
 	public T take() throws InterruptedException {

@@ -58,10 +58,23 @@ public class FrontendTask implements Callable<Integer> {
 	private void processRequest(SelectionKey key) {
 		int availOps = key.readyOps();
 
-		logger.debug(String.format("ready ops=%d",availOps));
+		if(logger.isDebugEnabled())
+			logger.debug(String.format("IO ready for %s => %s", key, selectResultToString(availOps)));
+		
 		read(key, availOps);
 		write(key, availOps);
 		accept(key, availOps);
+	}
+	
+	private String selectResultToString(int pendingio){
+		StringBuilder sb = new StringBuilder();
+		if((pendingio & SelectionKey.OP_ACCEPT)==SelectionKey.OP_ACCEPT)
+			sb.append("ACCEPT-");
+		if((pendingio & SelectionKey.OP_READ)==SelectionKey.OP_READ)
+			sb.append("-READ-");
+		if((pendingio & SelectionKey.OP_WRITE)==SelectionKey.OP_WRITE)
+			sb.append("-WRITE");
+		return sb.toString();
 	}
 	
 	private void read(SelectionKey sk, int availOperations) {
