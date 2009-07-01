@@ -50,7 +50,7 @@ public class ExternalTestMemcacheSet {
 	    out.println(indata);
 
 	    try {
-			String outdata = in.readLine();
+			String outdata = getString(in);//in.readLine();
 			out.close();
 			in.close();
 			echoSocket.close();
@@ -60,5 +60,15 @@ public class ExternalTestMemcacheSet {
 			return null;
 		}	
     }
+	
+	public String getString(BufferedReader in) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		int i = 0;
+		do{
+			i = in.read();
+			sb.append((char)i);
+		}while(i!=-1 && i!=10);
+		return sb.toString();
+	}
 
 }

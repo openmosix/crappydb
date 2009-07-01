@@ -33,6 +33,7 @@ public class SetServerCommand extends ServerCommand {
 	private static final int EXPTIME_POS=2;
 	private static final int BYTES_POS=3;
 	private static final int NOREPLY_POS=4;
+	private static final int CRLF=2;
 	private byte[] payload;
 	private int payloadCursor;
 	
@@ -50,14 +51,14 @@ public class SetServerCommand extends ServerCommand {
 		
 		payloadCursor = 0;
 		int length = payloadContentLength();
-		if(length > 0)
-			payload = new byte[length]; 
+		if(length >= CRLF)
+			payload = new byte[length-CRLF]; 
 	}
 
 	@Override
 	public int payloadContentLength() {
 		try{
-			return Integer.parseInt(params[SetServerCommand.BYTES_POS]);
+			return Integer.parseInt(params[SetServerCommand.BYTES_POS])+CRLF;
 		}catch(NumberFormatException nfe){
 			return 0;
 		}

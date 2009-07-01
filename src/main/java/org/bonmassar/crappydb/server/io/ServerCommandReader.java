@@ -51,7 +51,6 @@ public class ServerCommandReader {
 		ServerCommand cmd = null;
 		while(null != (cmd = decodeOneCommand())){
 			logger.trace(String.format("[<= ] [%s] Incoming command: {%s}", connectionid, cmd));
-
 			commands.add(cmd);
 		}
 		
