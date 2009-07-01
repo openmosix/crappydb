@@ -23,6 +23,7 @@ import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.utils.Base64;
 
 //set <key> <flags> <exptime> <bytes> [noreply]\r\n
 public class SetServerCommand extends ServerCommand {
@@ -112,4 +113,18 @@ public class SetServerCommand extends ServerCommand {
 		return payload;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(String.format("{Set key=%s flags=%s expire=%s nbytes=%s noreply=%s}", params[KEY_POS],
+				params[FLAGS_POS], params[EXPTIME_POS],params[BYTES_POS],isNoReply()?"true":"false"));
+		
+		if(null != payload && payload.length > 0)
+			sb.append(String.format(" {%s}", Base64.encode(payload)));
+		
+		return sb.toString();
+	}
+
+	private boolean isNoReply() {
+		return ((params.length+1) >= NOREPLY_POS && "noreply".equals(NOREPLY_POS));
+	}
 }

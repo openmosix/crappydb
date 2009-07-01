@@ -29,7 +29,7 @@ public class ServerCommandFragment {
 	private int payloadContentLength;
 	private ServerCommand decodedCmd;
 	
-	private Logger logger = Logger.getLogger(ServerCommandReader.class);
+	private Logger logger = Logger.getLogger(ServerCommandFragment.class);
 
 	private Object connectionid;
 	
@@ -46,13 +46,14 @@ public class ServerCommandFragment {
 	}
 	
 	public void getCommandFromCommandLine() {
-		String receivedCommand = commandLine.toString();
+		String receivedCommand = removeCrLfOnTail(commandLine.toString());
+		
+		decodedCmd = commandFactory.getCommandFromCommandLine(receivedCommand);	
+		payloadContentLength = decodedCmd.payloadContentLength();
 		
 		if(logger.isDebugEnabled())
-			logger.debug(String.format("[<= ] [%s] Decoded command: %s", connectionid, receivedCommand));
-		
-		decodedCmd = commandFactory.getCommandFromCommandLine(removeCrLfOnTail(receivedCommand));	
-		payloadContentLength = decodedCmd.payloadContentLength();
+			logger.debug(String.format("[<= ] [%s] Decoded command header: {%s} {payload %d bytes}", connectionid, receivedCommand, payloadContentLength));
+
 	}
 
 	public boolean commandAlreadyDecoded() {
