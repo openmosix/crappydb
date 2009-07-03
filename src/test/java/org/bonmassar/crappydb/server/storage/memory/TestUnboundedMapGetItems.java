@@ -19,6 +19,7 @@
 package org.bonmassar.crappydb.server.storage.memory;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -48,8 +49,6 @@ public class TestUnboundedMapGetItems {
 			fail();
 		} catch (StorageException e) {
 			assertEquals("StorageException [No valid ids]", e.toString());
-		} catch (NotFoundException e) {
-			fail();
 		}
 	}
 	
@@ -57,12 +56,11 @@ public class TestUnboundedMapGetItems {
 	public void getInvalidKey() throws NotStoredException, StorageException {
 		preloadRepository();
 		try {
-			um.get(Arrays.asList(new Key("Miao")));
-			fail();
+			List<Item> found = um.get(Arrays.asList(new Key("Miao")));
+			assertNotNull(found);
+			assertEquals(0, found.size());
 		} catch (StorageException e) {
 			fail();
-		} catch (NotFoundException e) {
-			assertEquals("NotFoundException [No data found]", e.toString());
 		}
 	}
 	

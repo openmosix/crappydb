@@ -21,28 +21,22 @@ package org.bonmassar.crappydb.server.storage.data;
 
 public class Item {
 
-	private Key	storagekey;
+	private final Key storagekey;
 	private Integer flags;
 	private byte[] data;
 	private Cas internalcas;
 	private Long expire;
 	
 	public Item(Key storagekey, byte[] data){
-		init(storagekey, data, null);
+		this.storagekey = storagekey;
+		init(data, null);
 	}
 	
 	public Item(Key storagekey, byte[] data, Integer flags){
-		init(storagekey, data, flags);
+		this.storagekey = storagekey;
+		init(data, flags);
 	}
-	
-	public Item(byte[] data){
-		init(null, data, null);
-	}
-	
-	public Item(byte[] data, Integer flags){
-		init( null, data, flags );
-	}
-	
+			
 	public void setCas(Cas newcas){
 		this.internalcas = newcas;
 	}
@@ -71,14 +65,16 @@ public class Item {
 		data = newdata;
 	}
 	
-	private void init(Key storagekey, byte[] data, Integer flags){
-		this.data = data;
-		this.flags = flags;
-		this.storagekey = storagekey;
-	}
-
 	public Integer getFlags() {
 		return flags;
+	}
+	
+	private void init( byte[] data, Integer flags){
+		if (null==storagekey)
+			throw new NullPointerException();
+		
+		this.data = data;
+		this.flags = flags;
 	}
 	
 }

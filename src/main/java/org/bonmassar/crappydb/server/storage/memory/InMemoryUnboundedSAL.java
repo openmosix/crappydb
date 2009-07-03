@@ -50,8 +50,7 @@ public class InMemoryUnboundedSAL implements StorageAccessLayer {
 		throw new StorageException("Not Implemented.");
 	}
 
-	public List<Item> get(List<Key> ids) throws NotFoundException,
-			StorageException {
+	public List<Item> get(List<Key> ids) throws StorageException {
 		throw new StorageException("Not Implemented.");
 	}
 

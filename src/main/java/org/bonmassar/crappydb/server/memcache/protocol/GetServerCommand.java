@@ -27,6 +27,7 @@ import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.data.Cas;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.utils.Base64;
 
 // get <key>*\r\n
 public class GetServerCommand extends ServerCommand {
@@ -61,8 +62,6 @@ public class GetServerCommand extends ServerCommand {
 		try {
 			List<Item> result = storage.get(keys);
 			writeResult(result);
-		} catch (NotFoundException e) {
-			channel.writeToOutstanding(e.toString().getBytes());
 		} catch (StorageException e) {
 			channel.writeToOutstanding(e.toString().getBytes());
 		}
@@ -111,4 +110,15 @@ public class GetServerCommand extends ServerCommand {
 		
 		return new Key(key);
 	}
+	
+	@Override
+	public String toString() {
+		
+		StringBuilder sb = new StringBuilder(String.format("{Get "));
+		for(int i = 0; i < params.length; i++)
+			sb.append(String.format("key%d=%s ", i+1, params[i]));
+		
+		return sb.append("}").toString();
+	}
+
 }

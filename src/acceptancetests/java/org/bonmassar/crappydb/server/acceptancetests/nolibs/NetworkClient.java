@@ -25,43 +25,41 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class ExternalTestMemcacheSet {
-	
-	private static String host = "localhost";
-	private static int port = 11211;
-	
-	public String sendDataToSocket(String indata) {
-		Socket echoSocket = null;
-        PrintWriter out = null;
-        BufferedReader in = null;
+public class NetworkClient {
 
-        try {
-            echoSocket = new Socket(host, port);
-            out = new PrintWriter(echoSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
-        } catch (UnknownHostException e) {
-            System.err.println("Don't know about host: taranis.");
-            return null;
-        } catch (IOException e) {
-            System.err.println(String.format("Couldn't get I/O for the connection to: %s:%d.", host, port));
-            return null;
-        }
+	private Socket echoSocket;
+	private BufferedReader in;
+	private PrintWriter out;
 
+	public NetworkClient() throws UnknownHostException, IOException {
+		newConnection();
+	}
+
+	public void closeConnection() throws IOException {
+		in.close();
+		out.close();
+		echoSocket.close();
+	}
+	
+	public void resetConnection() throws IOException {
+		closeConnection();
+	}
+	
+	public void sendData(String indata) throws IOException {
 	    out.println(indata);
-
-	    try {
-			String outdata = getString(in);//in.readLine();
-			out.close();
-			in.close();
-			echoSocket.close();
-			return outdata;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}	
     }
 	
-	public String getString(BufferedReader in) throws IOException {
+	public String readline() throws IOException {
+		return readline(in);
+	}
+	
+	private void newConnection() throws UnknownHostException, IOException {
+		echoSocket = new Socket(AcceptanceConfig.HOST, AcceptanceConfig.SERVERPORT);
+        out = new PrintWriter(echoSocket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
+	}
+	
+	private String readline(BufferedReader in) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		int i = 0;
 		do{

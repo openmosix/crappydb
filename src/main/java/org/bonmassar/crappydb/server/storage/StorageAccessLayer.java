@@ -41,7 +41,7 @@ public interface StorageAccessLayer {
 	
 	void swap(Item item) throws NotFoundException, ExistsException, StorageException;
 	
-	List<Item> get(List<Key> ids) throws NotFoundException, StorageException;
+	List<Item> get(List<Key> ids) throws StorageException;
 	
 	void delete(Key id) throws NotFoundException, StorageException;
 	

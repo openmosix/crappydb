@@ -16,29 +16,16 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 package org.bonmassar.crappydb.server.acceptancetests.nolibs;
 
-import org.bonmassar.crappydb.server.CrappyDBD;
+public class AcceptanceConfig {
 
-
-
-public class MemcachedSandbox {
-
-	private Thread sandbox;
+	// Defines the hostname where CrappyDB is located
+	public final static String HOST="localhost";
+		
+	// Defines the port number where CrappyDB is located
+	public final static int SERVERPORT=11211;
 	
-	public void run() { 
-		sandbox = new Thread(new Runnable() {
-		 
-		    public void run() {
-				CrappyDBD.main(null);
-		    }
-		});
-		sandbox.start();
-	}
-	
-	public void stop(){
-		CrappyDBD.shutdown();
-		sandbox.stop();
-	}
 	
 }

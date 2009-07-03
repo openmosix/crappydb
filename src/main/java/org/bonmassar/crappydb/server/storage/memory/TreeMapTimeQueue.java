@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.TreeMap;
 
 
-public class TreeMapTimeQueue implements TimeQueue {
+class TreeMapTimeQueue implements TimeQueue {
 	
-	protected TreeMap<Long, List<Key>> queue;
+	TreeMap<Long, List<Key>> queue;
 	
 	public TreeMapTimeQueue() {
 		queue = new TreeMap<Long, List<Key>>();

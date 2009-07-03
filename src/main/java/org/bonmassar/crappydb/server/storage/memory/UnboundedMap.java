@@ -61,8 +61,7 @@ public class UnboundedMap implements StorageAccessLayer {
 		repository.remove(id);
 	}
 
-	public List<Item> get(List<Key> ids) throws NotFoundException,
-			StorageException {
+	public List<Item> get(List<Key> ids) throws StorageException {
 		checkValidIds(ids);
 		List<Item> resp = new LinkedList<Item>();
 		for (Key k : ids){
@@ -73,10 +72,7 @@ public class UnboundedMap implements StorageAccessLayer {
 			if(null != elem)
 				resp.add(elem);
 		}
-		
-		if(0 == resp.size())
-			throw new NotFoundException("No data found");
-		
+				
 		return resp;
 	}
 

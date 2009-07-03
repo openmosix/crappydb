@@ -25,8 +25,7 @@ import org.bonmassar.crappydb.server.storage.data.Key;
 
 /**
  * A queue of pending keys that need to be expired
- */
-public interface TimeQueue {
+ */interface TimeQueue {
 
 	/**
 	 * Add an elem to the queue
