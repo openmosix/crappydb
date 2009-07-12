@@ -30,7 +30,7 @@ import java.nio.channels.SocketChannel;
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 
-public class ServerCommandAccepter {
+class ServerCommandAccepter {
 
 	private final static int newClientInterests = SelectionKey.OP_READ;
 	private Logger logger = Logger.getLogger(FrontendTask.class);

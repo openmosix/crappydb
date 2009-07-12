@@ -23,7 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-public class BackendTask implements Callable<Integer> {
+class BackendTask implements Callable<Integer> {
 	
 	private LinkedBlockingQueue<ServerCommand> queue;
 	

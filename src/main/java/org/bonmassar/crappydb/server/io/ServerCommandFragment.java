@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-public class ServerCommandFragment {
+class ServerCommandFragment {
 	private CommandFactory commandFactory; 
 
 	private StringBuilder commandLine;

@@ -21,7 +21,7 @@ package org.bonmassar.crappydb.server.io;
 import java.util.concurrent.Callable;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-public class BackendPoolExecutor extends PoolThreadExecutor<ServerCommand> {
+class BackendPoolExecutor extends PoolThreadExecutor<ServerCommand> {
 
 	private final static int nBackendThreads=5;
 	

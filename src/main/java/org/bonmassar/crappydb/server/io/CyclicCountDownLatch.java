@@ -20,7 +20,7 @@ package org.bonmassar.crappydb.server.io;
 
 import org.apache.log4j.Logger;
 
-public class CyclicCountDownLatch implements DynamicCyclicBarrier {
+class CyclicCountDownLatch implements DynamicCyclicBarrier {
 
 	private int counter;
 	private int limit;

@@ -18,7 +18,7 @@
 
 package org.bonmassar.crappydb.server.io;
 
-public interface OutputCommandWriter {
+interface OutputCommandWriter {
 
 	void writeToOutstanding(byte[] data);
 	

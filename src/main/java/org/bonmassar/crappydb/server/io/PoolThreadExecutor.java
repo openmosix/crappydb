@@ -27,7 +27,7 @@ import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
 
 import org.apache.log4j.Logger;
 
-public abstract class PoolThreadExecutor<T> {
+abstract class PoolThreadExecutor<T> {
 
 	private int nThreads;
 	protected LinkedBlockingQueue<T> queue;

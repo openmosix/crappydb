@@ -18,7 +18,7 @@
 
 package org.bonmassar.crappydb.server.io;
 
-public interface DynamicCyclicBarrier {
+interface DynamicCyclicBarrier {
 
 	public void countDown();
 	

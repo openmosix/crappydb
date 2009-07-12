@@ -24,7 +24,7 @@ import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
 
-public class ServerCommandCloser {
+class ServerCommandCloser {
 
 	protected DBConnectionStatus state;
 	private Logger logger = Logger.getLogger(ServerCommandCloser.class);

@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-public class EstablishedConnection {
+class EstablishedConnection {
 		protected ServerCommandReader commandReader;
 		protected ServerCommandWriter commandWriter;
 		protected ServerCommandCloser commandCloser;

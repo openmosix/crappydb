@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-public class FrontendTask implements Callable<Integer> {
+class FrontendTask implements Callable<Integer> {
 	
 	private BackendPoolExecutor backend;
 	private FrontendPoolExecutor frontend;
@@ -70,6 +70,8 @@ public class FrontendTask implements Callable<Integer> {
 		StringBuilder sb = new StringBuilder();
 		if((pendingio & SelectionKey.OP_ACCEPT)==SelectionKey.OP_ACCEPT)
 			sb.append("ACCEPT-");
+		if((pendingio & SelectionKey.OP_CONNECT)==SelectionKey.OP_CONNECT)
+			sb.append("-CONNECT-");
 		if((pendingio & SelectionKey.OP_READ)==SelectionKey.OP_READ)
 			sb.append("-READ-");
 		if((pendingio & SelectionKey.OP_WRITE)==SelectionKey.OP_WRITE)
@@ -82,6 +84,7 @@ public class FrontendTask implements Callable<Integer> {
 			return;
 		
 		EstablishedConnection connHandler = getChannel(sk);
+
 		List<ServerCommand> cmdlist = connHandler.doRead();
 		if(null != cmdlist)
 			for(ServerCommand cmd : cmdlist)

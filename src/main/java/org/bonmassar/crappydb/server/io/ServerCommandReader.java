@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-public class ServerCommandReader {
+class ServerCommandReader {
 
 	protected InputPipe input;
 	private ServerCommandFragment lastCommand;
