@@ -60,7 +60,7 @@ public class InputPipeMock extends InputPipe {
 	}
 	
 	@Override
-	protected Integer channelRead(SocketChannel channel)
+	protected int channelRead(SocketChannel channel)
 			throws IOException {
 		
 		if(wire.size() == 0 || null == wire.get(0).packet)
