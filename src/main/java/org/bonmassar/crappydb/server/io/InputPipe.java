@@ -20,6 +20,7 @@ package org.bonmassar.crappydb.server.io;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
@@ -104,9 +105,9 @@ class InputPipe {
 	private boolean read(SocketChannel channel) throws IOException{
 		buffer.clear();
 		lastLengthRead = channelRead(channel);
+		checkInvalidRead();
 		if(logger.isDebugEnabled())
 			logger.debug(String.format("[<= ] [%s] Received %d bytes", connectionid, lastLengthRead));
-		checkInvalidRead();
 		
 		return lastLengthRead > 0;
 	}
@@ -121,9 +122,9 @@ class InputPipe {
 		}
 	}
 	
-	private void checkInvalidRead() throws IOException{
+	private void checkInvalidRead() throws ClosedChannelException{
 		if (lastLengthRead < 0)
-			throw new IOException(String.format("[<= ] [%s] Error reading from stream", connectionid));
+			throw new ClosedChannelException();
 	}
 	
 	private int getEndOfLinePosition(){

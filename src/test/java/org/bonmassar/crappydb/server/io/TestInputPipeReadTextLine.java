@@ -21,10 +21,12 @@ package org.bonmassar.crappydb.server.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
@@ -91,6 +93,17 @@ public class TestInputPipeReadTextLine {
 		assertEquals("ma che bel castello marcondirondirondello!\r\n", input.readTextLine());
 		assertFalse(input.noDataAvailable());
 		assertEquals("MiaoMiaoMiaoooooo\r\n", input.readTextLine());
+	}
+	
+	@Test
+	public void testClosedConnection() {
+		try {
+			input.precacheDataFromRemote();
+		} catch (ClosedChannelException e) {
+			return;
+		} catch (IOException e) {
+			fail();
+		}
 	}
 	
 }

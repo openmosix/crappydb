@@ -19,12 +19,15 @@
 package org.bonmassar.crappydb.server.io;
 
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
+
+import com.sun.jdi.connect.spi.ClosedConnectionException;
 
 class EstablishedConnection {
 		protected ServerCommandReader commandReader;
@@ -46,6 +49,8 @@ class EstablishedConnection {
 				for(ServerCommand cmd : cmdlist)
 					injectWriter(cmd);
 				return cmdlist;
+			} catch(ClosedChannelException ce){
+				commandCloser.closeConnection();
 			} catch (IOException e) {
 				logger.error("Error reading remote data", e);
 				commandCloser.closeConnection();
