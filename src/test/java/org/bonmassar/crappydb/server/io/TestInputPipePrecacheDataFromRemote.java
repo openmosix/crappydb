@@ -18,7 +18,6 @@
 
 package org.bonmassar.crappydb.server.io;
 
-import org.bonmassar.crappydb.mocks.InputPipeMock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

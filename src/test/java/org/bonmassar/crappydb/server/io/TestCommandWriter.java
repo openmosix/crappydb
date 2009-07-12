@@ -29,7 +29,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 
 import org.bonmassar.crappydb.mocks.OutputChannelMock;
-import org.bonmassar.crappydb.mocks.ServerCommandWriterMock;
 import org.bonmassar.crappydb.mocks.WhateverChannel;
 import org.junit.Before;
 import org.junit.Test;

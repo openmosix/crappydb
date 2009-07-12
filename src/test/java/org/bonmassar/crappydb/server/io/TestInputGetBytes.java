@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-import org.bonmassar.crappydb.mocks.InputPipeMock;
 import org.junit.Before;
 import org.junit.Test;
 
