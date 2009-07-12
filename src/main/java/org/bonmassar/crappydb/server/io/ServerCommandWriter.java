@@ -27,7 +27,7 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 
-public class ServerCommandWriter implements OutputCommandWriter {
+class ServerCommandWriter implements OutputCommandWriter {
 
 	private SelectionKey requestsDescriptor;
 	protected LinkedList<ByteBuffer> bufferList;

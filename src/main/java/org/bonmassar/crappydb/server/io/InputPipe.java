@@ -25,7 +25,7 @@ import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
 
-public class InputPipe {
+class InputPipe {
 	private static final byte CR = 0x0D;
 	private static final byte LF = 0x0A;
 	protected static final int maxChunkSize = 8 * 1024;
