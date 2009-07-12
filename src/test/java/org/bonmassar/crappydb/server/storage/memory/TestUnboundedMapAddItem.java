@@ -50,19 +50,7 @@ public class TestUnboundedMapAddItem {
 			fail();
 		}
 	}
-	
-	@Test
-	public void testInvalidKey() {
-		try {
-			Item it = new Item (null, "some data".getBytes());
-			um.add(it);
-		} catch (StorageException e) {
-			assertEquals("StorageException [Invalid key]", e.toString());
-		} catch (NotStoredException e) {
-			fail();
-		}
-	}
-	
+		
 	@Test
 	public void testKeyAdded() {
 		try {

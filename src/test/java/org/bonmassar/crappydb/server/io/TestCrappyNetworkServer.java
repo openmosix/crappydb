@@ -29,7 +29,9 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,6 +45,11 @@ public class TestCrappyNetworkServer extends TestCase {
 	@Before
 	public void setUp() {
 		cmdFactory = mock(CommandFactory.class);
+	}
+	
+	@After
+	public void tearDown() {
+		Registry.INSTANCE.clear();
 	}
 	
 	@Test
