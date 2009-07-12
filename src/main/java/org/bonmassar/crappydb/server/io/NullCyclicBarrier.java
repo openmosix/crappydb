@@ -18,7 +18,7 @@
 
 package org.bonmassar.crappydb.server.io;
 
-public class NullCyclicBarrier implements DynamicCyclicBarrier {
+class NullCyclicBarrier implements DynamicCyclicBarrier {
 
 	public void await(int count) {}
 
