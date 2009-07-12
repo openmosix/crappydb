@@ -45,6 +45,7 @@ public class TestNormalUseCases {
 		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
 		String OUT = "STORED\r\n";
 		testServerInOut(input, OUT);
+		clean("terminenzio");
 	}
 	
 	@Test
@@ -55,6 +56,7 @@ public class TestNormalUseCases {
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 24\r\n", 
 				"This is simply a string.\r\n", "END\r\n"});
+		clean("terminenzio");
 	}
 	
 	@Test
@@ -86,6 +88,8 @@ public class TestNormalUseCases {
 				"VALUE terminenzio1 12 24\r\n",
 				"This is simply a string.\r\n",
 				"END\r\n"});
+	
+		clean(new String[]{"terminenzio1", "terminenzio2", "terminenzio3", "terminenzio4"});
 	}
 	
 	@Test
@@ -129,6 +133,8 @@ public class TestNormalUseCases {
 				"VALUE terminenzio1 12 24\r\n",
 				"This is simply a string.\r\n",
 				"END\r\n"});
+		
+		clean(new String[]{"terminenzio1", "terminenzio2", "terminenzio3", "terminenzio4"});
 	}
 	
 	@Test
@@ -161,5 +167,14 @@ public class TestNormalUseCases {
 		client.sendData(in);
 		for(int i = 0; i < outs.length; i++)
 			assertEquals(outs[i], client.readline());
+	}
+	
+	private void clean(String key) throws IOException{
+		testServerInOut(String.format("delete %s\r\n", key), "DELETED\r\n");
+	}
+	
+	private void clean(String[] keys) throws IOException{
+		for(String key : keys)
+			clean(key);
 	}
 }
