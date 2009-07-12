@@ -111,7 +111,7 @@ public class InputPipe {
 		return lastLengthRead > 0;
 	}
 
-	protected Integer channelRead(SocketChannel channel) throws IOException {
+	protected int channelRead(SocketChannel channel) throws IOException {
 		//Mockito does not stub properly function that returns boolean/int
 		try{
 			return channel.read(buffer);
