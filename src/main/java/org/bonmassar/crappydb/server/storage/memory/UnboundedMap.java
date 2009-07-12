@@ -109,7 +109,7 @@ public class UnboundedMap implements StorageAccessLayer {
 	private void checkItem(Item item) throws StorageException {
 		if(null == item)
 			throw new StorageException("Null item");
-		if(null == item.getKey())
+		if("".equals(item.getKey()))
 			throw new StorageException("Invalid key");
 	}
 	
