@@ -9,5 +9,5 @@ CrappyDB - 0.0.1a
   
   Bugs:
   
-  * Su chiusura del socket, viene stampata una stacktrace - brutto!
-  * La get per una chiave sconosciuta va in deadlock
+  * Su chiusura del socket, viene stampata una stacktrace - brutto!  
+ 

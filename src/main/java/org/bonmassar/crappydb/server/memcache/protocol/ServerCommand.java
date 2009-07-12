@@ -19,13 +19,13 @@
 package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
-import org.bonmassar.crappydb.server.io.ServerCommandWriter;
+import org.bonmassar.crappydb.server.io.OutputCommandWriter;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
 public abstract class ServerCommand {
 
 	protected StorageAccessLayer storage;
-	protected ServerCommandWriter channel;
+	protected OutputCommandWriter channel;
 	
 	protected String[] params;
 	
@@ -42,7 +42,7 @@ public abstract class ServerCommand {
 	
 	public abstract void addPayloadContentPart(byte[] data);
 
-	public void attachCommandWriter(ServerCommandWriter writer) {
+	public void attachCommandWriter(OutputCommandWriter writer) {
 		channel = writer;
 	}
 	
