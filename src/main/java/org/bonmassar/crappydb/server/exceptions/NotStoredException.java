@@ -20,6 +20,8 @@ package org.bonmassar.crappydb.server.exceptions;
 
 public class NotStoredException extends CrappyDBException {
 	
+	private static final long serialVersionUID = 946340538603753917L;
+
 	public NotStoredException(String reason) {
 		super(reason);
 	}

@@ -20,6 +20,8 @@ package org.bonmassar.crappydb.server.exceptions;
 
 public class NotFoundException extends CrappyDBException {
 
+	private static final long serialVersionUID = -5406576634787162210L;
+
 	public NotFoundException(String reason) {
 		super(reason);
 	}

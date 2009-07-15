@@ -20,6 +20,8 @@ package org.bonmassar.crappydb.server.exceptions;
 
 public class ErrorException extends CrappyDBException {
 
+	private static final long serialVersionUID = 1750319528339705716L;
+
 	public ErrorException(String reason) {
 		super(reason);
 	}
