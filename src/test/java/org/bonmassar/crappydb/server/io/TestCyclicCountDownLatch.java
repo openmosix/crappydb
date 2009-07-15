@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
-import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
