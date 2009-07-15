@@ -50,7 +50,7 @@ class GetServerCommand extends ServerCommandNoPayload {
 			List<Item> result = storage.get(keys);
 			writeResult(result);
 		} catch (StorageException e) {
-			channel.writeToOutstanding(e.toString().getBytes());
+			channel.writeToOutstanding(e.toString());
 		}
 	}
 
@@ -62,7 +62,7 @@ class GetServerCommand extends ServerCommandNoPayload {
 			writeOneItem(it);
 		}
 		
-		channel.writeToOutstanding("END\r\n".getBytes());
+		channel.writeToOutstanding("END\r\n");
 	}
 
 	private void writeOneItem(Item it) {
@@ -70,14 +70,14 @@ class GetServerCommand extends ServerCommandNoPayload {
 		byte[] data = it.getData();
 		int length = (data != null) ? data.length : 0;
 		if(null == cas)
-			channel.writeToOutstanding(String.format("VALUE %s %d %d\r\n", it.getKey(), it.getFlags(), length).getBytes());
+			channel.writeToOutstanding(String.format("VALUE %s %d %d\r\n", it.getKey(), it.getFlags(), length));
 		else
-			channel.writeToOutstanding(String.format("VALUE %s %d %d %d\r\n", it.getKey(), it.getFlags(), length, cas.getUniquecas()).getBytes());
+			channel.writeToOutstanding(String.format("VALUE %s %d %d %d\r\n", it.getKey(), it.getFlags(), length, cas.getUniquecas()));
 		
 		if(length > 0)
 			channel.writeToOutstanding(data);
 		
-		channel.writeToOutstanding("\r\n".getBytes());
+		channel.writeToOutstanding("\r\n");
 	}
 
 	private List<Key> getKeys() {

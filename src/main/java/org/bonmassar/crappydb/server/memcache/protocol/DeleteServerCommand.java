@@ -41,15 +41,15 @@ class DeleteServerCommand extends ServerCommandNoPayload {
 	public void execCommand() {
 		Key k = getKey(params[DeleteServerCommand.KEY_POS]);
 		if(null == k)
-			channel.writeToOutstanding("Invalid key\r\n".getBytes());
+			channel.writeToOutstanding("Invalid key\r\n");
 		
 		try {
 			storage.delete(k);
-			channel.writeToOutstanding("DELETED\r\n".getBytes());
+			channel.writeToOutstanding("DELETED\r\n");
 		} catch (NotFoundException e) {
-			channel.writeToOutstanding(e.toString().getBytes());
+			channel.writeToOutstanding(e.toString());
 		} catch (StorageException e) {			
-			channel.writeToOutstanding(e.toString().getBytes());
+			channel.writeToOutstanding(e.toString());
 		}
 	}
 	
