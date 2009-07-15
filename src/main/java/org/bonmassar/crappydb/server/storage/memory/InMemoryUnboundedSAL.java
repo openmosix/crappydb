@@ -30,8 +30,8 @@ import org.bonmassar.crappydb.server.storage.data.Key;
 
 public class InMemoryUnboundedSAL implements StorageAccessLayer {
 	
-	private UnboundedMap storage;
-	private TimeQueue expire;
+	//private UnboundedMap storage;
+	//private TimeQueue expire;
 
 	public void add(Item item) throws NotStoredException, StorageException {
 		throw new StorageException("Not Implemented.");
