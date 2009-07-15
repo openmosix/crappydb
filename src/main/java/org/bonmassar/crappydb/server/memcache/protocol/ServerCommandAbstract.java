@@ -21,6 +21,7 @@ package org.bonmassar.crappydb.server.memcache.protocol;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.io.OutputCommandWriter;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
+import org.bonmassar.crappydb.server.io.DevNullCommandWriter;
 
 abstract class ServerCommandAbstract implements ServerCommand {
 	
@@ -28,6 +29,8 @@ abstract class ServerCommandAbstract implements ServerCommand {
 	protected OutputCommandWriter channel;
 	
 	protected String[] params;
+	
+	protected abstract int getNoReplyPosition();
 	
 	public void parseCommandParams(String commandParams) throws ErrorException{
 		if(null == commandParams || commandParams.length() == 0)
@@ -39,11 +42,21 @@ abstract class ServerCommandAbstract implements ServerCommand {
 	}
 		
 	public void attachCommandWriter(OutputCommandWriter writer) {
-		channel = writer;
+		if(isResponseRequested())
+			channel = writer;
+		else
+			channel = DevNullCommandWriter.INSTANCE;
 	}
 	
 	public void setStorage(StorageAccessLayer storage) {
 		this.storage = storage;
 	}
+		
+	private boolean isResponseRequested(){
+		int noreplypos = getNoReplyPosition();
+		return -1 != noreplypos && noreplypos <= params.length 
+			&& "noreply".equals(params[noreplypos]);
+	}
+
 
 }

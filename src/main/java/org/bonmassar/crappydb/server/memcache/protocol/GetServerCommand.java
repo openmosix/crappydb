@@ -108,4 +108,9 @@ class GetServerCommand extends ServerCommandNoPayload {
 		return sb.append("}").toString();
 	}
 
+	@Override
+	protected int getNoReplyPosition() {
+		return -1;
+	}
+
 }

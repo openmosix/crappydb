@@ -18,14 +18,11 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
-import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.io.OutputCommandWriter;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
 public interface ServerCommand {
-	
-	public void parseCommandParams(String commandParams) throws ErrorException;
-	
+		
 	public int payloadContentLength();
 	
 	public void addPayloadContentPart(byte[] data);

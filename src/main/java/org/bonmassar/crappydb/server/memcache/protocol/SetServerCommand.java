@@ -125,4 +125,9 @@ class SetServerCommand extends ServerCommandAbstract {
 	private boolean isNoReply() {
 		return ((params.length+1) >= NOREPLY_POS && "noreply".equals(NOREPLY_POS));
 	}
+
+	@Override
+	protected int getNoReplyPosition() {
+		return NOREPLY_POS;
+	}
 }

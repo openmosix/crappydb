@@ -33,4 +33,9 @@ public class ExceptionCommand extends ServerCommandNoPayload {
 		channel.writeToOutstanding(exception.toString().getBytes());
 	}
 
+	@Override
+	protected int getNoReplyPosition() {
+		return -1;
+	}
+
 }

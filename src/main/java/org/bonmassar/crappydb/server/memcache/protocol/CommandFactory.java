@@ -45,30 +45,34 @@ public class CommandFactory {
 		}
 	}
 	
+	public ServerCommand createErrorCommand(Exception e) {
+		return new ExceptionCommand(new ErrorException(e.getMessage()));
+	}
+	
 	private ServerCommand findCommandFromCommandLine(String commandLine) throws ErrorException{
 		if(null == commandLine || commandLine.length() == 0)
 			checkInvalidCommand(null);
 		
 		String cmd = getCommandName(commandLine);
-		ServerCommand serverCmd = getCommand(cmd);
+		ServerCommandAbstract serverCmd = getCommand(cmd);
 		serverCmd.parseCommandParams(getCommandParams(commandLine));
 		return serverCmd;
 	}
 
-	public ServerCommand getCommand(String cmd) throws ErrorException{
+	protected ServerCommandAbstract getCommand(String cmd) throws ErrorException{
 		checkInvalidCommand(cmd);
 		Class<?> handler = commands.get(cmd);
 		checkValidHandler(handler);
 		
-		ServerCommand serverCmd = getNewInstance(handler);
+		ServerCommandAbstract serverCmd = getNewInstance(handler);
 		serverCmd.setStorage(sal);
 		
 		return serverCmd;
 	}
 
-	private ServerCommand getNewInstance(Class<?> handler) {
+	private ServerCommandAbstract getNewInstance(Class<?> handler) {
 		try {
-			return (ServerCommand) handler.newInstance();
+			return (ServerCommandAbstract) handler.newInstance();
 		} catch (InstantiationException e) {
 			// I should log something
 			e.printStackTrace();
@@ -100,10 +104,6 @@ public class CommandFactory {
 
 	private String getCommandParams(String commandLine) {
 		return commandLine.substring(commandLine.indexOf(' ')+1);
-	}
-
-	public ServerCommand createErrorCommand(Exception e) {
-		return new ExceptionCommand(new ErrorException(e.getMessage()));
 	}
 	
 }
