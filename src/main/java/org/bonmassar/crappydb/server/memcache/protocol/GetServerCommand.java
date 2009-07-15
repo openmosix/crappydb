@@ -22,15 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
-import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.data.Cas;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
-import org.bonmassar.crappydb.utils.Base64;
 
 // get <key>*\r\n
-public class GetServerCommand extends ServerCommand {
+class GetServerCommand extends ServerCommandAbstract {
 
 	public static String getCmdName() {
 		return "get";
@@ -43,17 +41,14 @@ public class GetServerCommand extends ServerCommand {
 			throw new ErrorException("No keys.");
 	}
 
-	@Override
 	public int payloadContentLength() {
 		return 0;
 	}
 
-	@Override
 	public void addPayloadContentPart(byte[] data) {
 		throw new IllegalArgumentException();
 	}
 
-	@Override
 	public void execCommand() {
 		List<Key> keys = getKeys();
 		if(keys.size() == 0)

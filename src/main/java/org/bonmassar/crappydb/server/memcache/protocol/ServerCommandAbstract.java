@@ -18,28 +18,32 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
-import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+import org.bonmassar.crappydb.server.exceptions.ErrorException;
+import org.bonmassar.crappydb.server.io.OutputCommandWriter;
+import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
-public class ExceptionCommand extends ServerCommandAbstract {
-
-	private CrappyDBException exception;
+public abstract class ServerCommandAbstract implements ServerCommand {
 	
-	public ExceptionCommand(CrappyDBException exception) {
-		super();
-		this.exception = exception;
+	protected StorageAccessLayer storage;
+	protected OutputCommandWriter channel;
+	
+	protected String[] params;
+	
+	public void parseCommandParams(String commandParams) throws ErrorException{
+		if(null == commandParams || commandParams.length() == 0)
+			throw new ErrorException("Null parameters");
+		
+		params = commandParams.trim().split("\\s");
+		if(null == params)
+			throw new ErrorException("Null parameters");
 	}
-
-	public void addPayloadContentPart(byte[] data) {
-		throw new IllegalArgumentException();
+		
+	public void attachCommandWriter(OutputCommandWriter writer) {
+		channel = writer;
 	}
-
-	public void execCommand() {
-		channel.writeToOutstanding(exception.toString().getBytes());
-	}
-
-	public int payloadContentLength() {
-		// TODO Auto-generated method stub
-		return 0;
+	
+	public void setStorage(StorageAccessLayer storage) {
+		this.storage = storage;
 	}
 
 }

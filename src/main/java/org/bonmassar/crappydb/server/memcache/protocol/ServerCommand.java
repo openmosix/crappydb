@@ -22,34 +22,17 @@ import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.io.OutputCommandWriter;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
-public abstract class ServerCommand {
+public interface ServerCommand {
+	
+	public void parseCommandParams(String commandParams) throws ErrorException;
+	
+	public int payloadContentLength();
+	
+	public void addPayloadContentPart(byte[] data);
 
-	protected StorageAccessLayer storage;
-	protected OutputCommandWriter channel;
+	public void attachCommandWriter(OutputCommandWriter writer);
 	
-	protected String[] params;
+	public void setStorage(StorageAccessLayer storage);
 	
-	public void parseCommandParams(String commandParams) throws ErrorException{
-		if(null == commandParams || commandParams.length() == 0)
-			throw new ErrorException("Null parameters");
-		
-		params = commandParams.trim().split("\\s");
-		if(null == params)
-			throw new ErrorException("Null parameters");
-	}
-	
-	public abstract int payloadContentLength();
-	
-	public abstract void addPayloadContentPart(byte[] data);
-
-	public void attachCommandWriter(OutputCommandWriter writer) {
-		channel = writer;
-	}
-	
-	public abstract void execCommand();
-
-	public void setStorage(StorageAccessLayer storage) {
-		this.storage = storage;
-	}
-	
+	public void execCommand();
 }

@@ -26,7 +26,7 @@ import org.bonmassar.crappydb.server.storage.data.Key;
 import org.bonmassar.crappydb.utils.Base64;
 
 //set <key> <flags> <exptime> <bytes> [noreply]\r\n
-public class SetServerCommand extends ServerCommand {
+class SetServerCommand extends ServerCommandAbstract {
 	
 	private static final int KEY_POS=0;
 	private static final int FLAGS_POS=1;
@@ -55,7 +55,6 @@ public class SetServerCommand extends ServerCommand {
 			payload = new byte[length-CRLF]; 
 	}
 
-	@Override
 	public int payloadContentLength() {
 		try{
 			return Integer.parseInt(params[SetServerCommand.BYTES_POS])+CRLF;
@@ -64,7 +63,6 @@ public class SetServerCommand extends ServerCommand {
 		}
 	}
 
-	@Override
 	public void addPayloadContentPart(byte[] data) {
 		if(null == data || data.length == 0 || payload.length == payloadCursor)
 			return;
@@ -76,7 +74,6 @@ public class SetServerCommand extends ServerCommand {
 		payloadCursor += length;
 	}
 
-	@Override
 	public void execCommand() {
 		logger.debug("Executed command set");
 
