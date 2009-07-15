@@ -24,7 +24,7 @@ import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
 // delete <key> [<time>] [noreply]\r\n
-public class DeleteServerCommand extends ServerCommandAbstract {
+class DeleteServerCommand extends ServerCommandNoPayload {
 
 	private static final int KEY_POS=0;
 	
@@ -36,14 +36,6 @@ public class DeleteServerCommand extends ServerCommandAbstract {
 		super.parseCommandParams(commandParams);
 		if(0 == params.length)
 			throw new ErrorException("Invalid number of parameters");
-	}
-
-	public int payloadContentLength() {
-		return 0;
-	}
-
-	public void addPayloadContentPart(byte[] data) {
-		throw new IllegalArgumentException();		
 	}
 
 	public void execCommand() {

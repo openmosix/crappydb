@@ -22,7 +22,7 @@ import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.io.OutputCommandWriter;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
-public abstract class ServerCommandAbstract implements ServerCommand {
+abstract class ServerCommandAbstract implements ServerCommand {
 	
 	protected StorageAccessLayer storage;
 	protected OutputCommandWriter channel;

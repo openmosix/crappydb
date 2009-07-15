@@ -18,19 +18,14 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
-import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+public abstract class ServerCommandNoPayload extends ServerCommandAbstract {
 
-public class ExceptionCommand extends ServerCommandNoPayload {
-
-	private CrappyDBException exception;
-	
-	public ExceptionCommand(CrappyDBException exception) {
-		super();
-		this.exception = exception;
+	public void addPayloadContentPart(byte[] data) {
+		throw new IllegalArgumentException();
 	}
-
-	public void execCommand() {
-		channel.writeToOutstanding(exception.toString().getBytes());
+	
+	public int payloadContentLength() {
+		return 0;
 	}
 
 }
