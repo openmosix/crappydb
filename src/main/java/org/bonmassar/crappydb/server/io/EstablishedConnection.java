@@ -27,8 +27,6 @@ import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-import com.sun.jdi.connect.spi.ClosedConnectionException;
-
 class EstablishedConnection {
 		protected ServerCommandReader commandReader;
 		protected ServerCommandWriter commandWriter;
