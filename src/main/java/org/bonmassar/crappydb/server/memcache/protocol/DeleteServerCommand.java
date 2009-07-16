@@ -62,7 +62,7 @@ class DeleteServerCommand extends ServerCommandNoPayload {
 
 	@Override
 	protected int getNoReplyPosition() {
-		return params.length == 2 ? 2 : 1;
+		return params.length == 3 ? 2 : 1;
 	}
 
 	

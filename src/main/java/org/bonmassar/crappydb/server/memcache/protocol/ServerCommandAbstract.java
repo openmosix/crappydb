@@ -54,8 +54,8 @@ abstract class ServerCommandAbstract implements ServerCommand {
 		
 	private boolean isResponseRequested(){
 		int noreplypos = getNoReplyPosition();
-		return -1 != noreplypos && noreplypos <= params.length 
-			&& "noreply".equals(params[noreplypos]);
+		return -1 == noreplypos || noreplypos >= params.length 
+			|| !"noreply".equals(params[noreplypos]);
 	}
 
 

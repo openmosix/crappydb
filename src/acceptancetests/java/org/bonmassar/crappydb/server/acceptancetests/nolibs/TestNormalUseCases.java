@@ -49,10 +49,29 @@ public class TestNormalUseCases {
 	}
 	
 	@Test
+	public void testSetCommandNoReply() throws IOException {
+		String input = "set terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
+		testServerNoOutput(input);
+		
+		clean("terminenzio");
+	}
+	
+	@Test
 	public void testSetAndGetCommand() throws IOException {
 		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
 		String OUT = "STORED\r\n";
 		testServerInOut(input, OUT);
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", "END\r\n"});
+		clean("terminenzio");
+	}
+	
+	@Test
+	public void testSetAndGetCommandNoReply() throws IOException {
+		String input = "set terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
+		testServerNoOutput(input);
+
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 24\r\n", 
 				"This is simply a string.\r\n", "END\r\n"});
@@ -91,7 +110,36 @@ public class TestNormalUseCases {
 	
 		clean(new String[]{"terminenzio1", "terminenzio2", "terminenzio3", "terminenzio4"});
 	}
+
+	@Test
+	public void testMultipleSetAndGetsCommandsNoReply() throws IOException {
+		String input = "set terminenzio1 12 5 24 noreply\r\nThis is simply a string.\r\n";
+		testServerNoOutput(input);
+		
+		input = "set terminenzio2 24 10 23 noreply\r\nThis is another string.\r\n";
+		testServerNoOutput(input);
 	
+		input = "set terminenzio3 36 15 15 noreply\r\nWhat's up dude?\r\n";
+		testServerNoOutput(input);
+	
+		input = "set terminenzio4 48 20 37 noreply\r\nThis is the last one and we are done!\r\n";
+		testServerNoOutput(input);
+	
+		input = "get terminenzio4 terminenzio3 terminenzio2 terminenzio1\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio4 48 37\r\n", 
+				"This is the last one and we are done!\r\n", 
+				"VALUE terminenzio3 36 15\r\n", 
+				"What's up dude?\r\n",
+				"VALUE terminenzio2 24 23\r\n",
+				"This is another string.\r\n",
+				"VALUE terminenzio1 12 24\r\n",
+				"This is simply a string.\r\n",
+				"END\r\n"});
+	
+		clean(new String[]{"terminenzio1", "terminenzio2", "terminenzio3", "terminenzio4"});
+	}
+
 	@Test
 	public void testMultipleSetAndMultipleGetCommands() throws IOException {
 		String input = "set terminenzio1 12 5 24\r\nThis is simply a string.\r\n";
@@ -136,6 +184,48 @@ public class TestNormalUseCases {
 		
 		clean(new String[]{"terminenzio1", "terminenzio2", "terminenzio3", "terminenzio4"});
 	}
+
+	@Test
+	public void testMultipleSetAndMultipleGetCommandsNoReply() throws IOException {
+		String input = "set terminenzio1 12 5 24 noreply\r\nThis is simply a string.\r\n";
+		testServerNoOutput(input);
+		
+		input = "set terminenzio2 24 10 23 noreply\r\nThis is another string.\r\n";
+		testServerNoOutput(input);
+	
+		input = "set terminenzio3 36 15 15 noreply\r\nWhat's up dude?\r\n";
+		testServerNoOutput(input);
+	
+		input = "set terminenzio4 48 20 37 noreply\r\nThis is the last one and we are done!\r\n";
+		testServerNoOutput(input);
+	
+		input = "get terminenzio4\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio4 48 37\r\n", 
+				"This is the last one and we are done!\r\n", 
+				"END\r\n"});
+		
+		input = "get terminenzio3\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio3 36 15\r\n", 
+				"What's up dude?\r\n",
+				"END\r\n"});
+		
+		input = "get terminenzio2\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio2 24 23\r\n",
+				"This is another string.\r\n",
+				"END\r\n"});
+		
+		input = "get terminenzio1\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio1 12 24\r\n",
+				"This is simply a string.\r\n",
+				"END\r\n"});
+		
+		clean(new String[]{"terminenzio1", "terminenzio2", "terminenzio3", "terminenzio4"});
+	}
+
 	
 	@Test
 	public void testGetNotExistingElement() throws IOException {
@@ -157,11 +247,33 @@ public class TestNormalUseCases {
 		input = "get terminenzio\r\n";
 		testServerInOut(input, "END\r\n");
 	}
+
+	@Test
+	public void testSetGetDeleteGetNoReply() throws IOException {
+		String input = "set terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
+		testServerNoOutput(input);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", "END\r\n"});
+		
+		input = "delete terminenzio noreply\r\n";
+		testServerNoOutput(input);
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	}
+
 	
 	private void testServerInOut(String in, String out) throws IOException {
 		client.sendData(in);
 		assertEquals(out, client.readline());
 	}
+	
+	private void testServerNoOutput(String input) throws IOException {
+		client.sendData(input);		
+	}
+
 	
 	private void testServerInMultipleOut(String in, String[] outs) throws IOException{
 		client.sendData(in);
