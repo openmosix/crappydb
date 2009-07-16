@@ -19,23 +19,40 @@
 package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+import org.bonmassar.crappydb.server.io.OutputCommandWriter;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ExceptionCommand extends ServerCommandNoPayload {
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import junit.framework.TestCase;
 
+public class TestExceptionCommand extends TestCase {
+
+	private ExceptionCommand command;
 	private CrappyDBException exception;
+	private OutputCommandWriter writer;
 	
-	public ExceptionCommand(CrappyDBException exception) {
-		super();
-		this.exception = exception;
+	@Before
+	public void setUp() {
+		exception = mock(CrappyDBException.class);
+		command = new ExceptionCommand(exception);
+		writer = mock(OutputCommandWriter.class);
+		command.attachCommandWriter(writer);
 	}
-
-	public void execCommand() {
-		channel.writeToOutstanding(exception.toString());
+	
+	@Test
+	public void testShouldNotSupportNoReply() {
+		assertEquals(-1, command.getNoReplyPosition());
 	}
-
-	@Override
-	protected int getNoReplyPosition() {
-		return -1;
+	
+	@Test
+	public void testShouldWriteAnError() {
+		when(exception.toString()).thenReturn("BOOM!");
+		command.execCommand();
+		verify(writer, times(1)).writeToOutstanding("BOOM!");
 	}
-
+	
 }
