@@ -19,6 +19,8 @@
 package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
+import org.bonmassar.crappydb.server.io.DevNullCommandWriter;
+import org.bonmassar.crappydb.server.io.OutputCommandWriter;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,10 +45,12 @@ public class TestServerCommandAbstract extends TestCase {
 	}
 	
 	private CommandAbstractImpl command;
+	private OutputCommandWriter writer;
 	
 	@Before
 	public void setUp() {
 		command = new CommandAbstractImpl();
+		writer = mock(OutputCommandWriter.class);
 	}
 	
 	@Test
@@ -121,5 +125,36 @@ public class TestServerCommandAbstract extends TestCase {
 		StorageAccessLayer sal = mock(StorageAccessLayer.class);
 		command.setStorage(sal);
 		assertEquals(command.storage, sal);
+	}
+	
+	@Test 
+	public void testShouldInjectAWriterWithNoSupportOfNoReply() throws ErrorException {
+		command.parseCommandParams("     param1  param2    param3     param4 ");		
+		command.attachCommandWriter(writer);
+		assertEquals(writer, command.channel);
+	}
+	
+	@Test 
+	public void testShouldInjectAWriterWithNoReplyButNotPresent() throws ErrorException {
+		command.parseCommandParams("     param1  param2    param3     param4 ");
+		command.replyPosition = 4;
+		command.attachCommandWriter(writer);
+		assertEquals(writer, command.channel);
+	}
+	
+	@Test 
+	public void testShouldInjectAWriterWithNoReplyButWrongParam() throws ErrorException {
+		command.parseCommandParams("     param1  param2    param3     param4 ");
+		command.replyPosition = 3;
+		command.attachCommandWriter(writer);
+		assertEquals(writer, command.channel);
+	}
+	
+	@Test 
+	public void testShouldInjectAWriterWithNoReply() throws ErrorException {
+		command.parseCommandParams("     param1  param2    param3     noreply ");
+		command.replyPosition = 3;
+		command.attachCommandWriter(writer);
+		assertEquals(DevNullCommandWriter.INSTANCE, command.channel);
 	}
 }
