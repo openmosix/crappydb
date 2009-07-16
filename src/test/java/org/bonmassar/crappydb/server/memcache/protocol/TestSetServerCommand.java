@@ -176,4 +176,28 @@ public class TestSetServerCommand extends TestCase {
 		verify(storage, times(1)).set((Item) anyObject());
 		verify(output, times(1)).writeToOutstanding("StorageException [BOOM!]");
 	}
+	
+	@Test
+	public void testToString() throws ErrorException {
+		command.parseCommandParams("terminenzio 12 48 50 noreply\r\n");
+		command.addPayloadContentPart("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789".getBytes());
+		
+		assertEquals("{Set key=terminenzio flags=12 expire=48 nbytes=50 noreply=true} {MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODk=}", command.toString());
+	}
+
+	@Test
+	public void testToStringNoReply() throws ErrorException {
+		command.parseCommandParams("terminenzio 12 48 50\r\n");
+		command.addPayloadContentPart("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789".getBytes());
+		
+		assertEquals("{Set key=terminenzio flags=12 expire=48 nbytes=50 noreply=false} {MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODk=}", command.toString());
+	}
+	
+	@Test
+	public void testToStringNoReplyNoPayload() throws ErrorException {
+		command.parseCommandParams("terminenzio 12 48 50\r\n");
+		
+		assertEquals("{Set key=terminenzio flags=12 expire=48 nbytes=50 noreply=false}", command.toString());
+	}
+
 }

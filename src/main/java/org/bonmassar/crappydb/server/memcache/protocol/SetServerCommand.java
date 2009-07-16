@@ -87,6 +87,22 @@ class SetServerCommand extends ServerCommandAbstract {
 		}
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(String.format("{Set key=%s flags=%s expire=%s nbytes=%s noreply=%s}", params[KEY_POS],
+				params[FLAGS_POS], params[EXPTIME_POS],params[BYTES_POS],isNoReply()?"true":"false"));
+		
+		if(null != payload && payload.length > 0 && payloadCursor > 0)
+			sb.append(String.format(" {%s}", Base64.encode(payload)));
+		
+		return sb.toString();
+	}
+	
+	@Override
+	protected int getNoReplyPosition() {
+		return NOREPLY_POS;
+	}
+	
 	private Long getExpire() {
 		try{
 			return Long.parseLong(params[SetServerCommand.EXPTIME_POS]);
@@ -111,23 +127,8 @@ class SetServerCommand extends ServerCommandAbstract {
 		return payload;
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(String.format("{Set key=%s flags=%s expire=%s nbytes=%s noreply=%s}", params[KEY_POS],
-				params[FLAGS_POS], params[EXPTIME_POS],params[BYTES_POS],isNoReply()?"true":"false"));
-		
-		if(null != payload && payload.length > 0)
-			sb.append(String.format(" {%s}", Base64.encode(payload)));
-		
-		return sb.toString();
-	}
-
 	private boolean isNoReply() {
-		return ((params.length+1) >= NOREPLY_POS && "noreply".equals(NOREPLY_POS));
+		return NOREPLY_POS < params.length && "noreply".equals(params[NOREPLY_POS]);
 	}
 
-	@Override
-	protected int getNoReplyPosition() {
-		return NOREPLY_POS;
-	}
 }
