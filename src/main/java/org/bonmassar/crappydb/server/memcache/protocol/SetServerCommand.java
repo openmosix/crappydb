@@ -34,8 +34,8 @@ class SetServerCommand extends ServerCommandAbstract {
 	private static final int BYTES_POS=3;
 	private static final int NOREPLY_POS=4;
 	private static final int CRLF=2;
-	private byte[] payload;
-	private int payloadCursor;
+	byte[] payload;
+	int payloadCursor;
 	
 	private Logger logger = Logger.getLogger(SetServerCommand.class);
 
