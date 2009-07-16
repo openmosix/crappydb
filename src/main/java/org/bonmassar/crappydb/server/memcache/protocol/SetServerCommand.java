@@ -46,7 +46,7 @@ class SetServerCommand extends ServerCommandAbstract {
 	@Override
 	public void parseCommandParams(String commandParams) throws ErrorException {
 		super.parseCommandParams(commandParams);
-		if(params.length < 4 && params.length > 5)
+		if(params.length < 4 || params.length > 5)
 			throw new ErrorException("Invalid number of parameters");
 		
 		payloadCursor = 0;
