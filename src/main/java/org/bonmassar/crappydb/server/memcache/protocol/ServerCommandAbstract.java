@@ -36,8 +36,8 @@ abstract class ServerCommandAbstract implements ServerCommand {
 		if(null == commandParams || commandParams.length() == 0)
 			throw new ErrorException("Null parameters");
 		
-		params = commandParams.trim().split("\\s");
-		if(null == params)
+		params = commandParams.trim().split("\\s+");
+		if("".equals(params[0]))
 			throw new ErrorException("Null parameters");
 	}
 		
