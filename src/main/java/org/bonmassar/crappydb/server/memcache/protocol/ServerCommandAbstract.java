@@ -52,11 +52,10 @@ abstract class ServerCommandAbstract implements ServerCommand {
 		this.storage = storage;
 	}
 		
-	private boolean isResponseRequested(){
+	protected boolean isResponseRequested(){
 		int noreplypos = getNoReplyPosition();
 		return -1 == noreplypos || noreplypos >= params.length 
 			|| !"noreply".equals(params[noreplypos]);
 	}
-
 
 }

@@ -90,7 +90,7 @@ class SetServerCommand extends ServerCommandAbstract {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(String.format("{Set key=%s flags=%s expire=%s nbytes=%s noreply=%s}", params[KEY_POS],
-				params[FLAGS_POS], params[EXPTIME_POS],params[BYTES_POS],isNoReply()?"true":"false"));
+				params[FLAGS_POS], params[EXPTIME_POS],params[BYTES_POS],!isResponseRequested()?"true":"false"));
 		
 		if(null != payload && payload.length > 0 && payloadCursor > 0)
 			sb.append(String.format(" {%s}", Base64.encode(payload)));
@@ -125,10 +125,6 @@ class SetServerCommand extends ServerCommandAbstract {
 
 	private byte[] getPayload() {
 		return payload;
-	}
-
-	private boolean isNoReply() {
-		return NOREPLY_POS < params.length && "noreply".equals(params[NOREPLY_POS]);
 	}
 
 }

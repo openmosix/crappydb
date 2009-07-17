@@ -27,6 +27,7 @@ import org.bonmassar.crappydb.server.storage.data.Key;
 class DeleteServerCommand extends ServerCommandNoPayload {
 
 	private static final int KEY_POS=0;
+	private static final int TIME_POS=1;
 	
 	public static String getCmdName() {
 		return "delete";
@@ -34,14 +35,12 @@ class DeleteServerCommand extends ServerCommandNoPayload {
 
 	public void parseCommandParams(String commandParams) throws ErrorException {
 		super.parseCommandParams(commandParams);
-		if(0 == params.length)
+		if(params.length < 1 || params.length > 3)
 			throw new ErrorException("Invalid number of parameters");
 	}
 
 	public void execCommand() {
-		Key k = getKey(params[DeleteServerCommand.KEY_POS]);
-		if(null == k)
-			channel.writeToOutstanding("Invalid key\r\n");
+		Key k = new Key(params[DeleteServerCommand.KEY_POS]);
 		
 		try {
 			storage.delete(k);
@@ -52,17 +51,26 @@ class DeleteServerCommand extends ServerCommandNoPayload {
 			channel.writeToOutstanding(e.toString());
 		}
 	}
-	
-	private Key getKey(String key) {
-		if(null == key || key.length() == 0 )
-			return null;
-		
-		return new Key(key);
-	}
 
 	@Override
 	protected int getNoReplyPosition() {
 		return params.length == 3 ? 2 : 1;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("{Delete key=%s time=%d noreply=%s}", params[KEY_POS], getTime(), isResponseRequested()?"false":"true" );
+	}
+
+	private Long getTime() {
+		try{
+			if(params.length > DeleteServerCommand.TIME_POS)
+				return Long.parseLong(params[DeleteServerCommand.TIME_POS]);
+		}catch(NumberFormatException nfe){
+			//ignore and return -1;
+		}
+		return -1L;
+
 	}
 
 	
