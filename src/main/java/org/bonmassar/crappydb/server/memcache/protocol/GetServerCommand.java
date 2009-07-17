@@ -21,7 +21,6 @@ package org.bonmassar.crappydb.server.memcache.protocol;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.data.Cas;
 import org.bonmassar.crappydb.server.storage.data.Item;
@@ -32,13 +31,6 @@ class GetServerCommand extends ServerCommandNoPayload {
 
 	public static String getCmdName() {
 		return "get";
-	}
-
-	@Override
-	public void parseCommandParams(String commandParams) throws ErrorException {
-		super.parseCommandParams(commandParams);
-		if(0 == params.length)
-			throw new ErrorException("No keys.");
 	}
 
 	public void execCommand() {
@@ -54,6 +46,20 @@ class GetServerCommand extends ServerCommandNoPayload {
 		}
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(String.format("{Get "));
+		for(int i = 0; i < params.length; i++)
+			sb.append(String.format("key%d=%s ", i+1, params[i]));
+		
+		return sb.append("}").toString();
+	}
+
+	@Override
+	protected int getNoReplyPosition() {
+		return -1;
+	}
+	
 	private void writeResult(List<Item> result) {
 		for(Item it : result){
 			if(null == it)
@@ -98,19 +104,5 @@ class GetServerCommand extends ServerCommandNoPayload {
 		return new Key(key);
 	}
 	
-	@Override
-	public String toString() {
-		
-		StringBuilder sb = new StringBuilder(String.format("{Get "));
-		for(int i = 0; i < params.length; i++)
-			sb.append(String.format("key%d=%s ", i+1, params[i]));
-		
-		return sb.append("}").toString();
-	}
-
-	@Override
-	protected int getNoReplyPosition() {
-		return -1;
-	}
 
 }
