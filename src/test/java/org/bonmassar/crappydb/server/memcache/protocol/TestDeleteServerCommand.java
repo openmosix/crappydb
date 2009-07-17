@@ -33,7 +33,6 @@ import junit.framework.TestCase;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.doAnswer;
 
 
 public class TestDeleteServerCommand extends TestCase {
