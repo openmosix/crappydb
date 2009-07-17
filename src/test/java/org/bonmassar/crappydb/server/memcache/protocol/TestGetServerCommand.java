@@ -20,11 +20,25 @@ package org.bonmassar.crappydb.server.memcache.protocol;
 
 import static org.mockito.Mockito.mock;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
+import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.io.OutputCommandWriter;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
+import org.bonmassar.crappydb.server.storage.data.Item;
+import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.anyList;
+
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import junit.framework.TestCase;
 
@@ -89,5 +103,29 @@ public class TestGetServerCommand extends TestCase {
 			return;
 		}
 		fail();
+	}
+	
+	@Test
+	public void testGetOneKeyNoCasSomeData() throws ErrorException, StorageException {
+		command.parseCommandParams("terminenzio");
+		
+		doAnswer(new Answer<List<Item>>() {
+			public List<Item> answer(InvocationOnMock invocation)
+					throws Throwable {
+				
+				@SuppressWarnings(value={"unchecked"})
+				List<Key> input = (List<Key>)(invocation.getArguments()[0]);
+				assertEquals(1, input.size());
+				assertEquals(new Key("terminenzio"), input.get(0));
+				return Arrays.asList(new Item(new Key("terminenzio"), "this is some data".getBytes(), 12 ));
+			}
+			
+		}).when(storage).get((List<Key>)anyList());
+		
+		command.execCommand();
+		verify(output, times(1)).writeToOutstanding("VALUE terminenzio 12 17\r\n");
+		verify(output, times(1)).writeToOutstanding("this is some data".getBytes());
+		verify(output, times(1)).writeToOutstanding("\r\n");
+		verify(output, times(1)).writeToOutstanding("END\r\n");
 	}
 }

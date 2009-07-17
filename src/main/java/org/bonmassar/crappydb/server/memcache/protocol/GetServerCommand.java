@@ -35,9 +35,7 @@ class GetServerCommand extends ServerCommandNoPayload {
 
 	public void execCommand() {
 		List<Key> keys = getKeys();
-		if(keys.size() == 0)
-			return;	//FIXME: I have to return something
-		
+
 		try {
 			List<Item> result = storage.get(keys);
 			writeResult(result);
@@ -88,21 +86,10 @@ class GetServerCommand extends ServerCommandNoPayload {
 
 	private List<Key> getKeys() {
 		List<Key> keys = new ArrayList<Key>(params.length);
-		for(int i = 0; i < params.length; i++){
-			Key k = getKey(params[i]);
-			if(null == k)
-				continue;
-			keys.add(k);
-		}
+		for(int i = 0; i < params.length; i++)
+			keys.add(new Key(params[i]));
+		
 		return keys;
 	}
-
-	private Key getKey(String key) {
-		if(null == key || key.length() == 0 )
-			return null;
-		
-		return new Key(key);
-	}
-	
 
 }
