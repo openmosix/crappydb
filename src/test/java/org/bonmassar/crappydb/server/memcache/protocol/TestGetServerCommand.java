@@ -27,12 +27,14 @@ import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.io.OutputCommandWriter;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
+import org.bonmassar.crappydb.server.storage.data.Cas;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Matchers.anyList;
@@ -127,5 +129,157 @@ public class TestGetServerCommand extends TestCase {
 		verify(output, times(1)).writeToOutstanding("this is some data".getBytes());
 		verify(output, times(1)).writeToOutstanding("\r\n");
 		verify(output, times(1)).writeToOutstanding("END\r\n");
+	}
+	
+	@Test
+	public void testGetMultipleKeysNoCasSomeData() throws ErrorException, StorageException {
+		command.parseCommandParams("terminenzio terminenzio2");
+		
+		doAnswer(new Answer<List<Item>>() {
+			public List<Item> answer(InvocationOnMock invocation)
+					throws Throwable {
+				
+				@SuppressWarnings(value={"unchecked"})
+				List<Key> input = (List<Key>)(invocation.getArguments()[0]);
+				assertEquals(2, input.size());
+				assertEquals(new Key("terminenzio"), input.get(0));
+				assertEquals(new Key("terminenzio2"), input.get(1));
+				return Arrays.asList(new Item(new Key("terminenzio"), "this is some data".getBytes(), 12 ));
+			}
+			
+		}).when(storage).get((List<Key>)anyList());
+		
+		command.execCommand();
+		verify(output, times(1)).writeToOutstanding("VALUE terminenzio 12 17\r\n");
+		verify(output, times(1)).writeToOutstanding("this is some data".getBytes());
+		verify(output, times(1)).writeToOutstanding("\r\n");
+		verify(output, times(1)).writeToOutstanding("END\r\n");
+	}
+	
+	@Test
+	public void testGetMultipleKeysNoCasMultipleData() throws ErrorException, StorageException {
+		command.parseCommandParams("terminenzio terminenzio2");
+		
+		doAnswer(new Answer<List<Item>>() {
+			public List<Item> answer(InvocationOnMock invocation)
+					throws Throwable {
+				
+				@SuppressWarnings(value={"unchecked"})
+				List<Key> input = (List<Key>)(invocation.getArguments()[0]);
+				assertEquals(2, input.size());
+				assertEquals(new Key("terminenzio"), input.get(0));
+				assertEquals(new Key("terminenzio2"), input.get(1));
+				return Arrays.asList(new Item(new Key("terminenzio"), "this is some data".getBytes(), 12 ),
+						new Item(new Key("terminenzio2"), "this is other data".getBytes(), 80 ));
+			}
+			
+		}).when(storage).get((List<Key>)anyList());
+		
+		command.execCommand();
+		verify(output, times(1)).writeToOutstanding("VALUE terminenzio 12 17\r\n");
+		verify(output, times(1)).writeToOutstanding("this is some data".getBytes());
+		verify(output, times(1)).writeToOutstanding("VALUE terminenzio2 80 18\r\n");
+		verify(output, times(1)).writeToOutstanding("this is other data".getBytes());
+		verify(output, times(2)).writeToOutstanding("\r\n");
+		verify(output, times(1)).writeToOutstanding("END\r\n");
+	}
+	
+	@Test
+	public void testGetMultipleKeysWithCasMultipleData() throws ErrorException, StorageException {
+		command.parseCommandParams("terminenzio terminenzio2");
+		
+		doAnswer(new Answer<List<Item>>() {
+			public List<Item> answer(InvocationOnMock invocation)
+					throws Throwable {
+				
+				@SuppressWarnings(value={"unchecked"})
+				List<Key> input = (List<Key>)(invocation.getArguments()[0]);
+				assertEquals(2, input.size());
+				assertEquals(new Key("terminenzio"), input.get(0));
+				assertEquals(new Key("terminenzio2"), input.get(1));
+				Item it1 = new Item(new Key("terminenzio"), "this is some data".getBytes(), 12 );
+				it1.setCas(new Cas(1539L));
+				Item it2 = new Item(new Key("terminenzio2"), "this is other data".getBytes(), 80 );
+				it2.setCas(new Cas(8924L));
+				return Arrays.asList(it1, it2);
+			}
+			
+		}).when(storage).get((List<Key>)anyList());
+		
+		command.execCommand();
+		verify(output, times(1)).writeToOutstanding("VALUE terminenzio 12 17 1539\r\n");
+		verify(output, times(1)).writeToOutstanding("this is some data".getBytes());
+		verify(output, times(1)).writeToOutstanding("VALUE terminenzio2 80 18 8924\r\n");
+		verify(output, times(1)).writeToOutstanding("this is other data".getBytes());
+		verify(output, times(2)).writeToOutstanding("\r\n");
+		verify(output, times(1)).writeToOutstanding("END\r\n");
+	}
+	
+	@Test
+	public void testGetMultipleKeysWithCasNullData() throws ErrorException, StorageException {
+		command.parseCommandParams("terminenzio terminenzio2");
+		
+		doAnswer(new Answer<List<Item>>() {
+			public List<Item> answer(InvocationOnMock invocation)
+					throws Throwable {
+				
+				@SuppressWarnings(value={"unchecked"})
+				List<Key> input = (List<Key>)(invocation.getArguments()[0]);
+				assertEquals(2, input.size());
+				assertEquals(new Key("terminenzio"), input.get(0));
+				assertEquals(new Key("terminenzio2"), input.get(1));
+				Item it1 = new Item(new Key("terminenzio"), null, 12 );
+				it1.setCas(new Cas(1539L));
+				Item it2 = new Item(new Key("terminenzio2"), null, 80 );
+				it2.setCas(new Cas(8924L));
+				return Arrays.asList(it1, it2);
+			}
+			
+		}).when(storage).get((List<Key>)anyList());
+		
+		command.execCommand();
+		verify(output, times(1)).writeToOutstanding("VALUE terminenzio 12 0 1539\r\n");
+		verify(output, times(1)).writeToOutstanding("VALUE terminenzio2 80 0 8924\r\n");
+		verify(output, times(2)).writeToOutstanding("\r\n");
+		verify(output, times(1)).writeToOutstanding("END\r\n");
+	}
+	
+	@Test
+	public void testGetMultipleKeysWithCasNoData() throws ErrorException, StorageException {
+		command.parseCommandParams("terminenzio terminenzio2");
+		
+		doAnswer(new Answer<List<Item>>() {
+			public List<Item> answer(InvocationOnMock invocation)
+					throws Throwable {
+				
+				@SuppressWarnings(value={"unchecked"})
+				List<Key> input = (List<Key>)(invocation.getArguments()[0]);
+				assertEquals(2, input.size());
+				assertEquals(new Key("terminenzio"), input.get(0));
+				assertEquals(new Key("terminenzio2"), input.get(1));
+				Item it1 = new Item(new Key("terminenzio"), new byte[0], 12 );
+				it1.setCas(new Cas(1539L));
+				Item it2 = new Item(new Key("terminenzio2"), new byte[0], 80 );
+				it2.setCas(new Cas(8924L));
+				return Arrays.asList(it1, it2);
+			}
+			
+		}).when(storage).get((List<Key>)anyList());
+		
+		command.execCommand();
+		verify(output, times(1)).writeToOutstanding("VALUE terminenzio 12 0 1539\r\n");
+		verify(output, times(1)).writeToOutstanding("VALUE terminenzio2 80 0 8924\r\n");
+		verify(output, times(2)).writeToOutstanding("\r\n");
+		verify(output, times(1)).writeToOutstanding("END\r\n");
+	}
+	
+	@Test
+	public void testGetMultipleKeysErrorAccessingStorage() throws ErrorException, StorageException {
+		command.parseCommandParams("terminenzio terminenzio2");
+		
+		doThrow(new StorageException("BOOM!")).when(storage).get((List<Key>)anyList());
+		
+		command.execCommand();
+		verify(output, times(1)).writeToOutstanding("StorageException [BOOM!]");
 	}
 }
