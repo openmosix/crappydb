@@ -21,13 +21,15 @@ package org.bonmassar.crappydb.server.acceptancetests.nolibs;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import junit.framework.TestCase;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
-public class TestNormalUseCases {
+public class TestNormalUseCases extends TestCase {
 
+	private final static int sleepTimeForAsyncCalls = 3;
 	private NetworkClient client;
 	
 	@Before
@@ -52,7 +54,7 @@ public class TestNormalUseCases {
 	public void testSetCommandNoReply() throws IOException {
 		String input = "set terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
 		testServerNoOutput(input);
-		
+		pause(sleepTimeForAsyncCalls);
 		clean("terminenzio");
 	}
 	
@@ -71,6 +73,7 @@ public class TestNormalUseCases {
 	public void testSetAndGetCommandNoReply() throws IOException {
 		String input = "set terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
 		testServerNoOutput(input);
+		pause(sleepTimeForAsyncCalls);
 
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 24\r\n", 
@@ -124,6 +127,8 @@ public class TestNormalUseCases {
 	
 		input = "set terminenzio4 48 20 37 noreply\r\nThis is the last one and we are done!\r\n";
 		testServerNoOutput(input);
+		
+		pause(sleepTimeForAsyncCalls);
 	
 		input = "get terminenzio4 terminenzio3 terminenzio2 terminenzio1\r\n";
 		testServerInMultipleOut(input, new String[]{
@@ -198,6 +203,8 @@ public class TestNormalUseCases {
 	
 		input = "set terminenzio4 48 20 37 noreply\r\nThis is the last one and we are done!\r\n";
 		testServerNoOutput(input);
+		
+		pause(sleepTimeForAsyncCalls);
 	
 		input = "get terminenzio4\r\n";
 		testServerInMultipleOut(input, new String[]{
@@ -253,12 +260,16 @@ public class TestNormalUseCases {
 		String input = "set terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
 		testServerNoOutput(input);
 
+		pause(sleepTimeForAsyncCalls);
+		
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 24\r\n", 
 				"This is simply a string.\r\n", "END\r\n"});
 		
 		input = "delete terminenzio noreply\r\n";
 		testServerNoOutput(input);
+		
+		pause(sleepTimeForAsyncCalls);
 		
 		input = "get terminenzio\r\n";
 		testServerInOut(input, "END\r\n");
@@ -279,6 +290,15 @@ public class TestNormalUseCases {
 		client.sendData(in);
 		for(int i = 0; i < outs.length; i++)
 			assertEquals(outs[i], client.readline());
+	}
+	
+	private void pause(int sec){
+		try {
+			Thread.sleep(sec*1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void clean(String key) throws IOException{
