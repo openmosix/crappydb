@@ -27,11 +27,8 @@ import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
 // get <key>*\r\n
+// gets <key>*\r\n
 class GetServerCommand extends ServerCommandNoPayload {
-
-	public static String getCmdName() {
-		return "get";
-	}
 
 	public void execCommand() {
 		List<Key> keys = getKeys();

@@ -29,10 +29,6 @@ class DeleteServerCommand extends ServerCommandNoPayload {
 	private static final int KEY_POS=0;
 	private static final int TIME_POS=1;
 	
-	public static String getCmdName() {
-		return "delete";
-	}
-
 	public void parseCommandParams(String commandParams) throws ErrorException {
 		super.parseCommandParams(commandParams);
 		if(params.length < 1 || params.length > 3)

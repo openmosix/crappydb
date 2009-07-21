@@ -39,10 +39,6 @@ class SetServerCommand extends ServerCommandAbstract {
 	
 	private Logger logger = Logger.getLogger(SetServerCommand.class);
 
-	public static String getCmdName() {
-		return "set";
-	}
-
 	@Override
 	public void parseCommandParams(String commandParams) throws ErrorException {
 		super.parseCommandParams(commandParams);
