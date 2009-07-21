@@ -308,6 +308,11 @@ public class TestNormalUseCases extends TestCase {
 		testServerInOut(input, "END\r\n");
 	}
 
+	@Test
+	public void testVersion() throws IOException {
+		String input = "version\r\n";
+		testServerInOut(input, "VERSION 0.1\r\n");
+	}
 	
 	private void testServerInOut(String in, String out) throws IOException {
 		client.sendData(in);

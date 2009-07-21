@@ -35,6 +35,7 @@ public class CommandFactory {
 		commands.put("get", GetServerCommand.class);
 		commands.put("gets", GetServerCommand.class);
 		commands.put("delete", DeleteServerCommand.class);
+		commands.put("version", VersionServerCommand.class);
 		this.sal = sal;
 	}
 	
@@ -98,7 +99,7 @@ public class CommandFactory {
 		commandLine = commandLine.trim();
 		int firstSpace = commandLine.indexOf(' ');
 		if(-1 == firstSpace)
-			return null;
+			return commandLine;
 		
 		return commandLine.substring(0, firstSpace);
 	}

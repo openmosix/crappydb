@@ -83,4 +83,17 @@ public class TestCommandFactory {
 	public void testGetsCommand() throws ErrorException {
 		ServerCommand sc = factory.getCommand("gets");
 		assertTrue(sc instanceof GetServerCommand);
-	}}
+	}
+
+	@Test
+	public void testVersionCommand() throws ErrorException {
+		ServerCommand sc = factory.getCommand("version");
+		assertTrue(sc instanceof VersionServerCommand);
+	}
+	
+	@Test
+	public void testVersionCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("version\r\n");
+		assertTrue(sc instanceof VersionServerCommand);
+	}
+}
