@@ -78,4 +78,9 @@ public class TestCommandFactory {
 			assertEquals("ErrorException [Command not found]", e.toString());
 		}
 	}
-}
+	
+	@Test
+	public void testGetsCommand() throws ErrorException {
+		ServerCommand sc = factory.getCommand("gets");
+		assertTrue(sc instanceof GetServerCommand);
+	}}

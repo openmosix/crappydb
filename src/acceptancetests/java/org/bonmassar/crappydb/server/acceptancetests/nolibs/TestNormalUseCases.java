@@ -113,6 +113,39 @@ public class TestNormalUseCases extends TestCase {
 	
 		clean(new String[]{"terminenzio1", "terminenzio2", "terminenzio3", "terminenzio4"});
 	}
+	
+	@Test
+	public void testMultipleSetAndGetsCommand() throws IOException {
+		String input = "set terminenzio1 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "set terminenzio2 24 10 23\r\nThis is another string.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+	
+		input = "set terminenzio3 36 15 15\r\nWhat's up dude?\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+	
+		input = "set terminenzio4 48 20 37\r\nThis is the last one and we are done!\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+	
+		input = "gets terminenzio4 terminenzio3 terminenzio2 terminenzio1\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio4 48 37\r\n", 
+				"This is the last one and we are done!\r\n", 
+				"VALUE terminenzio3 36 15\r\n", 
+				"What's up dude?\r\n",
+				"VALUE terminenzio2 24 23\r\n",
+				"This is another string.\r\n",
+				"VALUE terminenzio1 12 24\r\n",
+				"This is simply a string.\r\n",
+				"END\r\n"});
+	
+		clean(new String[]{"terminenzio1", "terminenzio2", "terminenzio3", "terminenzio4"});
+	}
 
 	@Test
 	public void testMultipleSetAndGetsCommandsNoReply() throws IOException {
