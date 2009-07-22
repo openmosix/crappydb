@@ -30,7 +30,7 @@ public class ExceptionCommand extends ServerCommandNoPayload {
 	}
 
 	public void execCommand() {
-		channel.writeToOutstanding(exception.toString());
+		channel.writeException(exception);
 	}
 
 	@Override

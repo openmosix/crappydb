@@ -37,7 +37,7 @@ class GetServerCommand extends ServerCommandNoPayload {
 			List<Item> result = storage.get(keys);
 			writeResult(result);
 		} catch (StorageException e) {
-			channel.writeToOutstanding(e.toString());
+			channel.writeException(e);
 		}
 	}
 

@@ -18,6 +18,7 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
@@ -41,10 +42,8 @@ class DeleteServerCommand extends ServerCommandNoPayload {
 		try {
 			storage.delete(k);
 			channel.writeToOutstanding("DELETED\r\n");
-		} catch (NotFoundException e) {
-			channel.writeToOutstanding(e.toString());
-		} catch (StorageException e) {			
-			channel.writeToOutstanding(e.toString());
+		} catch (CrappyDBException e) {
+			channel.writeException(e);
 		}
 	}
 

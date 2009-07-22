@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.io.OutputCommandWriter;
@@ -277,9 +278,10 @@ public class TestGetServerCommand extends TestCase {
 	public void testGetMultipleKeysErrorAccessingStorage() throws ErrorException, StorageException {
 		command.parseCommandParams("terminenzio terminenzio2");
 		
-		doThrow(new StorageException("BOOM!")).when(storage).get((List<Key>)anyList());
+		CrappyDBException exception = new StorageException("BOOM!");
+		doThrow(exception).when(storage).get((List<Key>)anyList());
 		
 		command.execCommand();
-		verify(output, times(1)).writeToOutstanding("StorageException [BOOM!]");
+		verify(output, times(1)).writeException(exception);
 	}
 }

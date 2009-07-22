@@ -18,6 +18,7 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.io.OutputCommandWriter;
@@ -169,12 +170,13 @@ public class TestSetServerCommand extends TestCase {
 		command.addPayloadContentPart("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789".getBytes());
 		assertEquals(50, command.payloadCursor);
 		
-		doThrow(new StorageException("BOOM!")).when(storage).set((Item)anyObject());
+		CrappyDBException exception = new StorageException("BOOM!");
+		doThrow(exception).when(storage).set((Item)anyObject());
 		
 		command.execCommand();
 		
 		verify(storage, times(1)).set((Item) anyObject());
-		verify(output, times(1)).writeToOutstanding("StorageException [BOOM!]");
+		verify(output, times(1)).writeException(exception);
 	}
 	
 	@Test

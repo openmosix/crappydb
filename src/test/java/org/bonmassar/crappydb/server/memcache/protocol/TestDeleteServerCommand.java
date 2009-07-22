@@ -20,6 +20,7 @@ package org.bonmassar.crappydb.server.memcache.protocol;
 
 import static org.mockito.Mockito.mock;
 
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
@@ -98,22 +99,24 @@ public class TestDeleteServerCommand extends TestCase {
 	public void testKeyNotFound() throws ErrorException, NotFoundException, StorageException {
 		command.parseCommandParams("terminenzio 12345 noreply\r\n");
 
-		doThrow(new NotFoundException("BOOM!")).when(storage).delete(new Key("terminenzio"));
+		CrappyDBException exception = new NotFoundException("BOOM!"); 
+		doThrow(exception).when(storage).delete(new Key("terminenzio"));
 		
 		command.execCommand();
 		
-		verify(output, times(1)).writeToOutstanding("NotFoundException [BOOM!]");
+		verify(output, times(1)).writeException(exception);
 	}
 	
 	@Test
 	public void testErrorOnStorage() throws ErrorException, NotFoundException, StorageException {
 		command.parseCommandParams("terminenzio 12345 noreply\r\n");
 
-		doThrow(new StorageException("BOOM!")).when(storage).delete(new Key("terminenzio"));
+		CrappyDBException exception = new StorageException("BOOM!");
+		doThrow(exception).when(storage).delete(new Key("terminenzio"));
 		
 		command.execCommand();
 		
-		verify(output, times(1)).writeToOutstanding("StorageException [BOOM!]");
+		verify(output, times(1)).writeException(exception);
 	}
 	
 	@Test

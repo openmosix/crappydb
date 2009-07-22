@@ -50,9 +50,8 @@ public class TestExceptionCommand extends TestCase {
 	
 	@Test
 	public void testShouldWriteAnError() {
-		when(exception.toString()).thenReturn("BOOM!");
 		command.execCommand();
-		verify(writer, times(1)).writeToOutstanding("BOOM!");
+		verify(writer, times(1)).writeException(exception);
 	}
 	
 }
