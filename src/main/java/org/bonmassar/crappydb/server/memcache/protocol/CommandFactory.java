@@ -31,12 +31,13 @@ public class CommandFactory {
 	
 	public CommandFactory(StorageAccessLayer sal) {
 		commands = new HashMap<String, Class<?>>();
-		commands.put("set", SetServerCommand.class);
+		commands.put("add", AddServerCommand.class);
+		commands.put("delete", DeleteServerCommand.class);
 		commands.put("get", GetServerCommand.class);
 		commands.put("gets", GetServerCommand.class);
-		commands.put("delete", DeleteServerCommand.class);
-		commands.put("version", VersionServerCommand.class);
+		commands.put("set", SetServerCommand.class);
 		commands.put("verbosity", VerbosityServerCommand.class);
+		commands.put("version", VersionServerCommand.class);
 		this.sal = sal;
 	}
 	

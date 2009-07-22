@@ -108,4 +108,16 @@ public class TestCommandFactory {
 		ServerCommand sc = factory.getCommand("verbosity");
 		assertTrue(sc instanceof VerbosityServerCommand);
 	}
+	
+	@Test
+	public void testAddCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("add terminenzio 4 10 22 noreply\r\n");
+		assertTrue(sc instanceof AddServerCommand);
+	}
+	
+	@Test
+	public void testAddCommand() throws ErrorException {
+		ServerCommand sc = factory.getCommand("add");
+		assertTrue(sc instanceof AddServerCommand);
+	}
 }
