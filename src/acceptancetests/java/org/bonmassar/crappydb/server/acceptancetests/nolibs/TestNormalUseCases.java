@@ -20,6 +20,7 @@ package org.bonmassar.crappydb.server.acceptancetests.nolibs;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Date;
 
 import junit.framework.TestCase;
 
@@ -324,6 +325,172 @@ public class TestNormalUseCases extends TestCase {
 	public void testVerbosityNoReply() throws IOException {
 		String input = "verbosity 0 noreply\r\n";
 		testServerNoOutput(input);
+	}
+	
+	@Test
+	public void testAddGetDeleteGet() throws IOException {
+		String input = "add terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	}
+	
+	@Test
+	public void testSetGetAddGetDeleteGet() throws IOException {
+		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "add terminenzio 12 5 24\r\nThat is really a string.\r\n";
+		OUT = "NOT_STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	}
+	
+	@Test
+	public void testAddGetDeleteAddGetDelete() throws IOException {
+		String input = "add terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	
+		input = "add terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	}
+	
+	@Test
+	public void testAddNoReplyGetDeleteGet() throws IOException {
+		String input = "add terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
+		testServerNoOutput(input);
+		pause(2);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	}
+	
+	@Test
+	public void testSetGetAddNoReplyGetDeleteGet() throws IOException {
+		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "add terminenzio 12 5 24 noreply\r\nThat is really a string.\r\n";
+		testServerNoOutput(input);
+		pause(2);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	}
+	
+	@Test
+	public void testAddNoReplyGetDeleteAddNoReplyGetDelete() throws IOException {
+		String input = "add terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
+		testServerNoOutput(input);
+		
+		pause(2);
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	
+		input = "add terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
+		testServerNoOutput(input);
+		pause(2);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
 	}
 	
 	private void testServerInOut(String in, String out) throws IOException {

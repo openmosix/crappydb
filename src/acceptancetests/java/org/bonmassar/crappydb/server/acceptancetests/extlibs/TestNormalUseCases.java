@@ -22,6 +22,7 @@ import com.danga.MemCached.MemCachedClient;
 import com.danga.MemCached.SockIOPool;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -116,6 +117,38 @@ public class TestNormalUseCases extends TestCase {
 	@Test
 	public void testSetGetDeleteGet() throws IOException {
 		assertTrue(client.set("terminenzio", "This is simply a string", 12));
+		assertEquals("This is simply a string", ((String)client.get("terminenzio")));
+		assertTrue(client.delete("terminenzio"));
+		assertNull((String) client.get("terminenzio"));
+	}
+	
+	@Test
+	public void testAddGetDeleteGet() throws IOException {
+		assertTrue(client.add("terminenzio", "This is simply a string", new Date()));
+		assertEquals("This is simply a string", ((String)client.get("terminenzio")));
+		assertTrue(client.delete("terminenzio"));
+		assertNull((String) client.get("terminenzio"));
+	}
+	
+	@Test
+	public void testSetGetAddGetDeleteGet() throws IOException {
+		assertTrue(client.set("terminenzio", "This is the first value", new Date()));
+		assertEquals("This is the first value", ((String)client.get("terminenzio")));
+		
+		assertFalse(client.add("terminenzio", "This is simply a string", new Date()));
+		assertEquals("This is the first value", ((String)client.get("terminenzio")));
+		assertTrue(client.delete("terminenzio"));
+		assertNull((String) client.get("terminenzio"));
+	}
+	
+	@Test
+	public void testAddGetDeleteAddGetDelete() throws IOException {
+		assertTrue(client.add("terminenzio", "This is simply a string", new Date()));
+		assertEquals("This is simply a string", ((String)client.get("terminenzio")));
+		assertTrue(client.delete("terminenzio"));
+		assertNull((String) client.get("terminenzio"));
+		
+		assertTrue(client.add("terminenzio", "This is simply a string", new Date()));
 		assertEquals("This is simply a string", ((String)client.get("terminenzio")));
 		assertTrue(client.delete("terminenzio"));
 		assertNull((String) client.get("terminenzio"));
