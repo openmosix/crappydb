@@ -18,7 +18,7 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
-public abstract class ServerCommandNoPayload extends ServerCommandAbstract {
+abstract class ServerCommandNoPayload extends ServerCommandAbstract {
 
 	public void addPayloadContentPart(byte[] data) {
 		throw new AssertionError();

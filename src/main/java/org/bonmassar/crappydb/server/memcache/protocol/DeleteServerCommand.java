@@ -20,8 +20,6 @@ package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
-import org.bonmassar.crappydb.server.exceptions.NotFoundException;
-import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
 // delete <key> [<time>] [noreply]\r\n

@@ -78,4 +78,9 @@ public class TestVersionServerCommand extends TestCase {
 		verify(writer, times(1)).writeToOutstanding("VERSION 0.1\r\n");
 	}
 	
+	@Test
+	public void testToString() {
+		assertEquals("{Version}", command.toString());
+	}
+	
 }

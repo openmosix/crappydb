@@ -22,7 +22,7 @@ import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.stats.DBStats;
 
 // version\r\n
-public class VersionServerCommand extends ServerCommandNoPayload {
+class VersionServerCommand extends ServerCommandNoPayload {
 
 	@Override
 	protected int getNoReplyPosition() {
@@ -37,6 +37,11 @@ public class VersionServerCommand extends ServerCommandNoPayload {
 
 	public void execCommand() {
 		channel.writeToOutstanding(String.format("VERSION %s\r\n", DBStats.INSTANCE.getDBVersion()));
+	}
+	
+	@Override
+	public String toString() {
+		return "{Version}";
 	}
 
 }
