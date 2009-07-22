@@ -314,6 +314,18 @@ public class TestNormalUseCases extends TestCase {
 		testServerInOut(input, "VERSION 0.1\r\n");
 	}
 	
+	@Test
+	public void testVerbosity() throws IOException {
+		String input = "verbosity 0\r\n";
+		testServerInOut(input, "OK\r\n");
+	}
+	
+	@Test
+	public void testVerbosityNoReply() throws IOException {
+		String input = "verbosity 0 noreply\r\n";
+		testServerNoOutput(input);
+	}
+	
 	private void testServerInOut(String in, String out) throws IOException {
 		client.sendData(in);
 		assertEquals(out, client.readline());
