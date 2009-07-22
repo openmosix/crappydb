@@ -18,8 +18,12 @@
 
 package org.bonmassar.crappydb.server.exceptions;
 
-public class ExistsException extends Exception {
+public class ExistsException extends CrappyDBException {
 
 	private static final long serialVersionUID = -9001062110357507703L;
 	
+	@Override
+	public String clientResponse() {
+		return "EXISTS";
+	}
 }

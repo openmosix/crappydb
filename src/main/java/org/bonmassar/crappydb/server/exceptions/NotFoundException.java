@@ -26,4 +26,8 @@ public class NotFoundException extends CrappyDBException {
 		super(reason);
 	}
 
+	@Override
+	public String clientResponse() {
+		return "NOT_FOUND";
+	}
 }

@@ -18,17 +18,17 @@
 
 package org.bonmassar.crappydb.server.exceptions;
 
-public class ErrorException extends CrappyDBException {
+public class ServerErrorException extends CrappyDBException {
 
 	private static final long serialVersionUID = 1750319528339705716L;
 
-	public ErrorException(String reason) {
+	public ServerErrorException(String reason) {
 		super(reason);
 	}
 	
 	@Override
 	public String clientResponse() {
-		return "ERROR";
+		return "SERVER_ERROR "+getReason();
 	}
-	
+
 }

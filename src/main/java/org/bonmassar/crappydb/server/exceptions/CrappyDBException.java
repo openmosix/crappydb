@@ -32,13 +32,18 @@ public abstract class CrappyDBException extends Exception{
 	}
 	
 	public String toString(){
-		return getClass().getSimpleName() +" ["+ getReason() +"]";
+		return getClass().getSimpleName() + getReason();
+	}
+	
+	public String clientResponse() {
+		return toString();
 	}
 
-	private String getReason() {
+	protected String getReason() {
 		if(null != reason && reason.length() > 0)
-			return reason;
+			return " [" + reason + "]";
 		
-		return DEFAULT_REASON;
+		return "";
 	}
+	
 }
