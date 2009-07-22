@@ -115,7 +115,7 @@ public class UnboundedMap implements StorageAccessLayer {
 	
 	private void blowIfItemExists(Item item) throws NotStoredException {
 		if(repository.containsKey(item.getKey()))
-			throw new NotStoredException("Data already exists for this key");
+			throw new NotStoredException();
 	}
 	
 	private void blowIfItemDoesNotExists(Item item) throws StorageException {
