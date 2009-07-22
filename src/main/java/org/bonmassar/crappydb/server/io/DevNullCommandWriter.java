@@ -18,6 +18,8 @@
 
 package org.bonmassar.crappydb.server.io;
 
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+
 public enum DevNullCommandWriter implements OutputCommandWriter {
 	
 	INSTANCE;
@@ -25,5 +27,7 @@ public enum DevNullCommandWriter implements OutputCommandWriter {
 	public void writeToOutstanding(byte[] data) { }
 
 	public void writeToOutstanding(String text) { }
+
+	public void writeException(CrappyDBException exception) { }
 
 }

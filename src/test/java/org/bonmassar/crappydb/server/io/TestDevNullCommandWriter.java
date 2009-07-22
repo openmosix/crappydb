@@ -18,6 +18,7 @@
 
 package org.bonmassar.crappydb.server.io;
 
+import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,6 +42,12 @@ public class TestDevNullCommandWriter extends TestCase {
 	@Test
 	public void testWriteOnData() {
 		writer.writeToOutstanding("blablabla".getBytes());
+		//the only target is to not produce any npe
+	}
+	
+	@Test
+	public void testWriteOnException() {
+		writer.writeException(new StorageException("BOOM!"));
 		//the only target is to not produce any npe
 	}
 	

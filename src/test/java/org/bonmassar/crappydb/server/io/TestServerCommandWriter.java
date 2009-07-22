@@ -30,12 +30,14 @@ import java.nio.channels.SelectionKey;
 
 import org.bonmassar.crappydb.mocks.OutputChannelMock;
 import org.bonmassar.crappydb.mocks.WhateverChannel;
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.junit.Before;
 import org.junit.Test;
 
 import junit.framework.TestCase;
 
-public class TestCommandWriter extends TestCase {
+public class TestServerCommandWriter extends TestCase {
 	
 	private ServerCommandWriter writer;
 	private SelectionKey selector;
@@ -196,6 +198,22 @@ public class TestCommandWriter extends TestCase {
 		assertEquals(10, writer.bufferList.size());
 		assertIHaveTheText();
 		verify(selector , times(10)).interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+	}
+	
+	@Test
+	public void testWriteException() {
+		CrappyDBException exception = new StorageException("BOOM!");
+		writer.writeException(exception);
+		assertEquals(1, writer.bufferList.size());
+		assertEquals("StorageException [BOOM!]\r\n", getDataFromBuffer(writer.bufferList.get(0), 26));
+		verify(selector , times(1)).interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+	}
+	
+	@Test
+	public void testWriteNullException() {
+		writer.writeException(null);
+		assertEquals(0, writer.bufferList.size());
+		verify(selector , times(0)).interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 	}
 
 	private String getDataFromBuffer(ByteBuffer buffer, int readLen) {

@@ -18,10 +18,14 @@
 
 package org.bonmassar.crappydb.server.io;
 
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+
 public interface OutputCommandWriter {
 
 	void writeToOutstanding(byte[] data);
 	
 	void writeToOutstanding(String text);
+	
+	void writeException(CrappyDBException exception);
 	
 }

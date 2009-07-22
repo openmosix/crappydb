@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 
 class ServerCommandWriter implements OutputCommandWriter {
 
@@ -51,6 +52,13 @@ class ServerCommandWriter implements OutputCommandWriter {
 	public void writeToOutstanding(String text) {		
 		writeToOutstanding(text.getBytes());
 	}
+
+	public void writeException(CrappyDBException exception) {
+		if(null == exception)
+			return;
+		
+		writeToOutstanding(exception.toString()+"\r\n");
+	}
 	
 	public void write() throws IOException {
 		requestsDescriptor.interestOps(SelectionKey.OP_READ);
@@ -59,6 +67,10 @@ class ServerCommandWriter implements OutputCommandWriter {
 		assertOpenChannel(sc); 
 		
 		writeToSocketChannel(sc);
+	}
+	
+	public void setConnectionId(String id) {
+		connectionid = id;
 	}
 
 	protected void assertOpenChannel(SocketChannel sc) throws IOException {
@@ -116,10 +128,6 @@ class ServerCommandWriter implements OutputCommandWriter {
 		
 		requestsDescriptor.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 		return false;
-	}
-
-	public void setConnectionId(String id) {
-		connectionid = id;
 	}
 
 }
