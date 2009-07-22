@@ -57,7 +57,7 @@ class ServerCommandWriter implements OutputCommandWriter {
 		if(null == exception)
 			return;
 		
-		writeToOutstanding(exception.toString()+"\r\n");
+		writeToOutstanding(exception.clientResponse()+"\r\n");
 	}
 	
 	public void write() throws IOException {
