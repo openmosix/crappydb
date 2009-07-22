@@ -18,39 +18,31 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
+import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
-import org.bonmassar.crappydb.server.io.OutputCommandWriter;
-import org.junit.Before;
-import org.junit.Test;
+import org.bonmassar.crappydb.server.storage.data.Item;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-import junit.framework.TestCase;
+// add <key> <flags> <exptime> <bytes> [noreply]\r\n
+public class AddServerCommand extends ServerCommandWithPayload {
 
-public class TestExceptionCommand extends TestCase {
+	private Logger logger = Logger.getLogger(AddServerCommand.class);
+	
+	public void execCommand() {
+		logger.debug("Executed command add");
 
-	private ExceptionCommand command;
-	private CrappyDBException exception;
-	private OutputCommandWriter writer;
-	
-	@Before
-	public void setUp() {
-		exception = mock(CrappyDBException.class);
-		command = new ExceptionCommand(exception);
-		writer = mock(OutputCommandWriter.class);
-		command.attachCommandWriter(writer);
+		Item it = new Item(getKey(), getPayload(), getFlags());
+		it.setExpire(getExpire());
+		try {
+			storage.add(it);
+			channel.writeToOutstanding("STORED\r\n");
+		} catch (CrappyDBException e) {
+			channel.writeException(e);
+		}
 	}
-	
-	@Test
-	public void testShouldNotSupportNoReply() {
-		assertEquals(-1, command.getNoReplyPosition());
+
+	@Override
+	protected String getCommandName() {
+		return "Add";
 	}
-	
-	@Test
-	public void testShouldWriteAnError() {
-		command.execCommand();
-		verify(writer, times(1)).writeException(exception);
-	}
-	
+
 }
