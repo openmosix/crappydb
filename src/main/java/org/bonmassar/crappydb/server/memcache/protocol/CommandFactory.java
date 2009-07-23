@@ -32,6 +32,7 @@ public class CommandFactory {
 	public CommandFactory(StorageAccessLayer sal) {
 		commands = new HashMap<String, Class<?>>();
 		commands.put("add", AddServerCommand.class);
+		commands.put("append", AppendServerCommand.class);
 		commands.put("delete", DeleteServerCommand.class);
 		commands.put("get", GetServerCommand.class);
 		commands.put("gets", GetServerCommand.class);

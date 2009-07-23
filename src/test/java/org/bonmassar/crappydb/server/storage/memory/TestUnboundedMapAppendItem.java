@@ -21,6 +21,7 @@ package org.bonmassar.crappydb.server.storage.memory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.data.Cas;
@@ -42,8 +43,10 @@ public class TestUnboundedMapAppendItem {
 		try {
 			um.append(null);
 			fail();
+		} catch (NotFoundException e) {
+			fail();
 		} catch (StorageException e) {
-			assertEquals("StorageException [Null item]", e.toString());
+			assertEquals("StorageException [Null item]", e.clientResponse());
 		}
 	}
 	
@@ -52,13 +55,15 @@ public class TestUnboundedMapAppendItem {
 		try {
 			Item it = getDataToAdd();
 			um.append(it);
+		} catch (NotFoundException e) {
+			assertEquals("NOT_FOUND", e.clientResponse());
 		} catch (StorageException e) {
-			assertEquals("StorageException [Unknown key]", e.toString());
+			fail();
 		}
 	}
 	
 	@Test
-	public void testAppendNull() throws NotStoredException, StorageException {
+	public void testAppendNull() throws NotStoredException, StorageException, NotFoundException {
 		Item it = getDataToAdd();
 		um.add(it);
 		Item mit = getDataToAppend();
@@ -68,7 +73,7 @@ public class TestUnboundedMapAppendItem {
 	}
 	
 	@Test
-	public void testAppendSomething() throws NotStoredException, StorageException {
+	public void testAppendSomething() throws NotStoredException, StorageException, NotFoundException {
 		Item it = getDataToAdd();
 		um.add(it);
 		Item mit = getDataToAppend();
@@ -77,7 +82,7 @@ public class TestUnboundedMapAppendItem {
 	}
 	
 	@Test
-	public void testAppendWithPreviousNull() throws NotStoredException, StorageException {
+	public void testAppendWithPreviousNull() throws NotStoredException, StorageException, NotFoundException {
 		Item it = getDataToAdd();
 		it.setData("".getBytes());
 		um.add(it);

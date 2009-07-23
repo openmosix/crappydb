@@ -45,10 +45,10 @@ public class UnboundedMap implements StorageAccessLayer {
 		repository.put(item.getKey(), item);
 	}
 
-	public void append(Item item) throws StorageException {
+	public void append(Item item) throws NotFoundException, StorageException {
 		checkItem(item);
 		if(!repository.containsKey(item.getKey()))
-			throw new StorageException("Unknown key");
+			throw new NotFoundException();
 		
 		if(noInternalData(item))
 			return;
@@ -113,8 +113,6 @@ public class UnboundedMap implements StorageAccessLayer {
 	private void checkItem(Item item) throws StorageException {
 		if(null == item)
 			throw new StorageException("Null item");
-		if("".equals(item.getKey()))
-			throw new StorageException("Invalid key");
 	}
 	
 	private void blowIfItemExists(Item item) throws NotStoredException {

@@ -35,9 +35,9 @@ public interface StorageAccessLayer {
 	
 	void replace(Item item) throws NotStoredException, StorageException;
 	
-	void append(Item item) throws StorageException;
+	void append(Item item) throws NotFoundException, StorageException;
 	
-	void prepend(Item item) throws StorageException;
+	void prepend(Item item) throws NotFoundException, StorageException;
 	
 	void swap(Item item) throws NotFoundException, ExistsException, StorageException;
 	

@@ -628,6 +628,77 @@ public class TestNormalUseCases extends TestCase {
 		testServerInOut(input, "END\r\n");
 	}
 	
+	@Test
+	public void testSetGetAppendGetAppendGet() throws IOException {
+		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "append terminenzio 12 5 30\r\nI want to add this text to it.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 54\r\n", 
+				"This is simply a string.I want to add this text to it.\r\n", 
+				"END\r\n"});
+		
+		input = "append terminenzio 12 5 23\r\nAnd conclude with this.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 77\r\n", 
+				"This is simply a string.I want to add this text to it.And conclude with this.\r\n", 
+				"END\r\n"});
+	}
+	
+	@Test
+	public void testAppendGetAppendGetSetGetAppendGet() throws IOException {
+		String input = "append terminenzio 12 5 30\r\nI want to add this text to it.\r\n";
+		String OUT = "NOT_FOUND\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"END\r\n"});
+		
+		input = "append terminenzio 12 5 23\r\nAnd conclude with this.\r\n";
+		OUT = "NOT_FOUND\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"END\r\n"});
+		
+		input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "append terminenzio 12 5 30\r\nI want to add this text to it.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 54\r\n", 
+				"This is simply another string.I want to add this text to it.\r\n", 
+				"END\r\n"});
+	}
+
+	
 	private void testServerInOut(String in, String out) throws IOException {
 		client.sendData(in);
 		assertEquals(out, client.readline());
