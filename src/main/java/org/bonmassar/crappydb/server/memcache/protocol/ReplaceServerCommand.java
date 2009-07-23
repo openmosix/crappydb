@@ -16,18 +16,33 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.exceptions;
+package org.bonmassar.crappydb.server.memcache.protocol;
 
-public class NotFoundException extends CrappyDBException {
+import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+import org.bonmassar.crappydb.server.storage.data.Item;
 
-	private static final long serialVersionUID = -5406576634787162210L;
+//replace <key> <flags> <exptime> <bytes> [noreply]\r\n
+public class ReplaceServerCommand extends ServerCommandWithPayload {
 
-	public NotFoundException() {
-		super(null);
-	}
-
+	private Logger logger = Logger.getLogger(ReplaceServerCommand.class);
+	
 	@Override
-	public String clientResponse() {
-		return "NOT_FOUND";
+	protected String getCommandName() {
+		return "Replace";
 	}
+
+	public void execCommand() {
+		logger.debug("Executed command replace");
+
+		Item it = new Item(getKey(), getPayload(), getFlags());
+		it.setExpire(getExpire());
+		try {
+			storage.replace(it);
+			channel.writeToOutstanding("STORED\r\n");
+		} catch (CrappyDBException e) {
+			channel.writeException(e);
+		}
+	}
+
 }

@@ -58,9 +58,9 @@ public class TestUnboundedMapDeleteItem {
 			um.delete(new Key("Miao"));
 			fail();
 		} catch (NotFoundException e) {
-			fail();
+			assertEquals("NOT_FOUND", e.clientResponse());
 		} catch (StorageException  e) {
-			assertEquals("StorageException [Unknown key]", e.toString());
+			fail();
 		}
 	}
 	

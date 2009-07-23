@@ -35,6 +35,7 @@ public class CommandFactory {
 		commands.put("delete", DeleteServerCommand.class);
 		commands.put("get", GetServerCommand.class);
 		commands.put("gets", GetServerCommand.class);
+		commands.put("replace", ReplaceServerCommand.class);
 		commands.put("set", SetServerCommand.class);
 		commands.put("verbosity", VerbosityServerCommand.class);
 		commands.put("version", VersionServerCommand.class);

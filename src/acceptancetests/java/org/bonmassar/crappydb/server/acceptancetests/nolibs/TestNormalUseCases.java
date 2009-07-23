@@ -20,7 +20,6 @@ package org.bonmassar.crappydb.server.acceptancetests.nolibs;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.Date;
 
 import junit.framework.TestCase;
 
@@ -488,6 +487,142 @@ public class TestNormalUseCases extends TestCase {
 
 		input = "delete terminenzio\r\n";
 		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	}
+	
+	@Test
+	public void testAddGetReplaceGetDeleteGet() throws IOException {
+		String input = "add terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "replace terminenzio 12 5 30\r\nThis is simply another string.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 30\r\n", 
+				"This is simply another string.\r\n", 
+				"END\r\n"});
+
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	}
+	
+	@Test
+	public void testSetGetReplaceGetDeleteGet() throws IOException {
+		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "replace terminenzio 12 5 30\r\nThis is simply another string.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 30\r\n", 
+				"This is simply another string.\r\n", 
+				"END\r\n"});
+
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	}
+	
+	@Test
+	public void testReplaceGet() throws IOException {
+		String input = "replace terminenzio 12 5 30\r\nThis is simply another string.\r\n";
+		String OUT = "NOT_STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"END\r\n"});
+	}
+	
+	@Test
+	public void testAddGetReplaceGetDeleteGetNoReply() throws IOException {
+		String input = "add terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "replace terminenzio 12 5 30 noreply\r\nThis is simply another string.\r\n";
+		testServerNoOutput(input);
+		pause(3);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 30\r\n", 
+				"This is simply another string.\r\n", 
+				"END\r\n"});
+
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	}
+	
+	@Test
+	public void testSetGetReplaceGetDeleteGetNoReply() throws IOException {
+		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "replace terminenzio 12 5 30 noreply\r\nThis is simply another string.\r\n";
+		testServerNoOutput(input);
+		pause(3);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 30\r\n", 
+				"This is simply another string.\r\n", 
+				"END\r\n"});
+
+		input = "delete terminenzio\r\n";
+		testServerInOut(input, "DELETED\r\n");
+		
+		input = "get terminenzio\r\n";
+		testServerInOut(input, "END\r\n");
+	}
+	
+	@Test
+	public void testReplaceGetNoReply() throws IOException {
+		String input = "replace terminenzio 12 5 30 noreply\r\nThis is simply another string.\r\n";
+		testServerNoOutput(input);
+		pause(3);
 		
 		input = "get terminenzio\r\n";
 		testServerInOut(input, "END\r\n");

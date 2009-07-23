@@ -67,7 +67,7 @@ public class TestServerCommandReader {
 	public void testDecodeGetCommandCompletedInvalidCommand() throws IOException, CrappyDBException {	
 		when(input.noDataAvailable()).thenReturn(false, true);
 		when(input.readTextLine()).thenReturn("gaat testkey noreply\r\n");
-		ServerCommand command = new ExceptionCommand(new NotFoundException("cause"));
+		ServerCommand command = new ExceptionCommand(new NotFoundException());
 		when(commandFactory.getCommandFromCommandLine("gaat testkey noreply")).thenReturn(command);
 		
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
@@ -92,7 +92,7 @@ public class TestServerCommandReader {
 	public void testDecodeGetCommandCompletedIOError() throws IOException, CrappyDBException {	
 		when(input.noDataAvailable()).thenReturn(false, true);
 		when(input.readTextLine()).thenReturn("gaat testkey noreply\r\n");
-		ServerCommand command = new ExceptionCommand(new NotFoundException("cause"));
+		ServerCommand command = new ExceptionCommand(new NotFoundException());
 		when(commandFactory.getCommandFromCommandLine("gaat testkey noreply")).thenReturn(command);
 		
 		List<ServerCommand> cmds = cmdreader.decodeCommands();

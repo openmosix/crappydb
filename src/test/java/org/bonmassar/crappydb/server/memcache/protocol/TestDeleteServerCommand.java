@@ -99,7 +99,7 @@ public class TestDeleteServerCommand extends TestCase {
 	public void testKeyNotFound() throws ErrorException, NotFoundException, StorageException {
 		command.parseCommandParams("terminenzio 12345 noreply\r\n");
 
-		CrappyDBException exception = new NotFoundException("BOOM!"); 
+		CrappyDBException exception = new NotFoundException(); 
 		doThrow(exception).when(storage).delete(new Key("terminenzio"));
 		
 		command.execCommand();

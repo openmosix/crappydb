@@ -120,4 +120,17 @@ public class TestCommandFactory {
 		ServerCommand sc = factory.getCommand("add");
 		assertTrue(sc instanceof AddServerCommand);
 	}
+	
+	
+	@Test
+	public void testReplaceCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("replace terminenzio 4 10 22 noreply\r\n");
+		assertTrue(sc instanceof ReplaceServerCommand);
+	}
+	
+	@Test
+	public void testReplaceCommand() throws ErrorException {
+		ServerCommand sc = factory.getCommand("replace");
+		assertTrue(sc instanceof ReplaceServerCommand);
+	}
 }
