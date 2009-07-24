@@ -39,6 +39,7 @@ public class TestNormalUseCases extends TestCase {
 	
 	@After
 	public void tearDown() throws IOException {
+		clean("terminenzio");
 		client.closeConnection();
 	}
 	
@@ -47,7 +48,6 @@ public class TestNormalUseCases extends TestCase {
 		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
 		String OUT = "STORED\r\n";
 		testServerInOut(input, OUT);
-		clean("terminenzio");
 	}
 	
 	@Test
@@ -55,7 +55,6 @@ public class TestNormalUseCases extends TestCase {
 		String input = "set terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
 		testServerNoOutput(input);
 		pause(sleepTimeForAsyncCalls);
-		clean("terminenzio");
 	}
 	
 	@Test
@@ -66,7 +65,6 @@ public class TestNormalUseCases extends TestCase {
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 24\r\n", 
 				"This is simply a string.\r\n", "END\r\n"});
-		clean("terminenzio");
 	}
 	
 	@Test
@@ -78,7 +76,6 @@ public class TestNormalUseCases extends TestCase {
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 24\r\n", 
 				"This is simply a string.\r\n", "END\r\n"});
-		clean("terminenzio");
 	}
 	
 	@Test
@@ -694,7 +691,7 @@ public class TestNormalUseCases extends TestCase {
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{
 				"VALUE terminenzio 12 54\r\n", 
-				"This is simply another string.I want to add this text to it.\r\n", 
+				"This is simply a string.I want to add this text to it.\r\n", 
 				"END\r\n"});
 	}
 
@@ -725,7 +722,8 @@ public class TestNormalUseCases extends TestCase {
 	}
 	
 	private void clean(String key) throws IOException{
-		testServerInOut(String.format("delete %s\r\n", key), "DELETED\r\n");
+		client.sendData(String.format("delete %s\r\n", key));
+		client.readline();
 	}
 	
 	private void clean(String[] keys) throws IOException{
