@@ -624,6 +624,142 @@ public class TestNormalUseCases extends TestCase {
 		input = "get terminenzio\r\n";
 		testServerInOut(input, "END\r\n");
 	}
+
+	@Test
+	public void testSetGetPrependGetPrependGet() throws IOException {
+		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "prepend terminenzio 12 5 30\r\nI want to add this text to it.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 54\r\n", 
+				"I want to add this text to it.This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "prepend terminenzio 12 5 23\r\nAnd conclude with this.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 77\r\n", 
+				"And conclude with this.I want to add this text to it.This is simply a string.\r\n", 
+				"END\r\n"});
+	}
+	
+	@Test
+	public void testPrependGetPrependGetSetGetPrependGet() throws IOException {
+		String input = "prepend terminenzio 12 5 30\r\nI want to add this text to it.\r\n";
+		String OUT = "NOT_FOUND\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"END\r\n"});
+		
+		input = "prepend terminenzio 12 5 23\r\nAnd conclude with this.\r\n";
+		OUT = "NOT_FOUND\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"END\r\n"});
+		
+		input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "prepend terminenzio 12 5 30\r\nI want to add this text to it.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 54\r\n", 
+				"I want to add this text to it.This is simply a string.\r\n", 
+				"END\r\n"});
+	}
+
+	@Test
+	public void testSetGetPrependNoReplyGetPrependNoReplyGet() throws IOException {
+		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "prepend terminenzio 12 5 30 noreply\r\nI want to add this text to it.\r\n";
+		testServerNoOutput(input);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 54\r\n", 
+				"I want to add this text to it.This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "prepend terminenzio 12 5 23 noreply\r\nAnd conclude with this.\r\n";
+		testServerNoOutput(input);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 77\r\n", 
+				"And conclude with this.I want to add this text to it.This is simply a string.\r\n", 
+				"END\r\n"});
+	}
+	
+	@Test
+	public void testPrependGetPrependNoReplyGetSetGetPrependNoReplyGet() throws IOException {
+		String input = "prepend terminenzio 12 5 30\r\nI want to add this text to it.\r\n";
+		String OUT = "NOT_FOUND\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"END\r\n"});
+		
+		input = "prepend terminenzio 12 5 23 noreply\r\nAnd conclude with this.\r\n";
+		testServerNoOutput(input);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"END\r\n"});
+		
+		input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "prepend terminenzio 12 5 30 noreply\r\nI want to add this text to it.\r\n";
+		testServerNoOutput(input);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 54\r\n", 
+				"I want to add this text to it.This is simply a string.\r\n", 
+				"END\r\n"});
+	}
 	
 	@Test
 	public void testSetGetAppendGetAppendGet() throws IOException {
@@ -695,6 +831,71 @@ public class TestNormalUseCases extends TestCase {
 				"END\r\n"});
 	}
 
+	@Test
+	public void testSetGetAppendNoReplyGetAppendNoReplyGet() throws IOException {
+		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		String OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "append terminenzio 12 5 30 noreply\r\nI want to add this text to it.\r\n";
+		testServerNoOutput(input);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 54\r\n", 
+				"This is simply a string.I want to add this text to it.\r\n", 
+				"END\r\n"});
+		
+		input = "append terminenzio 12 5 23 noreply\r\nAnd conclude with this.\r\n";
+		testServerNoOutput(input);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 77\r\n", 
+				"This is simply a string.I want to add this text to it.And conclude with this.\r\n", 
+				"END\r\n"});
+	}
+	
+	@Test
+	public void testAppendGetAppendNoReplyGetSetGetAppendNoReplyGet() throws IOException {
+		String input = "append terminenzio 12 5 30\r\nI want to add this text to it.\r\n";
+		String OUT = "NOT_FOUND\r\n";
+		testServerInOut(input, OUT);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"END\r\n"});
+		
+		input = "append terminenzio 12 5 23 noreply\r\nAnd conclude with this.\r\n";
+		testServerNoOutput(input);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"END\r\n"});
+		
+		input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
+		OUT = "STORED\r\n";
+		testServerInOut(input, OUT);
+
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 24\r\n", 
+				"This is simply a string.\r\n", 
+				"END\r\n"});
+		
+		input = "append terminenzio 12 5 30 noreply\r\nI want to add this text to it.\r\n";
+		testServerNoOutput(input);
+		
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{
+				"VALUE terminenzio 12 54\r\n", 
+				"This is simply a string.I want to add this text to it.\r\n", 
+				"END\r\n"});
+	}
 	
 	private void testServerInOut(String in, String out) throws IOException {
 		client.sendData(in);
