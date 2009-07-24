@@ -29,7 +29,7 @@ import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestUnboundedMapAppendItem extends TestCase {
+public class TestUnboundedMapPrependItem extends TestCase {
 	private UnboundedMap um;
 	
 	@Before
@@ -40,7 +40,7 @@ public class TestUnboundedMapAppendItem extends TestCase {
 	@Test
 	public void testNullObject() {
 		try {
-			um.append(null);
+			um.prepend(null);
 			fail();
 		} catch (NotFoundException e) {
 			fail();
@@ -53,7 +53,7 @@ public class TestUnboundedMapAppendItem extends TestCase {
 	public void testKeyNotFound() {
 		try {
 			Item it = getDataToAdd();
-			um.append(it);
+			um.prepend(it);
 		} catch (NotFoundException e) {
 			assertEquals("NOT_FOUND", e.clientResponse());
 		} catch (StorageException e) {
@@ -62,41 +62,41 @@ public class TestUnboundedMapAppendItem extends TestCase {
 	}
 	
 	@Test
-	public void testAppendNull() throws NotStoredException, StorageException, NotFoundException {
+	public void testPrependNull() throws NotStoredException, StorageException, NotFoundException {
 		Item it = getDataToAdd();
 		um.add(it);
 		Item mit = getDataToAppend();
 		mit.setData(null);
-		um.append(mit);
+		um.prepend(mit);
 		assertEquals("some data", new String( um.repository.get(new Key("Yuppi")).getData() ));
 	}
 	
 	@Test
-	public void testAppendSomething() throws NotStoredException, StorageException, NotFoundException {
+	public void testPrependSomething() throws NotStoredException, StorageException, NotFoundException {
 		Item it = getDataToAdd();
 		um.add(it);
 		Item mit = getDataToAppend();
-		um.append(mit);
-		assertEquals("some data some other more data", new String( um.repository.get(new Key("Yuppi")).getData() ));
+		um.prepend(mit);
+		assertEquals(" some other more datasome data", new String( um.repository.get(new Key("Yuppi")).getData() ));
 	}
 	
 	@Test
-	public void testAppendWithPreviousNull() throws NotStoredException, StorageException, NotFoundException {
+	public void testPrependWithPreviousNull() throws NotStoredException, StorageException, NotFoundException {
 		Item it = getDataToAdd();
 		it.setData(null);
 		um.add(it);
 		Item mit = getDataToAppend();
-		um.append(mit);
+		um.prepend(mit);
 		assertEquals(" some other more data", new String( um.repository.get(new Key("Yuppi")).getData() ));
 	}
 	
 	@Test
-	public void testAppendWithPreviousEmpty() throws NotStoredException, StorageException, NotFoundException {
+	public void testPrependWithPreviousEmpty() throws NotStoredException, StorageException, NotFoundException {
 		Item it = getDataToAdd();
 		it.setData("".getBytes());
 		um.add(it);
 		Item mit = getDataToAppend();
-		um.append(mit);
+		um.prepend(mit);
 		assertEquals(" some other more data", new String( um.repository.get(new Key("Yuppi")).getData() ));
 	}
 	

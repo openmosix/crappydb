@@ -1,9 +1,6 @@
 package org.bonmassar.crappydb.server.storage.memory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import junit.framework.TestCase;
 
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
@@ -13,7 +10,7 @@ import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestUnboundedMapSetItems {
+public class TestUnboundedMapSetItems  extends TestCase{
 	
 	private UnboundedMap um;
 	

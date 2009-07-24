@@ -34,11 +34,11 @@ import org.bonmassar.crappydb.server.storage.data.Key;
 public class UnboundedMap implements StorageAccessLayer {
 
 	protected Map<Key, Item> repository;
-	
-	public UnboundedMap () {
+
+	public UnboundedMap() {
 		repository = new HashMap<Key, Item>();
 	}
-	
+
 	public void add(Item item) throws NotStoredException, StorageException {
 		checkItem(item);
 		blowIfItemExists(item);
@@ -46,15 +46,23 @@ public class UnboundedMap implements StorageAccessLayer {
 	}
 
 	public void append(Item item) throws NotFoundException, StorageException {
+		Item prevstored = getPreviousStored(item);
+		if (null != prevstored)
+			prevstored.setData(concatData(prevstored, item));
+	}
+
+	public void prepend(Item item) throws NotFoundException, StorageException {
+		Item prevstored = getPreviousStored(item);
+		if (null != prevstored)
+			prevstored.setData(concatData(item, prevstored));
+	}
+
+	public void replace(Item item) throws NotStoredException, StorageException {
 		checkItem(item);
-		if(!repository.containsKey(item.getKey()))
-			throw new NotFoundException();
-		
-		if(noInternalData(item))
-			return;
-		
-		Item prevstored = repository.get(item.getKey());
-		prevstored.setData(concatData(item, prevstored));
+		if (!repository.containsKey(item.getKey()))
+			throw new NotStoredException();
+
+		repository.put(item.getKey(), item);
 	}
 
 	public void delete(Key id) throws NotFoundException, StorageException {
@@ -66,15 +74,10 @@ public class UnboundedMap implements StorageAccessLayer {
 	public List<Item> get(List<Key> ids) throws StorageException {
 		checkValidIds(ids);
 		List<Item> resp = new LinkedList<Item>();
-		for (Key k : ids){
-			if(null == k)
-				continue;
-			
-			Item elem = repository.get(k);
-			if(null != elem)
-				resp.add(elem);
+		for (Key k : ids) {
+			resp.add(repository.get(k));
 		}
-				
+
 		return resp;
 	}
 
@@ -82,87 +85,90 @@ public class UnboundedMap implements StorageAccessLayer {
 		checkItem(item);
 		repository.put(item.getKey(), item);
 	}
-	
+
 	public Item decrease(Key id, Long value) throws NotFoundException,
-	StorageException {
+			StorageException {
 		throw new StorageException("Not Implemented");
 	}
-	
+
 	public void swap(Item item) throws NotFoundException, ExistsException,
 			StorageException {
 		throw new StorageException("Not Implemented");
 	}
-	
+
 	public Item increase(Key id, Long value) throws NotFoundException,
-	StorageException {
+			StorageException {
 		throw new StorageException("Not Implemented");
 	}
 
-	public void prepend(Item item) throws StorageException {
-		throw new StorageException("Not Implemented");
-	}
-
-	public void replace(Item item) throws NotStoredException, StorageException {
-		checkItem(item);
-		if(!repository.containsKey(item.getKey()))
-			throw new NotStoredException();
-
-		repository.put(item.getKey(), item);
-	}
-	
 	private void checkItem(Item item) throws StorageException {
-		if(null == item)
+		if (null == item)
 			throw new StorageException("Null item");
 	}
-	
+
 	private void blowIfItemExists(Item item) throws NotStoredException {
-		if(repository.containsKey(item.getKey()))
+		if (repository.containsKey(item.getKey()))
 			throw new NotStoredException();
 	}
-		
+
 	private void blowIfItemDoesNotExists(Key k) throws NotFoundException {
-		if(!repository.containsKey(k))
+		if (!repository.containsKey(k))
 			throw new NotFoundException();
 	}
-	
+
 	private boolean noInternalData(Item item) {
 		return noBinaryData(item.getData());
 	}
-	
-	private boolean noBinaryData(byte[] data){
+
+	private boolean noBinaryData(byte[] data) {
 		return null == data || 0 == data.length;
 	}
 
-	private byte[] concatData(Item item, Item prevstored) {
-		byte[] concatdata = new byte[computeNewInternalDataLength(prevstored.getData(), item.getData())];
-		
+	private Item getPreviousStored(Item item) throws StorageException,
+			NotFoundException {
+		checkItem(item);
+		if (!repository.containsKey(item.getKey()))
+			throw new NotFoundException();
+
+		if (noInternalData(item))
+			return null;
+
+		return repository.get(item.getKey());
+	}
+
+	private byte[] concatData(Item prefix, Item postfix) {
+		byte[] concatdata = new byte[computeNewInternalDataLength(prefix
+				.getData(), postfix.getData())];
+
 		int cursor = 0;
-		if(!noInternalData(prevstored)){
-			cursor = prevstored.getData().length;
-			System.arraycopy(prevstored.getData(), 0, concatdata, 0, prevstored.getData().length);
+
+		if (!noInternalData(prefix)) {
+			cursor = prefix.getData().length;
+			System.arraycopy(prefix.getData(), 0, concatdata, 0, prefix
+					.getData().length);
 		}
-		
-		System.arraycopy(item.getData(), 0, concatdata, cursor, item.getData().length);
+
+		if (!noInternalData(postfix)) {
+			System.arraycopy(postfix.getData(), 0, concatdata, cursor, postfix
+					.getData().length);
+		}
+
 		return concatdata;
 	}
 
-	
-	private int computeNewInternalDataLength(byte[] olddata, byte[] newdata){
-		if(!noBinaryData(olddata))
-			return olddata.length + newdata.length;
-		
-		return newdata.length;
+	private int computeNewInternalDataLength(byte[] prefix, byte[] postfix) {
+		int length = noBinaryData(prefix) ? 0 : prefix.length;
+		return length + (noBinaryData(postfix) ? 0 : postfix.length);
 	}
 
 	private void checkValidIds(List<Key> ids) throws StorageException {
-		if(null == ids || 0 == ids.size())
+		if (null == ids || 0 == ids.size())
 			throw new StorageException("No valid ids");
 	}
-	
+
 	private void checkValidId(Key id) throws StorageException {
-		if(null == id)
+		if (null == id)
 			throw new StorageException("No valid id");
 	}
-
 
 }

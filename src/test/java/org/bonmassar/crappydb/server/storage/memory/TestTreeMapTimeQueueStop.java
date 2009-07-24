@@ -18,15 +18,14 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import junit.framework.TestCase;
 
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestTreeMapTimeQueueStop {
+public class TestTreeMapTimeQueueStop  extends TestCase {
 
 	private TreeMapTimeQueue queue;
 	private Item item1, item2, item3, item4;

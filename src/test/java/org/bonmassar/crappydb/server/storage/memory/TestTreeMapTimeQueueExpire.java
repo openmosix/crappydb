@@ -18,12 +18,9 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
+
+import junit.framework.TestCase;
 
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
@@ -31,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class TestTreeMapTimeQueueExpire {
+public class TestTreeMapTimeQueueExpire  extends TestCase {
 
 	class MockTreeMapTimeQueue extends TreeMapTimeQueue{
 		@Override
