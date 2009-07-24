@@ -24,7 +24,7 @@ import org.bonmassar.crappydb.server.storage.data.Item;
 
 //append <key> <flags> <exptime> <bytes> [noreply]\r\n
 
-public class AppendServerCommand extends ServerCommandWithPayload {
+class AppendServerCommand extends ServerCommandWithPayload {
 
 	private Logger logger = Logger.getLogger(AppendServerCommand.class);
 	

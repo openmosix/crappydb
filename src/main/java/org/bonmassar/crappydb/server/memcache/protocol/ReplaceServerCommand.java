@@ -23,7 +23,7 @@ import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.storage.data.Item;
 
 //replace <key> <flags> <exptime> <bytes> [noreply]\r\n
-public class ReplaceServerCommand extends ServerCommandWithPayload {
+class ReplaceServerCommand extends ServerCommandWithPayload {
 
 	private Logger logger = Logger.getLogger(ReplaceServerCommand.class);
 	
