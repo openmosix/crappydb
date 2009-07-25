@@ -26,31 +26,34 @@ package org.bonmassar.crappydb.utils;
 
 import java.math.BigInteger;
 
+import junit.framework.TestCase;
+
 /**
  * Simulate a 64bit unsigned int increment and overflow 
  */
-public class BigIncrementer {
-	
-	private final static BigInteger overflow = new BigInteger("18446744073709551616");
+public class BigDecrementer extends TestCase {
 
-	public static String incr(String a, String b){
+	private final static BigInteger overflow = new BigInteger("18446744073709551616");
+	
+	public static String decr(String a, String b){
 		if(b == null)
 			return a;
 		
 		if(a == null)
 			a = "";
-		
-		BigInteger result = getNumber(a).add(getNumber(b));
-		if(result.compareTo(overflow) >= 0)
-			return result.mod(overflow).toString();
-		
+
+		BigInteger result = getNumber(a).subtract(getNumber(b));
+		if(result.compareTo(BigInteger.ZERO) <= 0)
+			return BigInteger.ZERO.toString();
+				
 		return result.toString();
 	}
-
+	
 	private static BigInteger getNumber(String number) {
+		
 		try{
 			BigInteger result =  new BigInteger(number);
-			if(result.compareTo(BigInteger.ZERO) <= 0)
+			if(result.compareTo(BigInteger.ZERO) <= 0 || result.compareTo(overflow) >= 0)
 				return BigInteger.ZERO;
 			
 			return result;
@@ -58,5 +61,4 @@ public class BigIncrementer {
 			return BigInteger.ZERO;
 		}
 	}
-	
 }

@@ -32,51 +32,76 @@ public class TestBigIncrementer extends TestCase {
 
 	@Test
 	public void testIncrementNull() {
-		assertNull(BigIncrementer.next(null));
+		assertNull(BigIncrementer.incr(null, null));
+	}
+	
+	@Test
+	public void testIncrementBaseNull() {
+		assertEquals("32", BigIncrementer.incr("32", null));
 	}
 	
 	@Test
 	public void testIncrementEmpty() {
-		assertEquals("1", BigIncrementer.next(""));
+		assertEquals("32", BigIncrementer.incr("32", ""));
+	}
+	
+	@Test
+	public void testIncrementBaseEmpty() {
+		assertEquals("32", BigIncrementer.incr("", "32"));
 	}
 	
 	@Test
 	public void testIncrementInvalidNumber() {
-		assertEquals("1", BigIncrementer.next("mucca"));
+		assertEquals("32", BigIncrementer.incr("32", "mucca"));
+	}
+	
+	@Test
+	public void testIncrementInvalidBaseNumber() {
+		assertEquals("32", BigIncrementer.incr("mucca", "32"));
+	}
+	
+	@Test
+	public void testIncrementBaseZero() {
+		assertEquals("10", BigIncrementer.incr("0", "10"));
 	}
 	
 	@Test
 	public void testIncrementZero() {
-		assertEquals("1", BigIncrementer.next("0"));
+		assertEquals("10", BigIncrementer.incr("10", "0"));
 	}
 	
 	@Test
 	public void testIncrementNegative() {
-		assertEquals("1", BigIncrementer.next("-10"));
+		assertEquals("910", BigIncrementer.incr("910", "-10"));
+	}
+	
+	@Test
+	public void testIncrementBaseNegative() {
+		assertEquals("910", BigIncrementer.incr("-10", "910"));
 	}
 	
 	@Test
 	public void testIncrementNormalValue() {
-		assertEquals("68944369", BigIncrementer.next("68944368"));
+		assertEquals("68944370", BigIncrementer.incr("68944368", "2"));
 	}
 	
 	@Test
 	public void testIncrementLongValue() {
-		assertEquals("58833368944369", BigIncrementer.next("58833368944368"));
+		assertEquals("58833368944419", BigIncrementer.incr("58833368944368", "51"));
 	}
 	
 	@Test
 	public void testIncrementUnderOverflow() {
-		assertEquals("18446744073709551615", BigIncrementer.next("18446744073709551614"));
+		assertEquals("18446744073709551615", BigIncrementer.incr("5", "18446744073709551610"));
 	}
 	
 	@Test
 	public void testIncrementOverflow() {
-		assertEquals("0", BigIncrementer.next("18446744073709551615"));
+		assertEquals("0", BigIncrementer.incr("6", "18446744073709551610"));
 	}
 	
 	@Test
 	public void testIncrementOverOverflow() {
-		assertEquals("0", BigIncrementer.next("18446744073709551625"));
+		assertEquals("29", BigIncrementer.incr("20", "18446744073709551625"));
 	}
 }
