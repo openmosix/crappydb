@@ -41,7 +41,7 @@ public class InMemoryUnboundedSAL implements StorageAccessLayer {
 		throw new StorageException("Not Implemented.");
 	}
 
-	public Item decrease(Key id, Long value) throws NotFoundException,
+	public Item decrease(Key id, String value) throws NotFoundException,
 			StorageException {
 		throw new StorageException("Not Implemented.");
 	}
@@ -54,7 +54,7 @@ public class InMemoryUnboundedSAL implements StorageAccessLayer {
 		throw new StorageException("Not Implemented.");
 	}
 
-	public Item increase(Key id, Long value) throws NotFoundException,
+	public Item increase(Key id, String value) throws NotFoundException,
 			StorageException {
 		throw new StorageException("Not Implemented.");
 	}

@@ -45,8 +45,8 @@ public interface StorageAccessLayer {
 	
 	void delete(Key id) throws NotFoundException, StorageException;
 	
-	Item increase(Key id, Long value) throws NotFoundException, StorageException;
+	Item increase(Key id, String value) throws NotFoundException, StorageException;
 	
-	Item decrease(Key id, Long value) throws NotFoundException, StorageException;
+	Item decrease(Key id, String value) throws NotFoundException, StorageException;
 	
 }

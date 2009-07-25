@@ -30,6 +30,8 @@ import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.utils.BigDecrementer;
+import org.bonmassar.crappydb.utils.BigIncrementer;
 
 public class UnboundedMap implements StorageAccessLayer {
 
@@ -86,19 +88,29 @@ public class UnboundedMap implements StorageAccessLayer {
 		repository.put(item.getKey(), item);
 	}
 
-	public Item decrease(Key id, Long value) throws NotFoundException,
-			StorageException {
-		throw new StorageException("Not Implemented");
-	}
-
 	public void swap(Item item) throws NotFoundException, ExistsException,
 			StorageException {
 		throw new StorageException("Not Implemented");
 	}
 
-	public Item increase(Key id, Long value) throws NotFoundException,
+	public Item decrease(Key id, String value) throws NotFoundException,
 			StorageException {
-		throw new StorageException("Not Implemented");
+		Item it = getValidEntry(id, value);
+		String data = getDataAsString(it.getData());
+		it.setData(BigDecrementer.decr(data, value).getBytes());
+		return it;
+	}
+
+	public Item increase(Key id, String value) throws NotFoundException,
+			StorageException {
+		Item it = getValidEntry(id, value);
+		String data = getDataAsString(it.getData());
+		it.setData(BigIncrementer.incr(data, value).getBytes());
+		return it;
+	}
+
+	private String getDataAsString(byte[] data) {
+		return (null == data) ? "" : new String(data);
 	}
 
 	private void checkItem(Item item) throws StorageException {
@@ -154,6 +166,17 @@ public class UnboundedMap implements StorageAccessLayer {
 		}
 
 		return concatdata;
+	}
+
+	private Item getValidEntry(Key id, String value) throws StorageException,
+			NotFoundException {
+		checkValidId(id);
+		if (null == value)
+			throw new StorageException("Null item");
+		blowIfItemDoesNotExists(id);
+
+		Item it = repository.get(id);
+		return it;
 	}
 
 	private int computeNewInternalDataLength(byte[] prefix, byte[] postfix) {
