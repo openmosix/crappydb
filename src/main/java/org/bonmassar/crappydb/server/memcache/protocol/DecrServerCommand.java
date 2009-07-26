@@ -26,7 +26,7 @@ import org.bonmassar.crappydb.server.storage.data.Key;
 
 //incr <key> <value> [noreply]\r\n
 
-public class DecrServerCommand extends ServerCommandNoPayload {
+class DecrServerCommand extends ServerCommandNoPayload {
 
 	private static final int KEY_POS=0;
 	private static final int VAL_POS=1;
