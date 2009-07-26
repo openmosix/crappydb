@@ -19,30 +19,11 @@
 package org.bonmassar.crappydb.server.acceptancetests.nolibs;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 
-import junit.framework.TestCase;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-public class TestNormalUseCases extends TestCase {
-
-	private final static int sleepTimeForAsyncCalls = 3;
-	private NetworkClient client;
-	
-	@Before
-	public void setUp() throws UnknownHostException, IOException{
-		client = new NetworkClient();
-	}
-	
-	@After
-	public void tearDown() throws IOException {
-		clean("terminenzio");
-		client.closeConnection();
-	}
-	
+public class TestNormalUseCases extends AbstractUseCases {
+		
 	@Test
 	public void testSetCommand() throws IOException {
 		String input = "set terminenzio 12 5 24\r\nThis is simply a string.\r\n";
@@ -873,6 +854,7 @@ public class TestNormalUseCases extends TestCase {
 		
 		input = "append terminenzio 12 5 23 noreply\r\nAnd conclude with this.\r\n";
 		testServerNoOutput(input);
+		pause(3);
 		
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"END\r\n"});
@@ -889,46 +871,12 @@ public class TestNormalUseCases extends TestCase {
 		
 		input = "append terminenzio 12 5 30 noreply\r\nI want to add this text to it.\r\n";
 		testServerNoOutput(input);
+		pause(3);
 		
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{
 				"VALUE terminenzio 12 54\r\n", 
 				"This is simply a string.I want to add this text to it.\r\n", 
 				"END\r\n"});
-	}
-	
-	private void testServerInOut(String in, String out) throws IOException {
-		client.sendData(in);
-		assertEquals(out, client.readline());
-	}
-	
-	private void testServerNoOutput(String input) throws IOException {
-		client.sendData(input);		
-	}
-
-	
-	private void testServerInMultipleOut(String in, String[] outs) throws IOException{
-		client.sendData(in);
-		for(int i = 0; i < outs.length; i++)
-			assertEquals(outs[i], client.readline());
-	}
-	
-	private void pause(int sec){
-		try {
-			Thread.sleep(sec*1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	private void clean(String key) throws IOException{
-		client.sendData(String.format("delete %s\r\n", key));
-		client.readline();
-	}
-	
-	private void clean(String[] keys) throws IOException{
-		for(String key : keys)
-			clean(key);
 	}
 }

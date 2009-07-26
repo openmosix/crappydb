@@ -183,6 +183,88 @@ public class TestNormalUseCases extends TestCase {
 		assertTrue(client.delete("terminenzio"));
 		assertNull((String) client.get("terminenzio"));
 	}
+	
+	@Test
+	public void testIncr() {
+		assertEquals(-1L, client.incr("terminenzio", 10L));
+	}
+	
+	@Test
+	public void testAddGetIncr() {
+		assertTrue(client.add("terminenzio", "42"));
+		assertEquals(52L, client.incr("terminenzio", 10L));
+	}
+	
+	@Test
+	public void testAddWrongGetIncr() {
+		assertTrue(client.add("terminenzio", "mucca"));
+		assertEquals(10L, client.incr("terminenzio", 10L));
+	}
+	
+	@Test
+	public void testAddGetIncrWrong() {
+		assertTrue(client.add("terminenzio", "5000"));
+		assertEquals(5000L, client.incr("terminenzio", -20L));
+	}
+	
+	@Test
+	public void testAddGetVeryLargeIncr() {
+		assertTrue(client.add("terminenzio", "5000"));
+		assertEquals(Long.MAX_VALUE, client.incr("terminenzio", Long.MAX_VALUE-5000L));
+	}
+	
+	@Test
+	public void testAddGetManyIncr() {
+		assertTrue(client.add("terminenzio", "5000"));
+		for(int i=0, exp=5000; i < 20; i++){
+			exp += 5000;
+			assertEquals(exp, client.incr("terminenzio", 5000L));
+		}
+	}
+	
+	@Test
+	public void testDecr() {
+		assertEquals(-1L, client.decr("terminenzio", 10L));
+	}
+	
+	@Test
+	public void testAddGetDecr() {
+		assertTrue(client.add("terminenzio", "42"));
+		assertEquals(32L, client.decr("terminenzio", 10L));
+	}
+	
+	@Test
+	public void testAddGetDecrUnderflow() {
+		assertTrue(client.add("terminenzio", "42"));
+		assertEquals(0L, client.decr("terminenzio", 180L));
+	}
+	
+	@Test
+	public void testAddWrongGetDecr() {
+		assertTrue(client.add("terminenzio", "mucca"));
+		assertEquals(0L, client.decr("terminenzio", 10L));
+	}
+	
+	@Test
+	public void testAddGetDecrWrong() {
+		assertTrue(client.add("terminenzio", "5000"));
+		assertEquals(5000L, client.decr("terminenzio", -20L));
+	}
+	
+	@Test
+	public void testAddGetVeryLargeDecr() {
+		assertTrue(client.add("terminenzio", "9223372036854780807"));
+		assertEquals(5000L, client.decr("terminenzio", Long.MAX_VALUE));
+	}
+	
+	@Test
+	public void testAddGetManyDecr() {
+		assertTrue(client.add("terminenzio", "200000"));
+		for(int i=0, exp=200000; i < 20; i++){
+			exp -= 5000;
+			assertEquals(exp, client.decr("terminenzio", 5000L));
+		}
+	}
 		
 	private void clean(String key) throws IOException{
 		client.delete(key);
