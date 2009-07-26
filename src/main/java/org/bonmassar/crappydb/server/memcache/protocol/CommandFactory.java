@@ -33,9 +33,11 @@ public class CommandFactory {
 		commands = new HashMap<String, Class<?>>();
 		commands.put("add", AddServerCommand.class);
 		commands.put("append", AppendServerCommand.class);
+		commands.put("decr", DecrServerCommand.class);
 		commands.put("delete", DeleteServerCommand.class);
 		commands.put("get", GetServerCommand.class);
 		commands.put("gets", GetServerCommand.class);
+		commands.put("incr", IncrServerCommand.class);
 		commands.put("prepend", PrependServerCommand.class);
 		commands.put("replace", ReplaceServerCommand.class);
 		commands.put("set", SetServerCommand.class);

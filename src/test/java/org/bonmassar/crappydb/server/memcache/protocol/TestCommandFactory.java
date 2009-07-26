@@ -156,4 +156,28 @@ public class TestCommandFactory {
 		ServerCommand sc = factory.getCommand("prepend");
 		assertTrue(sc instanceof PrependServerCommand);
 	}
+	
+	@Test
+	public void testIncrementCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("incr terminenzio 4 noreply\r\n");
+		assertTrue(sc instanceof IncrServerCommand);
+	}
+	
+	@Test
+	public void testIncrementCommand() throws ErrorException {
+		ServerCommand sc = factory.getCommand("incr");
+		assertTrue(sc instanceof IncrServerCommand);
+	}
+	
+	@Test
+	public void testDecrementCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("decr terminenzio 4 noreply\r\n");
+		assertTrue(sc instanceof DecrServerCommand);
+	}
+	
+	@Test
+	public void testDecrementCommand() throws ErrorException {
+		ServerCommand sc = factory.getCommand("decr");
+		assertTrue(sc instanceof DecrServerCommand);
+	}
 }

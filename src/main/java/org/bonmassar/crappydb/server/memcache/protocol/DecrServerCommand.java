@@ -24,9 +24,9 @@ import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
-// incr <key> <value> [noreply]\r\n
+//incr <key> <value> [noreply]\r\n
 
-class IncrServerCommand extends ServerCommandNoPayload {
+public class DecrServerCommand extends ServerCommandNoPayload {
 
 	private static final int KEY_POS=0;
 	private static final int VAL_POS=1;
@@ -45,10 +45,10 @@ class IncrServerCommand extends ServerCommandNoPayload {
 	}
 
 	public void execCommand() {
-		Key k = new Key(params[IncrServerCommand.KEY_POS]);
+		Key k = new Key(params[DecrServerCommand.KEY_POS]);
 		
 		try {
-			Item it = storage.increase(k, params[VAL_POS]);
+			Item it = storage.decrease(k, params[VAL_POS]);
 			if(null == it)
 				throw new StorageException("Internal Error");
 			channel.writeToOutstanding(it.getData());
@@ -57,9 +57,9 @@ class IncrServerCommand extends ServerCommandNoPayload {
 			channel.writeException(e);
 		}
 	}
-
+	
 	@Override
 	public String toString() {
-		return String.format("{Incr key=%s value=%s noreply=%s}", params[0], params[1], !isResponseRequested()?"true":"false");
+		return String.format("{Decr key=%s value=%s noreply=%s}", params[0], params[1], !isResponseRequested()?"true":"false");
 	}
 }
