@@ -23,10 +23,9 @@ import java.net.UnknownHostException;
 
 import org.junit.After;
 import org.junit.Before;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.TestCase;
-
-public class AbstractUseCases extends TestCase {
+public class AbstractUseCases {
 	protected final static int sleepTimeForAsyncCalls = 3;
 
 	protected NetworkClient client;
