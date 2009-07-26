@@ -23,6 +23,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 public class TestIncrement extends AbstractUseCases {
+	
 	@Test
 	public void testIncr() throws IOException {
 		String input = "incr terminenzio 10\r\n";
@@ -111,5 +112,105 @@ public class TestIncrement extends AbstractUseCases {
 		input = "incr terminenzio 18446744073709551616\r\n";
 		out = "5000\r\n";
 		testServerInOut(input, out);
+	}
+	
+	@Test
+	public void testIncrNoReply() throws IOException {
+		String input = "incr terminenzio 10 noreply\r\n";
+		testServerNoOutput(input);
+		pause(3);
+	}
+	
+	@Test
+	public void testAddGetIncrNoReply() throws IOException {
+		String input = "add terminenzio 12 5 2\r\n42\r\n";
+		String out = "STORED\r\n";
+		testServerInOut(input, out);
+		
+		input = "incr terminenzio 10 noreply\r\n";
+		testServerNoOutput(input);
+		
+		pause(2);
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2\r\n", 
+				"52\r\n", "END\r\n"});
+	}
+	
+	@Test
+	public void testAddWrongGetIncrNoReply() throws IOException {
+		String input = "add terminenzio 12 5 5\r\nmucca\r\n";
+		String out = "STORED\r\n";
+		testServerInOut(input, out);
+
+		input = "incr terminenzio 10 noreply\r\n";
+		testServerNoOutput(input);
+		
+		pause(2);
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2\r\n", 
+				"10\r\n", "END\r\n"});
+
+	}
+	
+	@Test
+	public void testAddGetIncrWrongNoReply() throws IOException {
+		String input = "add terminenzio 12 5 4\r\n5000\r\n";
+		String out = "STORED\r\n";
+		testServerInOut(input, out);
+
+		input = "incr terminenzio -20 noreply\r\n";
+		testServerNoOutput(input);
+		
+		pause(2);
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 4\r\n", 
+				"5000\r\n", "END\r\n"});
+	}
+	
+	@Test
+	public void testAddGetVeryLargeIncrNoReply() throws IOException {
+		String input = "add terminenzio 12 5 4\r\n5000\r\n";
+		String out = "STORED\r\n";
+		testServerInOut(input, out);
+
+		input = "incr terminenzio 9223372036854775807 noreply\r\n";
+		testServerNoOutput(input);
+		
+		pause(2);
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 19\r\n", 
+				"9223372036854780807\r\n", "END\r\n"});
+	}
+	
+	@Test
+	public void testOverflowNoReply() throws IOException {
+
+		String input = "add terminenzio 12 5 4\r\n5000\r\n";
+		String out = "STORED\r\n";
+		testServerInOut(input, out);
+
+		input = "incr terminenzio 18446744073709551316 noreply\r\n";
+		testServerNoOutput(input);
+		
+		pause(2);
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 4\r\n", 
+				"4700\r\n", "END\r\n"});
+	}
+	
+	@Test
+	public void testCompleteOverflowNoReply() throws IOException {
+
+		String input = "add terminenzio 12 5 4\r\n5000\r\n";
+		String out = "STORED\r\n";
+		testServerInOut(input, out);
+
+		input = "incr terminenzio 18446744073709551616 noreply\r\n";
+		testServerNoOutput(input);
+		
+		pause(2);
+		input = "get terminenzio\r\n";
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 4\r\n", 
+				"5000\r\n", "END\r\n"});
 	}
 }
