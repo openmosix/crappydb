@@ -73,7 +73,7 @@
          <execution>
            <phase>test</phase>
            <goals>
-             <goal>test</goal>
+             <goal>compile</goal>
            </goals>
          </execution>
        </executions>
