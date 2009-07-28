@@ -55,8 +55,6 @@ public class TestUnboundedMapAddItem  extends TestCase{
 			um.add(it);
 			assertEquals(1, um.repository.size());
 			assertEquals(it, um.repository.get(it.getKey()));
-			assertNotNull(um.repository.get(it.getKey()).getCas());
-			assertTrue(um.repository.get(it.getKey()).getCas().toString().length() > 0);
 		} catch (Exception e) {
 			fail();
 		}
@@ -78,7 +76,6 @@ public class TestUnboundedMapAddItem  extends TestCase{
 	private Item getDataToAdd(){
 		Key k = new Key("Yuppi");
 		Item it = new Item (k, "some data".getBytes());
-		it.setCas(new Cas(1234L));
 		return it;
 	}
 }

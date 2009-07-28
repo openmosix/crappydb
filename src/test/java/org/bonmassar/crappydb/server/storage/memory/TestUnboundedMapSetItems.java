@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
-import org.bonmassar.crappydb.server.storage.data.Cas;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.Before;
@@ -35,8 +34,6 @@ public class TestUnboundedMapSetItems  extends TestCase{
 			um.set(it);
 			assertEquals(1, um.repository.size());
 			assertEquals(it, um.repository.get(it.getKey()));
-			assertNotNull(um.repository.get(it.getKey()).getCas());
-			assertTrue(um.repository.get(it.getKey()).getCas().toString().length() > 0);
 		} catch (Exception e) {
 			fail();
 		}
@@ -52,7 +49,6 @@ public class TestUnboundedMapSetItems  extends TestCase{
 	private Item getDataToSet(){
 		Key k = new Key("Yuppi");
 		Item it = new Item (k, "some data".getBytes());
-		it.setCas(new Cas(1234L));
 		return it;
 	}
 

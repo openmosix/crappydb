@@ -166,7 +166,6 @@ public class TestUnboundedMapIncrItem extends TestCase {
 	private Item getDataToAdd(){
 		Key k = new Key("terminenzio");
 		Item it = new Item (k, "42".getBytes());
-		it.setCas(new Cas(1234L));
 		return it;
 	}
 }

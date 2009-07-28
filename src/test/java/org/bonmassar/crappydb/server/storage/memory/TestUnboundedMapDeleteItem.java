@@ -80,7 +80,6 @@ public class TestUnboundedMapDeleteItem  extends TestCase{
 	private Item getDataToAdd(String key){
 		Key k = new Key(key);
 		Item it = new Item (k, "some data".getBytes());
-		it.setCas(new Cas(1234L));
 		return it;
 	}
 
