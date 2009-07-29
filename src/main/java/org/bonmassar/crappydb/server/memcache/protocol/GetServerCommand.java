@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bonmassar.crappydb.server.exceptions.StorageException;
-import org.bonmassar.crappydb.server.storage.data.Cas;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
@@ -67,13 +66,9 @@ class GetServerCommand extends ServerCommandNoPayload {
 	}
 
 	private void writeOneItem(Item it) {
-		Cas cas = it.getCas();
 		byte[] data = it.getData();
 		int length = (data != null) ? data.length : 0;
-		if(null == cas)
-			channel.writeToOutstanding(String.format("VALUE %s %d %d\r\n", it.getKey(), it.getFlags(), length));
-		else
-			channel.writeToOutstanding(String.format("VALUE %s %d %d %d\r\n", it.getKey(), it.getFlags(), length, cas.getUniquecas()));
+		channel.writeToOutstanding(String.format("VALUE %s %d %d\r\n", it.getKey(), it.getFlags(), length));
 		
 		if(length > 0)
 			channel.writeToOutstanding(data);

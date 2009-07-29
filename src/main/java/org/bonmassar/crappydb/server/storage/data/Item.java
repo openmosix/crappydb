@@ -24,7 +24,6 @@ public class Item {
 	private final Key storagekey;
 	private Integer flags;
 	private byte[] data;
-	private Cas internalcas;
 	private Long expire;
 	
 	public Item(Key storagekey, byte[] data){
@@ -35,10 +34,6 @@ public class Item {
 	public Item(Key storagekey, byte[] data, Integer flags){
 		this.storagekey = storagekey;
 		init(data, flags);
-	}
-			
-	public void setCas(Cas newcas){
-		this.internalcas = newcas;
 	}
 	
 	public void setExpire(Long newexpire){
@@ -51,10 +46,6 @@ public class Item {
 	
 	public Key getKey() {
 		return storagekey;
-	}
-	
-	public Cas getCas() {
-		return internalcas;
 	}
 	
 	public byte[] getData() {

@@ -23,7 +23,6 @@ import junit.framework.TestCase;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
-import org.bonmassar.crappydb.server.storage.data.Cas;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.Before;
