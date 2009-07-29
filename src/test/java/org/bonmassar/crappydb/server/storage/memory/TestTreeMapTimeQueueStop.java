@@ -41,7 +41,7 @@ public class TestTreeMapTimeQueueStop  extends TestCase {
 	@Test
 	public void testKillItemDoesNotExists(){
 		Key fakekey = new Key("does not matter");
-		Item notExists = new Item(fakekey, new String("some data").getBytes());
+		Item notExists = new Item(fakekey, new String("some data").getBytes(), 0);
 		queue.stop(notExists);
 		assertTrue(queue.queue.containsKey(997L));
 		assertTrue(queue.queue.containsKey(998L));
@@ -108,13 +108,13 @@ public class TestTreeMapTimeQueueStop  extends TestCase {
 		key2 = new Key("terminenzio2");
 		key3 = new Key("terminenzio3");
 		key4 = new Key("terminenzio4");
-		item1 = new Item(key1, new String("gioconno").getBytes());
+		item1 = new Item(key1, new String("gioconno").getBytes(), 0);
 		item1.setExpire(999L);
-		item2 = new Item(key2, new String("gioconno2").getBytes());
+		item2 = new Item(key2, new String("gioconno2").getBytes(), 0);
 		item2.setExpire(999L);
-		item3 = new Item(key3, new String("gioconno3").getBytes());
+		item3 = new Item(key3, new String("gioconno3").getBytes(), 0);
 		item3.setExpire(998L);
-		item4 = new Item(key4, new String("gioconno4").getBytes());
+		item4 = new Item(key4, new String("gioconno4").getBytes(), 0);
 		item4.setExpire(997L);
 	}
 }

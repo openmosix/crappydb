@@ -151,8 +151,8 @@ public class TestAddServerCommand extends TestCase {
 				Item it = (Item) invocation.getArguments()[0];
 				assertNotNull(it);
 				assertEquals(new Key("terminenzio"), it.getKey());
-				assertEquals(Integer.valueOf(12), it.getFlags());
-				assertEquals(Long.valueOf(48), it.getExpire());
+				assertEquals(12, it.getFlags());
+				assertEquals(48, it.getExpire());
 				assertEquals("01234567890123456789012345678901234567890123456789", new String(it.getData()));
 				
 				return 0;

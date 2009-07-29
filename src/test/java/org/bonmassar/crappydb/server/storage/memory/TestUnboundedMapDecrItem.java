@@ -159,7 +159,7 @@ public class TestUnboundedMapDecrItem extends TestCase {
 	
 	private Item getDataToAdd(){
 		Key k = new Key("terminenzio");
-		Item it = new Item (k, "42".getBytes());
+		Item it = new Item (k, "42".getBytes(), 0);
 		return it;
 	}
 }

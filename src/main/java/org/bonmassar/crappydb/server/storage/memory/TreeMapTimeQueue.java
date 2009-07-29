@@ -34,7 +34,7 @@ class TreeMapTimeQueue implements TimeQueue {
 	}
 
 	public TimeQueue add(Item elem) {
-		if(null == elem || null == elem.getExpire())
+		if(null == elem || elem.getExpire() <= 0)
 			return this;
 		
 		return add(elem.getExpire(), elem.getKey());
@@ -56,7 +56,7 @@ class TreeMapTimeQueue implements TimeQueue {
 	}
 
 	public TimeQueue stop(Item ie) {
-		if(null == ie || null == ie.getExpire())
+		if(null == ie || ie.getExpire() <= 0)
 			return this;
 		
 		return stop(ie.getExpire(), ie.getKey());

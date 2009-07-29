@@ -101,13 +101,13 @@ public class TestUnboundedMapAppendItem extends TestCase {
 	
 	private Item getDataToAdd(){
 		Key k = new Key("Yuppi");
-		Item it = new Item (k, "some data".getBytes());
+		Item it = new Item (k, "some data".getBytes(), 0);
 		return it;
 	}
 	
 	private Item getDataToAppend(){
 		Key k = new Key("Yuppi");
-		Item it = new Item (k, " some other more data".getBytes());
+		Item it = new Item (k, " some other more data".getBytes(), 0);
 		return it;
 	}
 }

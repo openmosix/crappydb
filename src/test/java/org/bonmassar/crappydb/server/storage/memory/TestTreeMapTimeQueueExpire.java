@@ -72,17 +72,17 @@ public class TestTreeMapTimeQueueExpire  extends TestCase {
 		key4 = new Key("terminenzio4");
 		key5 = new Key("terminenzio5");
 		key6 = new Key("terminenzio6");
-		item1 = new Item(key1, new String("gioconno").getBytes());
+		item1 = new Item(key1, new String("gioconno").getBytes(), 0);
 		item1.setExpire(1242922797L);
-		item2 = new Item(key2, new String("gioconno2").getBytes());
+		item2 = new Item(key2, new String("gioconno2").getBytes(), 0);
 		item2.setExpire(1242922798L);
-		item3 = new Item(key3, new String("gioconno3").getBytes());
+		item3 = new Item(key3, new String("gioconno3").getBytes(), 0);
 		item3.setExpire(1242922797L);
-		item4 = new Item(key4, new String("gioconno4").getBytes());
+		item4 = new Item(key4, new String("gioconno4").getBytes(), 0);
 		item4.setExpire(1242922796L);
-		item5 = new Item(key5, new String("gioconno5").getBytes());
+		item5 = new Item(key5, new String("gioconno5").getBytes(), 0);
 		item5.setExpire(1242922794L);
-		item6 = new Item(key6, new String("gioconno6").getBytes());
+		item6 = new Item(key6, new String("gioconno6").getBytes(), 0);
 		item6.setExpire(1242922794L);
 	}
 

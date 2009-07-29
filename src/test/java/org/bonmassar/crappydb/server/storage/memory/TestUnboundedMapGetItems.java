@@ -96,7 +96,7 @@ public class TestUnboundedMapGetItems  extends TestCase{
 	
 	private Item getDataToAdd(String key){
 		Key k = new Key(key);
-		Item it = new Item (k, "some data".getBytes());
+		Item it = new Item (k, "some data".getBytes(), 0);
 		return it;
 	}
 

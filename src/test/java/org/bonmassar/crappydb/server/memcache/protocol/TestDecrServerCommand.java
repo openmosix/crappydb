@@ -97,7 +97,7 @@ public class TestDecrServerCommand extends TestCase {
 	
 	@Test
 	public void testRainbow() throws ErrorException, NotFoundException, StorageException {
-		Item it = new Item(new Key("terminenzio"), "98".getBytes());
+		Item it = new Item(new Key("terminenzio"), "98".getBytes(), 0);
 		doReturn(it).when(storage).decrease(new Key("terminenzio"), "12");
 		
 		command.parseCommandParams("terminenzio 12\r\n");

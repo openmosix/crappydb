@@ -38,7 +38,7 @@ public class TestUnboundedMapReplaceItem extends TestCase {
 	@Before
 	public void setUp(){
 		map = new UnboundedMap();
-		it = new Item(new Key("key"), "this is payload".getBytes());
+		it = new Item(new Key("key"), "this is payload".getBytes(), 0);
 	}
 	
 	@Test
@@ -63,7 +63,7 @@ public class TestUnboundedMapReplaceItem extends TestCase {
 	@Test
 	public void testReplaceRainbow() throws NotStoredException, StorageException {
 		map.add(it);
-		it = new Item(new Key("key"), "this is a new payload".getBytes());
+		it = new Item(new Key("key"), "this is a new payload".getBytes(), 0);
 		map.replace(it);
 		List<Item> res = map.get(Arrays.asList(new Key("key")));
 		assertEquals("this is a new payload", new String(res.get(0).getData()) );
