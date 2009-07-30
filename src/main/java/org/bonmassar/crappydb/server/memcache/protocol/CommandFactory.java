@@ -36,7 +36,7 @@ public class CommandFactory {
 		commands.put("decr", DecrServerCommand.class);
 		commands.put("delete", DeleteServerCommand.class);
 		commands.put("get", GetServerCommand.class);
-		commands.put("gets", GetServerCommand.class);
+		commands.put("gets", GetsServerCommand.class);
 		commands.put("incr", IncrServerCommand.class);
 		commands.put("prepend", PrependServerCommand.class);
 		commands.put("replace", ReplaceServerCommand.class);
