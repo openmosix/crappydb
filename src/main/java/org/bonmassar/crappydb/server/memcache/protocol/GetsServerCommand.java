@@ -20,24 +20,25 @@ package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.bonmassar.crappydb.server.storage.data.Item;
 
-// get <key>*\r\n
+//gets <key>*\r\n
 
-class GetServerCommand extends GetCommonServerCommand {
+public class GetsServerCommand extends GetCommonServerCommand {
 
 	@Override
 	protected String getCommandName() {
-		return "Get";
+		return "Gets";
 	}
-
+	
 	protected void writeOneItem(Item it) {
 		byte[] data = it.getData();
 		int length = (data != null) ? data.length : 0;
-		channel.writeToOutstanding(String.format("VALUE %s %d %d\r\n", it.getKey(), it.getFlags(), length));
+		channel.writeToOutstanding(String.format("VALUE %s %d %d %s\r\n", it.getKey(), it.getFlags(), length, it.generateCAS().getValue()));
 		
 		if(length > 0)
 			channel.writeToOutstanding(data);
 		
 		channel.writeToOutstanding("\r\n");
 	}
+
 
 }
