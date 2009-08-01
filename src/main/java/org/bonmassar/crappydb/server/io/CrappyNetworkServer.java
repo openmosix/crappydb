@@ -57,7 +57,7 @@ public class CrappyNetworkServer {
 			initListenSocket();
 			registerMainSocketToListener();
 			
-			FrontendPoolExecutor.setup(cmdFactory, serverSelector, new BackendPoolExecutor());
+			FrontendPoolExecutor.setup(cmdFactory, serverSelector);
 			frontend = new FrontendPoolExecutor();
 			frontend.enableSyncPoint();
 			logger.info(String.format("Server up!"));

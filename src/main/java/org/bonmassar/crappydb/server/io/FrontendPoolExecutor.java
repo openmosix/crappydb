@@ -24,10 +24,9 @@ import java.util.concurrent.Callable;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 
 class FrontendPoolExecutor extends PoolThreadExecutor<SelectionKey> {
-	private final static int nFrontendThreads=1;
+	private final static int nFrontendThreads=8;
 	private static CommandFactory cmdFactory;
 	private static Selector serverSelectorForAccept;
-	private static BackendPoolExecutor backend;
 	
 	public FrontendPoolExecutor() {
 		super(FrontendPoolExecutor.nFrontendThreads);
@@ -35,12 +34,11 @@ class FrontendPoolExecutor extends PoolThreadExecutor<SelectionKey> {
 	
 	@Override
 	protected Callable<Integer> createNewTask() {
-		return new FrontendTask(cmdFactory, serverSelectorForAccept, backend, this);
+		return new FrontendTask(cmdFactory, serverSelectorForAccept, this);
 	}
 	
-	public static void setup(CommandFactory cmdFactory, Selector serverSelectorForAccept, BackendPoolExecutor backend){
+	public static void setup(CommandFactory cmdFactory, Selector serverSelectorForAccept){
 		FrontendPoolExecutor.cmdFactory = cmdFactory;
 		FrontendPoolExecutor.serverSelectorForAccept = serverSelectorForAccept;
-		FrontendPoolExecutor.backend = backend;
 	}
 }

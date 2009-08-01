@@ -29,7 +29,6 @@ import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
 class FrontendTask implements Callable<Integer> {
 	
-	private BackendPoolExecutor backend;
 	private FrontendPoolExecutor frontend;
 	protected ServerCommandAccepter accepter;
 	private Logger logger = Logger.getLogger(FrontendTask.class);
@@ -37,9 +36,7 @@ class FrontendTask implements Callable<Integer> {
 
 	public FrontendTask(CommandFactory cmdFactory, 
 			Selector parentSelector, 
-			BackendPoolExecutor backend,
 			FrontendPoolExecutor frontend) {
-		this.backend = backend;
 		this.frontend = frontend;
 		this.accepter = new ServerCommandAccepter(cmdFactory, parentSelector);
 	}
@@ -88,7 +85,7 @@ class FrontendTask implements Callable<Integer> {
 		List<ServerCommand> cmdlist = connHandler.doRead();
 		if(null != cmdlist)
 			for(ServerCommand cmd : cmdlist)
-				backend.offer(cmd);
+				cmd.execCommand();
 	}
  
 	private void write(SelectionKey sk, int availOperations) {

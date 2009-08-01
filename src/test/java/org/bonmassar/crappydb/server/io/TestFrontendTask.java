@@ -40,7 +40,6 @@ public class TestFrontendTask extends TestCase {
 	private FrontendTask frontend;
 	private CommandFactory cmdFactory;
 	private Selector parentSelector; 
-	private BackendPoolExecutor backend;
 	private ServerCommandAccepter accepter;
 	private SelectionKey selection;
 	private EstablishedConnection esConnection;
@@ -49,9 +48,9 @@ public class TestFrontendTask extends TestCase {
 	class FakeFrontendTask extends FrontendTask{
 
 		public FakeFrontendTask(CommandFactory cmdFactory,
-				Selector parentSelector, BackendPoolExecutor backend,
+				Selector parentSelector,
 				FrontendPoolExecutor fe) {
-			super(cmdFactory, parentSelector, backend, fe);
+			super(cmdFactory, parentSelector, fe);
 		}
 		
 		@Override
@@ -66,10 +65,9 @@ public class TestFrontendTask extends TestCase {
 		barrier = mock(DynamicCyclicBarrier.class);
 		cmdFactory = mock(CommandFactory.class);
 		parentSelector = mock(Selector.class);
-		backend = mock(BackendPoolExecutor.class);
 		accepter = mock(ServerCommandAccepter.class);
 		frontendpool = mock(FrontendPoolExecutor.class);
-		frontend = new FakeFrontendTask(cmdFactory, parentSelector, backend, frontendpool);
+		frontend = new FakeFrontendTask(cmdFactory, parentSelector, frontendpool);
 		frontend.accepter = accepter;
 		selection = mock(SelectionKey.class);
 		esConnection = mock(EstablishedConnection.class);
@@ -83,7 +81,6 @@ public class TestFrontendTask extends TestCase {
 		
 		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());
-		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
 		verify(barrier, times(1)).countDown();
 	}
@@ -98,7 +95,6 @@ public class TestFrontendTask extends TestCase {
 		
 		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
-		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
 		verify(barrier, times(1)).countDown();
 	}
@@ -113,7 +109,6 @@ public class TestFrontendTask extends TestCase {
 		
 		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
-		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
 		verify(barrier, times(1)).countDown();
 	}
@@ -131,9 +126,9 @@ public class TestFrontendTask extends TestCase {
 		
 		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
-		verify(backend, times(1)).offer(cmd1);
-		verify(backend, times(1)).offer(cmd2);
-		verify(backend, times(1)).offer(cmd3);
+		verify(cmd1, times(1)).execCommand();
+		verify(cmd2, times(1)).execCommand();
+		verify(cmd3, times(1)).execCommand();
 		verify(esConnection, times(0)).doWrite();
 		verify(barrier, times(1)).countDown();
 	}
@@ -149,7 +144,7 @@ public class TestFrontendTask extends TestCase {
 		
 		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
-		verify(backend, times(1)).offer(cmd1);
+		verify(cmd1, times(1)).execCommand();
 		verify(esConnection, times(0)).doWrite();
 		verify(barrier, times(1)).countDown();
 	}
@@ -162,7 +157,6 @@ public class TestFrontendTask extends TestCase {
 
 		frontend.executeTask();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
-		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(1)).doWrite();
 		verify(barrier, times(1)).countDown();
 	}
@@ -176,7 +170,6 @@ public class TestFrontendTask extends TestCase {
 		
 		frontend.executeTask();
 		verify(accepter, times(1)).doAccept((SelectionKey) anyObject());		
-		verify(backend, times(0)).offer((ServerCommand) anyObject());
 		verify(esConnection, times(0)).doWrite();
 		verify(barrier, times(1)).countDown();
 	}
@@ -194,8 +187,8 @@ public class TestFrontendTask extends TestCase {
 		frontend.executeTask();
 		
 		verify(accepter, times(1)).doAccept((SelectionKey) anyObject());		
-		verify(backend, times(1)).offer(cmd1);
-		verify(backend, times(1)).offer(cmd2);
+		verify(cmd1, times(1)).execCommand();
+		verify(cmd2, times(1)).execCommand();
 		verify(esConnection, times(1)).doWrite();
 		verify(barrier, times(1)).countDown();
 	}
@@ -213,8 +206,8 @@ public class TestFrontendTask extends TestCase {
 		frontend.executeTask();
 		
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
-		verify(backend, times(1)).offer(cmd1);
-		verify(backend, times(1)).offer(cmd2);
+		verify(cmd1, times(1)).execCommand();
+		verify(cmd2, times(1)).execCommand();
 		verify(esConnection, times(1)).doWrite();
 		verify(barrier, times(1)).countDown();
 	}
