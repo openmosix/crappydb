@@ -51,6 +51,10 @@ public class Item {
 		data = newdata;
 	}
 	
+	public void setFlags(int flags){
+		this.flags = flags;
+	}
+	
 	public int getFlags() {
 		return flags;
 	}

@@ -88,9 +88,17 @@ public class UnboundedMap implements StorageAccessLayer {
 		repository.put(item.getKey(), item);
 	}
 
-	public void swap(Item item) throws NotFoundException, ExistsException,
+	public void swap(Item item, String transactionid) throws NotFoundException, ExistsException,
 			StorageException {
-		throw new StorageException("Not Implemented");
+		checkItem(item);
+		if(null == transactionid || transactionid.length() == 0)
+			throw new StorageException("No CAS");
+		if(!repository.containsKey(item.getKey()))
+			throw new NotFoundException();
+		if(!repository.get(item.getKey()).generateCAS().compareTo(transactionid))
+			throw new ExistsException();
+		
+		repository.put(item.getKey(), item);
 	}
 
 	public Item decrease(Key id, String value) throws NotFoundException,

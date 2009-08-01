@@ -71,7 +71,7 @@ public class InMemoryUnboundedSAL implements StorageAccessLayer {
 		throw new StorageException("Not Implemented.");
 	}
 
-	public void swap(Item item) throws NotFoundException, ExistsException,
+	public void swap(Item item, String transactionid) throws NotFoundException, ExistsException,
 			StorageException {
 		throw new StorageException("Not Implemented.");
 	}

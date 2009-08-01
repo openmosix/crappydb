@@ -39,7 +39,7 @@ public interface StorageAccessLayer {
 	
 	void prepend(Item item) throws NotFoundException, StorageException;
 	
-	void swap(Item item) throws NotFoundException, ExistsException, StorageException;
+	void swap(Item item, String CASId) throws NotFoundException, ExistsException, StorageException;
 	
 	List<Item> get(List<Key> ids) throws StorageException;
 	

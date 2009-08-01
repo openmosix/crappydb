@@ -186,4 +186,16 @@ public class TestCommandFactory {
 		ServerCommand sc = factory.getCommand("decr");
 		assertTrue(sc instanceof DecrServerCommand);
 	}
+	
+	@Test
+	public void testCasCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("cas terminenzio 4 22 8 88888 noreply\r\n");
+		assertTrue(sc instanceof CasServerCommand);
+	}
+	
+	@Test
+	public void testCasCommand() throws ErrorException {
+		ServerCommand sc = factory.getCommand("cas");
+		assertTrue(sc instanceof CasServerCommand);
+	}
 }

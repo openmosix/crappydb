@@ -31,6 +31,9 @@ abstract class ServerCommandWithPayload extends ServerCommandAbstract {
 	protected static final int NOREPLY_POS=4;
 	protected static final int CRLF=2;
 	
+	protected int minparams = 4;
+	protected int maxparams = 5;
+	
 	byte[] payload;
 	int payloadCursor;
 
@@ -42,7 +45,7 @@ abstract class ServerCommandWithPayload extends ServerCommandAbstract {
 	@Override
 	public void parseCommandParams(String commandParams) throws ErrorException {
 		super.parseCommandParams(commandParams);
-		if(params.length < 4 || params.length > 5)
+		if(params.length < minparams || params.length > maxparams)
 			throw new ErrorException("Invalid number of parameters");
 		
 		initPayload();
@@ -67,6 +70,25 @@ abstract class ServerCommandWithPayload extends ServerCommandAbstract {
 		payloadCursor += length;
 	}
 	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(String.format("{%s key=%s flags=%s expire=%s nbytes=%s noreply=%s%s}", 
+				getCommandName(), params[KEY_POS],
+				params[FLAGS_POS], params[EXPTIME_POS],params[BYTES_POS],
+				!isResponseRequested()?"true":"false", 
+				attachTransactionId()));
+		
+		if(null != payload && payload.length > 0 && payloadCursor > 0)
+			sb.append(String.format(" {%s}", Base64.encode(payload)));
+		
+		return sb.toString();
+	}
+	
+	private String attachTransactionId() {
+		String tid = transactionId();
+		return (null == tid)?"":String.format(" tid=%s", tid);
+	}
+
 	protected void initPayload() {
 		payloadCursor = 0;
 		int length = payloadContentLength();
@@ -98,19 +120,13 @@ abstract class ServerCommandWithPayload extends ServerCommandAbstract {
 		return payload;
 	}
 	
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(String.format("{%s key=%s flags=%s expire=%s nbytes=%s noreply=%s}", 
-				getCommandName(), params[KEY_POS],
-				params[FLAGS_POS], params[EXPTIME_POS],params[BYTES_POS],
-				!isResponseRequested()?"true":"false"));
-		
-		if(null != payload && payload.length > 0 && payloadCursor > 0)
-			sb.append(String.format(" {%s}", Base64.encode(payload)));
-		
-		return sb.toString();
+	protected String transactionId() {
+		return null;
 	}
 
+
 	abstract protected String getCommandName();
+	
+	
 
 }
