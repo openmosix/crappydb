@@ -17,8 +17,6 @@
 
 package org.bonmassar.crappydb.server.storage.data;
 
-import java.util.Arrays;
-
 import org.junit.Test;
 
 import junit.framework.TestCase;
