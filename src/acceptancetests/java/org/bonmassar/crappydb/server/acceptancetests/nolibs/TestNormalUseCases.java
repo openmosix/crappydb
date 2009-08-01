@@ -110,7 +110,7 @@ public class TestNormalUseCases extends AbstractUseCases {
 		OUT = "STORED\r\n";
 		testServerInOut(input, OUT);
 	
-		input = "gets terminenzio4 terminenzio3 terminenzio2 terminenzio1\r\n";
+		input = "get terminenzio4 terminenzio3 terminenzio2 terminenzio1\r\n";
 		testServerInMultipleOut(input, new String[]{
 				"VALUE terminenzio4 48 37\r\n", 
 				"This is the last one and we are done!\r\n", 

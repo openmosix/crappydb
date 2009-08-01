@@ -166,7 +166,7 @@ public class TestDecrement extends AbstractUseCases {
 		
 		pause(2);
 		input = "get terminenzio\r\n";
-		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 19\r\n", 
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 4\r\n", 
 				"5000\r\n", "END\r\n"});
 	}
 	

@@ -92,7 +92,7 @@ public class TestGets extends AbstractUseCases {
 		testServerInOut(input, out);
 		
 		input = "gets terminenzio\r\n";
-		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 3027526\r\n", 
-				"42\r\n", "END\r\n"});
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 3026566\r\n", 
+				"41\r\n", "END\r\n"});
 	}
 }
