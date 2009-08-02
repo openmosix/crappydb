@@ -19,11 +19,6 @@
   		<version>3.3.75</version>
   	</dependency>
    <dependency>
-     <groupId>junit</groupId>
-     <artifactId>junit</artifactId>
-     <version>4.0</version>
-   </dependency>
-<dependency>
   <groupId>log4j</groupId>
   <artifactId>log4j</artifactId>
   <version>1.2.15</version>
@@ -47,11 +42,16 @@
   	</exclusion>
   </exclusions>
 </dependency>
-<dependency>
+   <dependency>
 	<groupId>org.mockito</groupId>
 	<artifactId>mockito-all</artifactId>
 	<version>1.7</version>
-</dependency> 
+</dependency>
+   <dependency>
+   	<groupId>org.apache.maven.surefire</groupId>
+   	<artifactId>surefire-junit4</artifactId>
+   	<version>2.4.3</version>
+   </dependency> 
 </dependencies>
  
  <build>
@@ -64,35 +64,22 @@
      <target>1.5</target>
     </configuration>
    </plugin>
-     <plugin>
-       <groupId>net.unto.maven.plugins</groupId>
-       <artifactId>maven-junit4-plugin</artifactId>
-       <version>1.0-SNAPSHOT</version>
-       <executions>
-         <execution>
-           <phase>test</phase>
-           <goals>
-             <goal>test</goal>
-           </goals>
-         </execution>
-       </executions>
-     </plugin>
    </plugins>
  </build>
  
  <pluginRepositories>
-   <pluginRepository>
-     <id>unto.net</id>
-     <url>http://repository.unto.net/maven/</url>
-     <releases>
-       <updatePolicy>daily</updatePolicy>
-       <checksumPolicy>warn</checksumPolicy>
-     </releases>
-     <snapshots>
-       <updatePolicy>daily</updatePolicy>
-       <checksumPolicy>warn</checksumPolicy>
-     </snapshots>
-   </pluginRepository>
+ 	<pluginRepository>
+ 		<id>maven.org</id>
+ 		<url>http://repo1.maven.org/maven2/org/apache/maven/surefire/surefire-junit4/</url>
+ 		<releases>
+ 			<updatePolicy>daily</updatePolicy>
+ 			<checksumPolicy>warn</checksumPolicy>
+ 		</releases>
+ 		<snapshots>
+ 			<updatePolicy>daily</updatePolicy>
+ 			<checksumPolicy>warn</checksumPolicy>
+ 		</snapshots>
+ 	</pluginRepository>
  </pluginRepositories>
   
 </project>
