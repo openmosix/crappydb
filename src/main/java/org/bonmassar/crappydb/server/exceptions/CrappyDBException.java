@@ -19,7 +19,8 @@
 package org.bonmassar.crappydb.server.exceptions;
 
 public abstract class CrappyDBException extends Exception{
-	
+
+	private static final long serialVersionUID = -1944815272794785819L;
 	private final static String DEFAULT_REASON="No details";
 	private String reason;
 	
