@@ -198,4 +198,16 @@ public class TestCommandFactory {
 		ServerCommand sc = factory.getCommand("cas");
 		assertTrue(sc instanceof CasServerCommand);
 	}
+	
+	@Test
+	public void testFlushCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("flush\r\n");
+		assertTrue(sc instanceof FlushServerCommand);
+	}
+	
+	@Test
+	public void testFlushCommand() throws ErrorException {
+		ServerCommand sc = factory.getCommand("flush");
+		assertTrue(sc instanceof FlushServerCommand);
+	}
 }
