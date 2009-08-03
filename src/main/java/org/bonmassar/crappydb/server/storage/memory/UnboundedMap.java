@@ -116,6 +116,10 @@ public class UnboundedMap implements StorageAccessLayer {
 		it.setData(BigIncrementer.incr(data, value).getBytes());
 		return it;
 	}
+	
+	public void flush(Long time) {
+		repository.clear();
+	}
 
 	private String getDataAsString(byte[] data) {
 		return (null == data) ? "" : new String(data);

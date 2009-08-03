@@ -49,4 +49,5 @@ public interface StorageAccessLayer {
 	
 	Item decrease(Key id, String value) throws NotFoundException, StorageException;
 	
+	void flush(Long time);
 }
