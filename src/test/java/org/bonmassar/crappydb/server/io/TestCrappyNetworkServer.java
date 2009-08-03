@@ -92,7 +92,6 @@ public class TestCrappyNetworkServer extends TestCase {
 		verify(server.frontend, times(1)).offer(selKey2);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testStartServerIOException() throws IOException {
 		server = new CrappyNetworkServer(cmdFactory, 11211);
