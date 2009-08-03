@@ -36,7 +36,7 @@ public class CommandFactory {
 		commands.put("cas", CasServerCommand.class);
 		commands.put("decr", DecrServerCommand.class);
 		commands.put("delete", DeleteServerCommand.class);
-		commands.put("flush", FlushServerCommand.class);
+		commands.put("flush_all", FlushServerCommand.class);
 		commands.put("get", GetServerCommand.class);
 		commands.put("gets", GetsServerCommand.class);
 		commands.put("incr", IncrServerCommand.class);

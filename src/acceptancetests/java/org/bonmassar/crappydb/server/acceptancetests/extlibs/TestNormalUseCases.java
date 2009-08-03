@@ -265,6 +265,20 @@ public class TestNormalUseCases extends TestCase {
 			assertEquals(exp, client.decr("terminenzio", 5000L));
 		}
 	}
+	
+	@Test
+	public void testFlush() {
+		for(int i = 0; i < 10; i++)
+			client.add("terminenzio"+i, "This is a value");
+
+		for(int i = 0; i < 10; i++)
+			assertEquals("This is a value", client.get("terminenzio"+i));
+		
+		assertTrue(client.flushAll());
+		
+		for(int i = 0; i < 10; i++)
+			assertEquals(null, client.get("terminenzio"+i));
+	}
 		
 	private void clean(String key) throws IOException{
 		client.delete(key);

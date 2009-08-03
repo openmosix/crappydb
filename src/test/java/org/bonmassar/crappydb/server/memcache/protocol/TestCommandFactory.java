@@ -201,13 +201,13 @@ public class TestCommandFactory {
 	
 	@Test
 	public void testFlushCommandFromCommandLine() throws ErrorException {
-		ServerCommand sc = factory.getCommandFromCommandLine("flush\r\n");
+		ServerCommand sc = factory.getCommandFromCommandLine("flush_all\r\n");
 		assertTrue(sc instanceof FlushServerCommand);
 	}
 	
 	@Test
 	public void testFlushCommand() throws ErrorException {
-		ServerCommand sc = factory.getCommand("flush");
+		ServerCommand sc = factory.getCommand("flush_all");
 		assertTrue(sc instanceof FlushServerCommand);
 	}
 }
