@@ -43,12 +43,11 @@ class FlushServerCommand extends ServerCommandNoPayload {
 		return (params.length == 2) ? NOREPLY_POS+1 : NOREPLY_POS;
 	}
 
-	@Override
 	public void execCommand() {
 		storage.flush(getTime());
 		channel.writeToOutstanding("OK\r\n");
 	}
-
+	
 	private Long getTime() {
 		try {
 			return (params.length == 0) ? -1L : Long.parseLong(params[FlushServerCommand.TIME_POS]);
