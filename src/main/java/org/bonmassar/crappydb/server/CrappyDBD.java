@@ -41,6 +41,6 @@ public class CrappyDBD {
 	} 
 	
 	static public void shutdown() {
-		threadsKiller.run();
+		threadsKiller.start();
 	}
 }

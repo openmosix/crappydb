@@ -38,7 +38,11 @@ class CyclicCountDownLatch implements DynamicCyclicBarrier {
 	
 	public synchronized void await(int count) {
 		if( shouldWait(count) )
-			safeWait();
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				logger.fatal( "Cyclic CountDown latch was broken by interruption!", e );
+			}
 		
 		counter = 0;
 	}
@@ -50,14 +54,6 @@ class CyclicCountDownLatch implements DynamicCyclicBarrier {
 
 	private boolean shouldWait(int count) {
 		return counter >= 0 && count > 0 && ( limit = count ) != counter;
-	}
-
-	private void safeWait() {
-		try {
-			wait();
-		} catch (InterruptedException e) {
-			logger.fatal( "Cyclic CountDown latch was broken by interruption!", e );
-		}
 	}
 
 }
