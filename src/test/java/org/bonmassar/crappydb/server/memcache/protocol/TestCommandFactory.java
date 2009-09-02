@@ -87,7 +87,7 @@ public class TestCommandFactory {
 	
 	@Test
 	public void testGetsCommandFromCommandLine() throws ErrorException {
-		ServerCommand sc = factory.getCommandFromCommandLine("gets\r\n");
+		ServerCommand sc = factory.getCommandFromCommandLine("gets terminenzio\r\n");
 		assertTrue(sc instanceof GetsServerCommand);
 	}
 
@@ -209,5 +209,17 @@ public class TestCommandFactory {
 	public void testFlushCommand() throws ErrorException {
 		ServerCommand sc = factory.getCommand("flush_all");
 		assertTrue(sc instanceof FlushServerCommand);
+	}
+	
+	@Test
+	public void testStatsCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("stats\r\n");
+		assertTrue(sc instanceof StatsCommand);
+	}
+	
+	@Test
+	public void testStatsCommand() throws ErrorException {
+		ServerCommand sc = factory.getCommand("stats");
+		assertTrue(sc instanceof StatsCommand);
 	}
 }

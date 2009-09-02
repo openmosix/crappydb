@@ -19,9 +19,19 @@
 package org.bonmassar.crappydb.server.stats;
 
 import java.lang.management.ManagementFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class ProcessStats {
 	
+	private AtomicInteger noThreads = new AtomicInteger();
+	
+	public void newThread(){
+		noThreads.incrementAndGet();
+	}
+	
+	/**
+	 * @return process id of this server
+	 */
 	String getPid() {
 		String bean = ManagementFactory.getRuntimeMXBean().getName();
 		
@@ -31,16 +41,25 @@ class ProcessStats {
 		return bean;
 	}
 	
+	/**
+	 * @return architecture pointer size (e.g.: 32, 64, etc.)
+	 */
 	String getPointerSize() {
-		return "32";
+		return System.getProperty("sun.arch.data.model", "32");
 	}
 	
+	/**
+	 * @return max memory limit (bytes) for this server
+	 */
 	String getMaxBytesLimit() {
-		return String.valueOf(Runtime.getRuntime().totalMemory());
+		return String.valueOf(Runtime.getRuntime().maxMemory());
 	}
 	
+	/**
+	 * @return number of threads running on this server
+	 */
 	String getThreads() {
-		return "0";
+		return Integer.toString(noThreads.get());
 	}
 	
 }

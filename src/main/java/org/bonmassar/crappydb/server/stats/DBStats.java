@@ -31,6 +31,12 @@ public enum DBStats {
 	private final ConnectionsStats connections = new ConnectionsStats(); 
 	private final ProtocolStats protocol = new ProtocolStats();
 	
+	public void registerThread(){
+		final Thread t = Thread.currentThread();
+		serverTime.registerThreadId(t.getId());
+		process.newThread();
+	}
+	
 	public String getDBVersion() {
 		return version;
 	}

@@ -20,6 +20,7 @@ package org.bonmassar.crappydb.server;
 
 import org.bonmassar.crappydb.server.io.CrappyNetworkServer;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.bonmassar.crappydb.server.stats.DBStats;
 import org.bonmassar.crappydb.server.storage.memory.UnboundedMap;
  
 public class CrappyDBD {
@@ -36,6 +37,8 @@ public class CrappyDBD {
 		threadsKiller = new ShutdownExecutionRegister();
 		Runtime.getRuntime().addShutdownHook(threadsKiller);
 
+		DBStats.INSTANCE.registerThread();
+		
 		CrappyDBD.serverInstance = new CrappyNetworkServer(cmdFactory, serverPort).serverSetup();
 		CrappyDBD.serverInstance.start();
 	} 

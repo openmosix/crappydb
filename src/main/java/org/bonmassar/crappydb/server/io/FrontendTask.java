@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
+import org.bonmassar.crappydb.server.stats.DBStats;
 
 class FrontendTask implements Callable<Integer> {
 	
@@ -42,6 +43,8 @@ class FrontendTask implements Callable<Integer> {
 	}
 
 	public Integer call() throws Exception {
+		DBStats.INSTANCE.registerThread();
+		
 		while (true) 
 			executeTask();
 	}

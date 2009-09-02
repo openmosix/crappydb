@@ -21,6 +21,7 @@ package org.bonmassar.crappydb.server.memcache.protocol;
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
+import org.bonmassar.crappydb.server.stats.DBStats;
 import org.bonmassar.crappydb.server.storage.data.Item;
 
 //cas <key> <flags> <exptime> <bytes> <cas unqiue> [noreply]\r\n
@@ -44,6 +45,7 @@ class CasServerCommand extends ServerCommandWithPayload {
 		try {
 			storage.swap(it, transactionId());
 			channel.writeToOutstanding("STORED\r\n");
+			DBStats.INSTANCE.getProtocol().newSet();
 		} catch (CrappyDBException e) {
 			channel.writeException(e);
 		}

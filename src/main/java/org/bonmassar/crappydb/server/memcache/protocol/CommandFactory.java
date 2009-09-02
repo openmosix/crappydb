@@ -43,6 +43,7 @@ public class CommandFactory {
 		commands.put("prepend", PrependServerCommand.class);
 		commands.put("replace", ReplaceServerCommand.class);
 		commands.put("set", SetServerCommand.class);
+		commands.put("stats", StatsCommand.class);
 		commands.put("verbosity", VerbosityServerCommand.class);
 		commands.put("version", VersionServerCommand.class);
 		this.sal = sal;
@@ -114,7 +115,11 @@ public class CommandFactory {
 	}
 
 	private String getCommandParams(String commandLine) {
-		return commandLine.substring(commandLine.indexOf(' ')+1);
+		int firstSpace = commandLine.indexOf(' ');
+		if(-1 == firstSpace)
+			return "";
+
+		return commandLine.substring(firstSpace+1);
 	}
 	
 }

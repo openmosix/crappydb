@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bonmassar.crappydb.server.exceptions.StorageException;
+import org.bonmassar.crappydb.server.stats.DBStats;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
@@ -32,6 +33,7 @@ abstract class GetCommonServerCommand extends ServerCommandNoPayload {
 
 		try {
 			List<Item> result = storage.get(keys);
+			DBStats.INSTANCE.getProtocol().newMisses(keys.size() - result.size());
 			writeResult(result);
 		} catch (StorageException e) {
 			channel.writeException(e);
@@ -54,10 +56,13 @@ abstract class GetCommonServerCommand extends ServerCommandNoPayload {
 	
 	private void writeResult(List<Item> result) {
 		for(Item it : result){
-			if(null == it)
+			if(null == it){
+				DBStats.INSTANCE.getProtocol().newMisses(1L);
 				continue;
+			}
 			
 			writeOneItem(it);
+			DBStats.INSTANCE.getProtocol().newHit();
 		}
 		
 		channel.writeToOutstanding("END\r\n");

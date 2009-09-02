@@ -20,6 +20,7 @@ package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+import org.bonmassar.crappydb.server.stats.DBStats;
 import org.bonmassar.crappydb.server.storage.data.Item;
 
 // add <key> <flags> <exptime> <bytes> [noreply]\r\n
@@ -35,6 +36,7 @@ class AddServerCommand extends ServerCommandWithPayload {
 		try {
 			storage.add(it);
 			channel.writeToOutstanding("STORED\r\n");
+			DBStats.INSTANCE.getProtocol().newSet();
 		} catch (CrappyDBException e) {
 			channel.writeException(e);
 		}

@@ -29,6 +29,7 @@ import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.bonmassar.crappydb.server.stats.DBStats;
 
 class ServerCommandAccepter {
 
@@ -53,6 +54,7 @@ class ServerCommandAccepter {
 			Socket clientSocket = getInnerSocketData(clientChannel);
 			logger.info(String.format("[<=>] New connection from %s", printRemoteAddress(clientSocket)));
 			registerNewSocketToSelector(clientChannel, printRemoteAddress(clientSocket));
+			DBStats.INSTANCE.getConnections().newConnection();
  		}
 		catch(IOException re){logger.error("[<=>] Failure establish connection with a client", re);}
 	}

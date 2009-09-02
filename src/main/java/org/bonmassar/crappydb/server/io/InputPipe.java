@@ -25,6 +25,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.stats.DBStats;
 
 class InputPipe {
 	private static final byte CR = 0x0D;
@@ -83,6 +84,7 @@ class InputPipe {
 		int nBytesToRead = getMaximumBytesLength(nBytes);
 		byte[] tmpBuffer = new byte[nBytesToRead];
 		buffer.get(tmpBuffer);
+		DBStats.INSTANCE.getConnections().newReceive(nBytesToRead);
 		return tmpBuffer;
 	}
 

@@ -18,25 +18,49 @@
 
 package org.bonmassar.crappydb.server.stats;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 public class ConnectionsStats {
 	
+	private AtomicLong written = new AtomicLong();
+	private AtomicLong read = new AtomicLong();
+	private AtomicLong noTotConnections = new AtomicLong();
+	private AtomicLong noCurConnections = new AtomicLong();
+	
+	public void newSend(int delta){
+		written.getAndAdd(delta);
+	}
+	
+	public void newReceive(int delta){
+		read.getAndAdd(delta);
+	}
+
+	public void newConnection() {
+		noTotConnections.getAndIncrement();
+		noCurConnections.getAndIncrement();
+	}
+	
+	public void closeConnection() {
+		noCurConnections.getAndDecrement();
+	}
+	
 	String getCurrentNoConnections() {
-		return "0";
+		return Long.toString(noCurConnections.get());
 	}
 	
 	String getTotalNoConnections() {
-		return "0";
+		return Long.toString(noTotConnections.get());
 	}
 	
 	String getConnectionStructures() {
-		return "0";
+		return getCurrentNoConnections();
 	}
 	
 	String getBytesRead() {
-		return "0";
+		return Long.toString(read.get());
 	}
 	
 	String getBytesWritten() {
-		return "0";
+		return Long.toString(written.get());
 	}
 }

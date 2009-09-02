@@ -18,24 +18,57 @@
 
 package org.bonmassar.crappydb.server.stats;
 
-public class ProtocolStats {
+import java.util.concurrent.atomic.AtomicLong;
 
+public class ProtocolStats {
+	
+	private AtomicLong hit = new AtomicLong();
+	private AtomicLong miss = new AtomicLong();
+	private AtomicLong sets = new AtomicLong();
+	
+	public void newHit(){
+		hit.incrementAndGet();
+	}
+
+	public void newMisses(long noMissed){
+		miss.addAndGet(noMissed);
+	}
+	
+	public void newSet() {
+		sets.incrementAndGet();
+	}
+
+	/**
+	 * @return number of cumulative get* requests
+	 */
 	String getCumulativeGets() {
-		return "0";
+		return Long.toString(hit.get()+miss.get());
 	}
-	
+
+	/**
+	 * @return number of cumulative set* requests
+	 */
 	String getCumulativeSets() {
-		return "0";
+		return Long.toString(sets.get());
 	}
 	
+	/**
+	 * @return number of hit in the cache
+	 */
 	String getNoHits() {
-		return "0";
+		return Long.toString(hit.get());
 	}
 	
+	/**
+	 * @return number of miss in the cache
+	 */
 	String getNoMisses() {
-		return "0";
+		return Long.toString(miss.get());
 	}
 	
+	/**
+	 * @return number of items removed from the cache due to memory restrictions
+	 */
 	String getEvictions() {
 		return "0";
 	}

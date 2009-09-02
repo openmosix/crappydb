@@ -18,24 +18,72 @@
 
 package org.bonmassar.crappydb.server.stats;
 
-class ServerTime {
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
+import java.util.ArrayList;
+import java.util.Collection;
 
-	private final Long startTime = System.currentTimeMillis(); 
-
-	String getUptime() {
-		return String.valueOf((System.currentTimeMillis() - startTime) / 1000);
+public class ServerTime {
+	
+	private static Collection<Long> ids = new ArrayList<Long>();
+	
+	public void registerThreadId(long l){
+		ids.add(l);
 	}
 	
+	/**
+	 * @return jvm uptime - number of seconds
+	 */
+	String getUptime() {
+		return Long.toString(ManagementFactory.getRuntimeMXBean().getUptime() / 1000);
+	}
+	
+	/**
+	 * @return current epoch time - number of seconds
+	 */
 	String getCurrentTime() {
 		return String.valueOf(System.currentTimeMillis() / 1000);
 	}
 	
+	/**
+	 * @return rusage of all threads - number of seconds:number of microseconds
+	 */
 	String getUserUsageTime() {
-		return "";
+		return getUserTime();
+	}
+
+	/**
+	 * @return sysusage of all threads - number of seconds:number of microseconds
+	 */
+	String getSystemUsageTime() {
+		return getSystemTime();
 	}
 	
-	String getSystemUsageTime() {
-		return "";
+	private String getUserTime( ) {
+	    ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
+	    if ( ! bean.isThreadCpuTimeSupported( ) )
+	        return "NA";
+	    long time = 0L;
+	    for ( long i : ids ) {
+	        long t = bean.getThreadUserTime( i )/1000;
+	        if ( t != -1 )
+	            time += t;
+	    }
+	    return Long.toString(time/(1000*1000))+":"+Long.toString(time);
+	}
+	  
+	private String getSystemTime( ) {
+	    ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
+	    if ( ! bean.isThreadCpuTimeSupported( ) )
+	        return "NA";
+	    long time = 0L;
+	    for ( long i : ids ) {
+	        long tc = bean.getThreadCpuTime( i )/1000;
+	        long tu = bean.getThreadUserTime( i )/1000;
+	        if ( tc != -1 && tu != -1 )
+	            time += (tc - tu);
+	    }
+	    return Long.toString(time/(1000*1000))+":"+Long.toString(time);
 	}
 	
 }

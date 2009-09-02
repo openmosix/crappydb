@@ -27,6 +27,7 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+import org.bonmassar.crappydb.server.stats.DBStats;
 
 class ServerCommandWriter implements OutputCommandWriter {
 
@@ -116,6 +117,7 @@ class ServerCommandWriter implements OutputCommandWriter {
 		if(logger.isDebugEnabled())
 			logger.debug(String.format("[ =>] [%s] Sent %d bytes", connectionid, nbytes));
 		
+		DBStats.INSTANCE.getConnections().newSend(nbytes);
 		return continueWritingIfCurrentCompleted(buffer);
 	}
 

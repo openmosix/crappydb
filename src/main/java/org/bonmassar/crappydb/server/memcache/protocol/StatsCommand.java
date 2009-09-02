@@ -18,33 +18,42 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
-import org.apache.log4j.Logger;
-import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+import java.util.Map;
+
+import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.stats.DBStats;
-import org.bonmassar.crappydb.server.storage.data.Item;
 
-//replace <key> <flags> <exptime> <bytes> [noreply]\r\n
-class ReplaceServerCommand extends ServerCommandWithPayload {
+public class StatsCommand extends ServerCommandNoPayload {
 
-	private Logger logger = Logger.getLogger(ReplaceServerCommand.class);
-	
 	@Override
-	protected String getCommandName() {
-		return "Replace";
+	protected int getNoReplyPosition() {
+		return -1;
 	}
 
 	public void execCommand() {
-		logger.debug("Executed command replace");
-
-		Item it = new Item(getKey(), getPayload(), getFlags());
-		it.setExpire(getExpire());
-		try {
-			storage.replace(it);
-			channel.writeToOutstanding("STORED\r\n");
-			DBStats.INSTANCE.getProtocol().newSet();
-		} catch (CrappyDBException e) {
-			channel.writeException(e);
+		Map<String, String> stats = getStats();
+		StringBuilder sb = new StringBuilder();
+		for(Map.Entry<String, String> entry : stats.entrySet()){
+			sb.append(String.format("STAT %s %s\r\n", entry.getKey(), entry.getValue()));
 		}
+		sb.append("END\r\n");
+		channel.writeToOutstanding(sb.toString());
+	}
+
+	protected Map<String, String> getStats() {
+		return DBStats.INSTANCE.getStats();
+	}
+	
+	@Override
+	public void parseCommandParams(String commandParams) throws ErrorException {
+		// this command has no options
+		if(null != commandParams && commandParams.length() > 0)
+			throw new ErrorException("Invalid number of parameters");
+	}
+	
+	@Override
+	public String toString() {
+		return "{Stats}";
 	}
 
 }
