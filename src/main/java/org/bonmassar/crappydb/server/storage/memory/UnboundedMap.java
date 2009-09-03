@@ -27,6 +27,7 @@ import org.bonmassar.crappydb.server.exceptions.ExistsException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
+import org.bonmassar.crappydb.server.stats.DBStats;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
@@ -45,18 +46,25 @@ public class UnboundedMap implements StorageAccessLayer {
 		checkItem(item);
 		blowIfItemExists(item);
 		repository.put(item.getKey(), item);
+		DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
+		DBStats.INSTANCE.getStorage().incrementNoItems();
 	}
+
 
 	public void append(Item item) throws NotFoundException, StorageException {
 		Item prevstored = getPreviousStored(item);
-		if (null != prevstored)
+		if (null != prevstored){
 			prevstored.setData(concatData(prevstored, item));
+			DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
+		}
 	}
 
 	public void prepend(Item item) throws NotFoundException, StorageException {
 		Item prevstored = getPreviousStored(item);
-		if (null != prevstored)
+		if (null != prevstored){
 			prevstored.setData(concatData(item, prevstored));
+			DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
+		}
 	}
 
 	public void replace(Item item) throws NotStoredException, StorageException {
@@ -64,13 +72,15 @@ public class UnboundedMap implements StorageAccessLayer {
 		if (!repository.containsKey(item.getKey()))
 			throw new NotStoredException();
 
-		repository.put(item.getKey(), item);
+		DBStats.INSTANCE.getStorage().delBytes(size(repository.put(item.getKey(), item).getData()));
+		DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
 	}
 
 	public void delete(Key id) throws NotFoundException, StorageException {
 		checkValidId(id);
 		blowIfItemDoesNotExists(id);
-		repository.remove(id);
+		DBStats.INSTANCE.getStorage().delBytes(size(repository.remove(id).getData()));
+		DBStats.INSTANCE.getStorage().decrementNoItems();
 	}
 
 	public List<Item> get(List<Key> ids) throws StorageException {
@@ -85,7 +95,14 @@ public class UnboundedMap implements StorageAccessLayer {
 
 	public void set(Item item) throws StorageException {
 		checkItem(item);
-		repository.put(item.getKey(), item);
+		Item olditem = repository.put(item.getKey(), item);
+		if(null != olditem){
+			DBStats.INSTANCE.getStorage().delBytes(size(olditem.getData()));
+			DBStats.INSTANCE.getStorage().decrementNoItems();
+		}
+		
+		DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
+		DBStats.INSTANCE.getStorage().incrementNoItems();
 	}
 
 	public void swap(Item item, String transactionid) throws NotFoundException, ExistsException,
@@ -98,7 +115,8 @@ public class UnboundedMap implements StorageAccessLayer {
 		if(!repository.get(item.getKey()).generateCAS().compareTo(transactionid))
 			throw new ExistsException();
 		
-		repository.put(item.getKey(), item);
+		DBStats.INSTANCE.getStorage().delBytes(size(repository.put(item.getKey(), item).getData()));
+		DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
 	}
 
 	public Item decrease(Key id, String value) throws NotFoundException,
@@ -119,6 +137,7 @@ public class UnboundedMap implements StorageAccessLayer {
 	
 	public void flush(Long time) {
 		repository.clear();
+		DBStats.INSTANCE.getStorage().reset();
 	}
 
 	private String getDataAsString(byte[] data) {
@@ -205,5 +224,12 @@ public class UnboundedMap implements StorageAccessLayer {
 		if (null == id)
 			throw new StorageException("No valid id");
 	}
+	
+	private int size(byte[] data) {
+		if(null == data)
+			return 0;
+		return data.length;
+	}
+
 
 }

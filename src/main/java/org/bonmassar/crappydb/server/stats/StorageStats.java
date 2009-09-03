@@ -20,7 +20,7 @@ package org.bonmassar.crappydb.server.stats;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-class StorageStats {
+public class StorageStats {
 	
 	private final AtomicLong totalItems = new AtomicLong();
 	private final AtomicLong currItems = new AtomicLong();
@@ -52,11 +52,7 @@ class StorageStats {
 	}
 	
 	public void delBytes(int noBytes) {
-		long prev = 0;
-		do {
-			 prev = currBytes.get();
-		}
-		while(!currBytes.compareAndSet(prev,  prev - noBytes));
+		currBytes.addAndGet(-1 * noBytes);
 	}
 
 	
