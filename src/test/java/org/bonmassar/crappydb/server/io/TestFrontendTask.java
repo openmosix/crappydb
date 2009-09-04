@@ -25,8 +25,11 @@ import java.util.Arrays;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Matchers.anyObject;
+
+import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 import org.junit.Before;
@@ -114,7 +117,7 @@ public class TestFrontendTask extends TestCase {
 	}
 	
 	@Test
-	public void testOnlyReadMultipleCmds() throws InterruptedException {
+	public void testOnlyReadMultipleCmds() throws InterruptedException, ClosedConnectionException {
 		when(frontendpool.take()).thenReturn(selection);
 		when(frontendpool.getBarrier()).thenReturn(barrier);
 
@@ -134,7 +137,30 @@ public class TestFrontendTask extends TestCase {
 	}
 	
 	@Test
-	public void testOnlyReadOneCmd() throws InterruptedException {
+	public void testOnlyReadMultipleCmdsAndQuit() throws InterruptedException, ClosedConnectionException {
+		when(frontendpool.take()).thenReturn(selection);
+		when(frontendpool.getBarrier()).thenReturn(barrier);
+
+		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
+		ServerCommand cmd1 = mock(ServerCommand.class);
+		ServerCommand cmd2 = mock(ServerCommand.class);
+		ServerCommand cmd3 = mock(ServerCommand.class);
+		
+		doThrow(new ClosedConnectionException()).when(cmd2).execCommand();
+		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1, cmd2, cmd3));
+		
+		frontend.executeTask();
+		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
+		verify(cmd1, times(1)).execCommand();
+		verify(cmd2, times(1)).execCommand();
+		verify(cmd3, times(0)).execCommand();
+		verify(esConnection, times(0)).doWrite();
+		verify(esConnection, times(1)).doClose();
+		verify(barrier, times(1)).countDown();
+	}
+	
+	@Test
+	public void testOnlyReadOneCmd() throws InterruptedException, ClosedConnectionException {
 		when(frontendpool.take()).thenReturn(selection);
 		when(frontendpool.getBarrier()).thenReturn(barrier);
 
@@ -175,7 +201,7 @@ public class TestFrontendTask extends TestCase {
 	}
 	
 	@Test
-	public void testAcceptReadWrite() throws InterruptedException{
+	public void testAcceptReadWrite() throws InterruptedException, ClosedConnectionException{
 		when(frontendpool.take()).thenReturn(selection);
 		when(frontendpool.getBarrier()).thenReturn(barrier);
 
@@ -194,7 +220,7 @@ public class TestFrontendTask extends TestCase {
 	}
 	
 	@Test
-	public void testReadWrite() throws InterruptedException{
+	public void testReadWrite() throws InterruptedException, ClosedConnectionException{
 		when(frontendpool.take()).thenReturn(selection);
 		when(frontendpool.getBarrier()).thenReturn(barrier);
 

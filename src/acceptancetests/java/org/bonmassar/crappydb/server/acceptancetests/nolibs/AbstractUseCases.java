@@ -36,9 +36,16 @@ public class AbstractUseCases {
 	}
 
 	@After
-	public void tearDown() throws IOException {
-		clean("terminenzio");
-		client.closeConnection();
+	public void tearDown() {
+		try {
+			clean("terminenzio");
+		} catch (IOException e) {
+		}finally{
+			try {
+				client.closeConnection();
+			} catch (IOException e) {
+			}
+		}
 	}
 
 	protected void testServerInOut(String in, String out) throws IOException {
@@ -58,17 +65,12 @@ public class AbstractUseCases {
 	}
 	
 	protected void pause(int sec){
-		/* 
-		 * The current implementation of the server
-		 * process request per channel sequentially
-		 * See bug #2 - so there's no need for async wait
 		try {
 			Thread.sleep(sec*1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		*/
 	}
 	
 	protected void clean(String key) throws IOException{

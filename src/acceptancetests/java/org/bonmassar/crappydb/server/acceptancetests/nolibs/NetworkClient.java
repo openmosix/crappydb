@@ -69,4 +69,8 @@ public class NetworkClient {
 		return sb.toString();
 	}
 
+	public boolean isClosed() {
+		return echoSocket.isClosed();
+	}
+
 }

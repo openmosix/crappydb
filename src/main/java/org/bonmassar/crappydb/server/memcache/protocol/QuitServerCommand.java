@@ -16,32 +16,21 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 package org.bonmassar.crappydb.server.memcache.protocol;
 
-import java.util.Map;
-
+import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
-import org.bonmassar.crappydb.server.stats.DBStats;
 
-class StatsCommand extends ServerCommandNoPayload {
+public class QuitServerCommand extends ServerCommandNoPayload {
 
 	@Override
 	protected int getNoReplyPosition() {
 		return -1;
 	}
 
-	public void execCommand() {
-		Map<String, String> stats = getStats();
-		StringBuilder sb = new StringBuilder();
-		for(Map.Entry<String, String> entry : stats.entrySet()){
-			sb.append(String.format("STAT %s %s\r\n", entry.getKey(), entry.getValue()));
-		}
-		sb.append("END\r\n");
-		channel.writeToOutstanding(sb.toString());
-	}
-
-	protected Map<String, String> getStats() {
-		return DBStats.INSTANCE.getStats();
+	public void execCommand() throws ClosedConnectionException{
+		throw new ClosedConnectionException();
 	}
 	
 	@Override
@@ -50,10 +39,11 @@ class StatsCommand extends ServerCommandNoPayload {
 		if(null != commandParams && commandParams.length() > 0)
 			throw new ErrorException("Invalid number of parameters");
 	}
+
 	
 	@Override
 	public String toString() {
-		return "{Stats}";
+		return "{Quit}";
 	}
 
 }

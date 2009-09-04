@@ -160,8 +160,6 @@ public class TestCas extends AbstractUseCases {
 		input = "cas terminenzio 90 999 4 3027527 noreply\r\n4288\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
-		
 		input = "gets terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 90 4 2424627931\r\n", 
 				"4288\r\n", "END\r\n"});
@@ -188,8 +186,6 @@ public class TestCas extends AbstractUseCases {
 		input = "cas terminenzio 90 999 8 3027527 noreply\r\n42889922\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
-		
 		input = "gets terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 90 4 2424627931\r\n", 
 				"4288\r\n", "END\r\n"});
@@ -212,8 +208,6 @@ public class TestCas extends AbstractUseCases {
 		input = "cas terminenzio 90 999 8 3027527 noreply\r\n42889922\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
-				
 		input = "gets terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 3026566\r\n", 
 				"41\r\n", "END\r\n"});
@@ -235,8 +229,6 @@ public class TestCas extends AbstractUseCases {
 		
 		input = "cas terminenzio 90 999 8 3027527 noreply\r\n42889922\r\n";
 		testServerNoOutput(input);
-		
-		pause(2);
 		
 		input = "gets terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 11 2 3027496\r\n", 
@@ -260,8 +252,6 @@ public class TestCas extends AbstractUseCases {
 		input = "cas terminenzio 90 999 8 3027527 noreply\r\n42889922\r\n";
 		testServerNoOutput(input);
 
-		pause(2);
-		
 		input = "gets terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 3027528\r\n", 
 				"42\r\n", "END\r\n"});
@@ -271,8 +261,6 @@ public class TestCas extends AbstractUseCases {
 	public void testCasNoReply() throws IOException {
 		String input = "cas terminenzio 90 999 8 3027527 noreply\r\n42889922\r\n";
 		testServerNoOutput(input);
-	
-		pause(2);
 	
 		input = "gets terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"END\r\n"});

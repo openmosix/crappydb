@@ -106,7 +106,6 @@ public class TestDecrement extends AbstractUseCases {
 	public void testDecrNoReply() throws IOException {
 		String input = "decr terminenzio 10 noreply\r\n";
 		testServerNoOutput(input);
-		pause(3);
 	}
 	
 	@Test
@@ -118,7 +117,6 @@ public class TestDecrement extends AbstractUseCases {
 		input = "decr terminenzio 10 noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2\r\n", 
 				"32\r\n", "END\r\n"});
@@ -133,7 +131,6 @@ public class TestDecrement extends AbstractUseCases {
 		input = "decr terminenzio 10 noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 1\r\n", 
 				"0\r\n", "END\r\n"});
@@ -149,7 +146,6 @@ public class TestDecrement extends AbstractUseCases {
 		input = "decr terminenzio -20 noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 4\r\n", 
 				"5000\r\n", "END\r\n"});
@@ -164,7 +160,6 @@ public class TestDecrement extends AbstractUseCases {
 		input = "decr terminenzio 9223372036854775807 noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 4\r\n", 
 				"5000\r\n", "END\r\n"});
@@ -179,7 +174,6 @@ public class TestDecrement extends AbstractUseCases {
 		input = "decr terminenzio 5001 noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 1\r\n", 
 				"0\r\n", "END\r\n"});

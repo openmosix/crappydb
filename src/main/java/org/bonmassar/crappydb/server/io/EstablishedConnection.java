@@ -48,10 +48,10 @@ class EstablishedConnection {
 					injectWriter(cmd);
 				return cmdlist;
 			} catch(ClosedChannelException ce){
-				commandCloser.closeConnection();
+				doClose();
 			} catch (IOException e) {
 				logger.error("Error reading remote data", e);
-				commandCloser.closeConnection();
+				doClose();
 			}
 			return null;
 		}
@@ -62,7 +62,7 @@ class EstablishedConnection {
 				commandWriter.write();
 			} catch (IOException e) {
 				logger.warn("Error writing data to remote party", e);
-				commandCloser.closeConnection();
+				doClose();
 			}
 		}	
 		
@@ -82,5 +82,9 @@ class EstablishedConnection {
 			commandReader.setConnectionId(id);
 			commandWriter.setConnectionId(id);
 			commandCloser.setConnectionId(id);
+		}
+
+		public void doClose() {
+			commandCloser.closeConnection();			
 		}	
 }

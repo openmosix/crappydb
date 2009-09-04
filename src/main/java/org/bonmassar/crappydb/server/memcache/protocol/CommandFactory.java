@@ -41,6 +41,7 @@ public class CommandFactory {
 		commands.put("gets", GetsServerCommand.class);
 		commands.put("incr", IncrServerCommand.class);
 		commands.put("prepend", PrependServerCommand.class);
+		commands.put("quit", QuitServerCommand.class);
 		commands.put("replace", ReplaceServerCommand.class);
 		commands.put("set", SetServerCommand.class);
 		commands.put("stats", StatsCommand.class);

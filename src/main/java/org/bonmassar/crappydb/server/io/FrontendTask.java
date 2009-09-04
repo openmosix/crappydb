@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 import org.bonmassar.crappydb.server.stats.DBStats;
@@ -88,7 +89,12 @@ class FrontendTask implements Callable<Integer> {
 		List<ServerCommand> cmdlist = connHandler.doRead();
 		if(null != cmdlist)
 			for(ServerCommand cmd : cmdlist)
-				cmd.execCommand();
+				try {
+					cmd.execCommand();
+				} catch (ClosedConnectionException e) {
+					connHandler.doClose();
+					break;
+				}
 	}
  
 	private void write(SelectionKey sk, int availOperations) {

@@ -35,7 +35,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 	public void testSetCommandNoReply() throws IOException {
 		String input = "set terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
 		testServerNoOutput(input);
-		pause(sleepTimeForAsyncCalls);
 	}
 	
 	@Test
@@ -52,7 +51,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 	public void testSetAndGetCommandNoReply() throws IOException {
 		String input = "set terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
 		testServerNoOutput(input);
-		pause(sleepTimeForAsyncCalls);
 
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 24\r\n", 
@@ -138,9 +136,7 @@ public class TestNormalUseCases extends AbstractUseCases {
 	
 		input = "set terminenzio4 48 20 37 noreply\r\nThis is the last one and we are done!\r\n";
 		testServerNoOutput(input);
-		
-		pause(sleepTimeForAsyncCalls);
-	
+			
 		input = "get terminenzio4 terminenzio3 terminenzio2 terminenzio1\r\n";
 		testServerInMultipleOut(input, new String[]{
 				"VALUE terminenzio4 48 37\r\n", 
@@ -214,9 +210,7 @@ public class TestNormalUseCases extends AbstractUseCases {
 	
 		input = "set terminenzio4 48 20 37 noreply\r\nThis is the last one and we are done!\r\n";
 		testServerNoOutput(input);
-		
-		pause(sleepTimeForAsyncCalls);
-	
+			
 		input = "get terminenzio4\r\n";
 		testServerInMultipleOut(input, new String[]{
 				"VALUE terminenzio4 48 37\r\n", 
@@ -270,8 +264,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 	public void testSetGetDeleteGetNoReply() throws IOException {
 		String input = "set terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
 		testServerNoOutput(input);
-
-		pause(sleepTimeForAsyncCalls);
 		
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 24\r\n", 
@@ -279,9 +271,7 @@ public class TestNormalUseCases extends AbstractUseCases {
 		
 		input = "delete terminenzio noreply\r\n";
 		testServerNoOutput(input);
-		
-		pause(sleepTimeForAsyncCalls);
-		
+				
 		input = "get terminenzio\r\n";
 		testServerInOut(input, "END\r\n");
 	}
@@ -391,7 +381,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 	public void testAddNoReplyGetDeleteGet() throws IOException {
 		String input = "add terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
 		testServerNoOutput(input);
-		pause(2);
 		
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{
@@ -420,7 +409,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 		
 		input = "add terminenzio 12 5 24 noreply\r\nThat is really a string.\r\n";
 		testServerNoOutput(input);
-		pause(2);
 		
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{
@@ -440,7 +428,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 		String input = "add terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{
 				"VALUE terminenzio 12 24\r\n", 
@@ -455,7 +442,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 	
 		input = "add terminenzio 12 5 24 noreply\r\nThis is simply a string.\r\n";
 		testServerNoOutput(input);
-		pause(2);
 		
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{
@@ -552,7 +538,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 		
 		input = "replace terminenzio 12 5 30 noreply\r\nThis is simply another string.\r\n";
 		testServerNoOutput(input);
-		pause(3);
 		
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{
@@ -581,7 +566,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 		
 		input = "replace terminenzio 12 5 30 noreply\r\nThis is simply another string.\r\n";
 		testServerNoOutput(input);
-		pause(3);
 		
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{
@@ -600,7 +584,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 	public void testReplaceGetNoReply() throws IOException {
 		String input = "replace terminenzio 12 5 30 noreply\r\nThis is simply another string.\r\n";
 		testServerNoOutput(input);
-		pause(3);
 		
 		input = "get terminenzio\r\n";
 		testServerInOut(input, "END\r\n");
@@ -854,7 +837,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 		
 		input = "append terminenzio 12 5 23 noreply\r\nAnd conclude with this.\r\n";
 		testServerNoOutput(input);
-		pause(3);
 		
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"END\r\n"});
@@ -871,7 +853,6 @@ public class TestNormalUseCases extends AbstractUseCases {
 		
 		input = "append terminenzio 12 5 30 noreply\r\nI want to add this text to it.\r\n";
 		testServerNoOutput(input);
-		pause(3);
 		
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{

@@ -65,8 +65,6 @@ public class TestFlushAll extends AbstractUseCases {
 		String input = "flush_all noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
-		
 		for(int i = 0; i < 10; i++){
 			input = "get terminenzio"+i+"\r\n";
 			testServerInMultipleOut(input, new String[]{"END\r\n"});

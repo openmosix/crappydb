@@ -16,21 +16,27 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.memcache.protocol;
+package org.bonmassar.crappydb.server.acceptancetests.nolibs;
 
-import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
-import org.bonmassar.crappydb.server.io.OutputCommandWriter;
-import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
+import static org.junit.Assert.fail;
 
-public interface ServerCommand {
-		
-	public int payloadContentLength();
-	
-	public void addPayloadContentPart(byte[] data);
+import java.io.IOException;
+import java.net.SocketException;
 
-	public void attachCommandWriter(OutputCommandWriter writer);
-	
-	public void setStorage(StorageAccessLayer storage);
-	
-	public void execCommand() throws ClosedConnectionException;
+import org.junit.Test;
+
+public class TestQuit extends AbstractUseCases {
+
+	@Test
+	public void testQuit() throws IOException {
+		testServerNoOutput("quit\r\n");
+
+		try {
+			pause(2);
+			testServerInOut("bibibi\r\n", "babidi");
+		} catch (SocketException e) {
+			return;
+		}
+		fail();
+	}
 }

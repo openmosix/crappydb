@@ -118,7 +118,6 @@ public class TestIncrement extends AbstractUseCases {
 	public void testIncrNoReply() throws IOException {
 		String input = "incr terminenzio 10 noreply\r\n";
 		testServerNoOutput(input);
-		pause(3);
 	}
 	
 	@Test
@@ -130,7 +129,6 @@ public class TestIncrement extends AbstractUseCases {
 		input = "incr terminenzio 10 noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2\r\n", 
 				"52\r\n", "END\r\n"});
@@ -145,7 +143,6 @@ public class TestIncrement extends AbstractUseCases {
 		input = "incr terminenzio 10 noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2\r\n", 
 				"10\r\n", "END\r\n"});
@@ -161,7 +158,6 @@ public class TestIncrement extends AbstractUseCases {
 		input = "incr terminenzio -20 noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 4\r\n", 
 				"5000\r\n", "END\r\n"});
@@ -176,7 +172,6 @@ public class TestIncrement extends AbstractUseCases {
 		input = "incr terminenzio 9223372036854775807 noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 19\r\n", 
 				"9223372036854780807\r\n", "END\r\n"});
@@ -192,7 +187,6 @@ public class TestIncrement extends AbstractUseCases {
 		input = "incr terminenzio 18446744073709551316 noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 4\r\n", 
 				"4700\r\n", "END\r\n"});
@@ -208,7 +202,6 @@ public class TestIncrement extends AbstractUseCases {
 		input = "incr terminenzio 18446744073709551616 noreply\r\n";
 		testServerNoOutput(input);
 		
-		pause(2);
 		input = "get terminenzio\r\n";
 		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 4\r\n", 
 				"5000\r\n", "END\r\n"});

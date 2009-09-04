@@ -59,14 +59,33 @@ public class TestCommandFactory {
 	}
 	
 	@Test
+	public void testSetCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("set terminenzio 1 23 90\r\n");
+		assertTrue(sc instanceof SetServerCommand);
+	}
+
+	@Test
 	public void testGetCommand() throws ErrorException {
 		ServerCommand sc = factory.getCommand("get");
 		assertTrue(sc instanceof GetServerCommand);
 	}
 	
 	@Test
+	public void testGetCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("get terminenzio\r\n");
+		assertTrue(sc instanceof GetServerCommand);
+	}
+
+	
+	@Test
 	public void testDeleteCommand() throws ErrorException {
 		ServerCommand sc = factory.getCommand("delete");
+		assertTrue(sc instanceof DeleteServerCommand);
+	}
+	
+	@Test
+	public void testDeleteCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("delete terminenzio\r\n");
 		assertTrue(sc instanceof DeleteServerCommand);
 	}
 	
@@ -221,5 +240,17 @@ public class TestCommandFactory {
 	public void testStatsCommand() throws ErrorException {
 		ServerCommand sc = factory.getCommand("stats");
 		assertTrue(sc instanceof StatsCommand);
+	}
+	
+	@Test
+	public void testQuitCommandFromCommandLine() throws ErrorException {
+		ServerCommand sc = factory.getCommandFromCommandLine("quit\r\n");
+		assertTrue(sc instanceof QuitServerCommand);
+	}
+	
+	@Test
+	public void testQuitCommand() throws ErrorException {
+		ServerCommand sc = factory.getCommand("quit");
+		assertTrue(sc instanceof QuitServerCommand);
 	}
 }
