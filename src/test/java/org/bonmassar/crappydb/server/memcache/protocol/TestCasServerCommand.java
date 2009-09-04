@@ -143,7 +143,7 @@ public class TestCasServerCommand extends TestCase {
 	
 	@Test 
 	public void testCasRainbow() throws ErrorException, StorageException, NotFoundException, ExistsException {
-		command.parseCommandParams("terminenzio 12 48 50 35345345345 noreply\r\n");
+		command.parseCommandParams("terminenzio 12 1252101098 50 35345345345 noreply\r\n");
 		command.addPayloadContentPart("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789".getBytes());
 		assertEquals(50, command.payloadCursor);
 
@@ -155,7 +155,7 @@ public class TestCasServerCommand extends TestCase {
 				assertNotNull(it);
 				assertEquals(new Key("terminenzio"), it.getKey());
 				assertEquals(12, it.getFlags());
-				assertEquals(48, it.getExpire());
+				assertEquals(1252101098, it.getExpire());
 				assertEquals("01234567890123456789012345678901234567890123456789", new String(it.getData()));
 				assertEquals("35345345345", (String)invocation.getArguments()[1]);
 				

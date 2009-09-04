@@ -140,7 +140,7 @@ public class TestPrependServerCommand extends TestCase {
 	
 	@Test 
 	public void testPrependRainbow() throws ErrorException, StorageException, NotFoundException {
-		command.parseCommandParams("terminenzio 12 48 50 noreply\r\n");
+		command.parseCommandParams("terminenzio 12 1252101098 50 noreply\r\n");
 		command.addPayloadContentPart("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789".getBytes());
 		assertEquals(50, command.payloadCursor);
 
@@ -150,7 +150,7 @@ public class TestPrependServerCommand extends TestCase {
 				assertNotNull(it);
 				assertEquals(new Key("terminenzio"), it.getKey());
 				assertEquals(12, it.getFlags());
-				assertEquals(48, it.getExpire());
+				assertEquals(1252101098, it.getExpire());
 				assertEquals("01234567890123456789012345678901234567890123456789", new String(it.getData()));
 				
 				return 0; 

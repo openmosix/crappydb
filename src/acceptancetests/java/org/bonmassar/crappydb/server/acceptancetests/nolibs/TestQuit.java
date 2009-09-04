@@ -32,7 +32,7 @@ public class TestQuit extends AbstractUseCases {
 		testServerNoOutput("quit\r\n");
 
 		try {
-			pause(2);
+			pause(3);
 			testServerInOut("bibibi\r\n", "babidi");
 		} catch (SocketException e) {
 			return;

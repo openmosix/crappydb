@@ -26,73 +26,73 @@ public class TestGets extends AbstractUseCases {
 
 	@Test
 	public void testAddAndGets() throws IOException {
-		String input = "add terminenzio 12 5 2\r\n42\r\n";
+		String input = "add terminenzio 12 1677966698 2\r\n42\r\n";
 		String out = "STORED\r\n";
 		testServerInOut(input, out);
 		
 		input = "gets terminenzio\r\n";
-		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 3027527\r\n", 
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 1680994220\r\n", 
 				"42\r\n", "END\r\n"});
 		
 		input = "gets terminenzio\r\n";
-		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 3027527\r\n", 
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 1680994220\r\n", 
 				"42\r\n", "END\r\n"});
 	}
 	
 	@Test
 	public void testAddAndGetsChangeFlagsSetGets() throws IOException {
-		String input = "add terminenzio 12 5 2\r\n42\r\n";
+		String input = "add terminenzio 12 1677966698 2\r\n42\r\n";
 		String out = "STORED\r\n";
 		testServerInOut(input, out);
 		
 		input = "gets terminenzio\r\n";
-		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 3027527\r\n", 
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 1680994220\r\n", 
 				"42\r\n", "END\r\n"});
 		
-		input = "set terminenzio 13 5 2\r\n42\r\n";
+		input = "set terminenzio 13 1677966698 2\r\n42\r\n";
 		out = "STORED\r\n";
 		testServerInOut(input, out);
 		
 		input = "gets terminenzio\r\n";
-		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 13 2 3027558\r\n", 
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 13 2 1680994251\r\n", 
 				"42\r\n", "END\r\n"});
 	}
 
 	@Test
 	public void testAddAndGetsChangeExpiresSetGets() throws IOException {
-		String input = "add terminenzio 12 5 2\r\n42\r\n";
+		String input = "add terminenzio 12 1677966698 2\r\n42\r\n";
 		String out = "STORED\r\n";
 		testServerInOut(input, out);
 		
 		input = "gets terminenzio\r\n";
-		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 3027527\r\n", 
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 1680994220\r\n", 
 				"42\r\n", "END\r\n"});
 		
-		input = "set terminenzio 12 4 2\r\n42\r\n";
+		input = "set terminenzio 12 1677966693 2\r\n42\r\n";
 		out = "STORED\r\n";
 		testServerInOut(input, out);
 		
 		input = "gets terminenzio\r\n";
-		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 3027526\r\n", 
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 1680994215\r\n", 
 				"42\r\n", "END\r\n"});
 	}
 	
 	@Test
 	public void testAddAndGetsChangePayloadSetGets() throws IOException {
-		String input = "add terminenzio 12 5 2\r\n42\r\n";
+		String input = "add terminenzio 12 1677966698 2\r\n42\r\n";
 		String out = "STORED\r\n";
 		testServerInOut(input, out);
 		
 		input = "gets terminenzio\r\n";
-		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 3027527\r\n", 
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 1680994220\r\n", 
 				"42\r\n", "END\r\n"});
 		
-		input = "set terminenzio 12 5 2\r\n41\r\n";
+		input = "set terminenzio 12 1677966698 2\r\n41\r\n";
 		out = "STORED\r\n";
 		testServerInOut(input, out);
 		
 		input = "gets terminenzio\r\n";
-		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 3026566\r\n", 
+		testServerInMultipleOut(input, new String[]{"VALUE terminenzio 12 2 1680993259\r\n", 
 				"41\r\n", "END\r\n"});
 	}
 }

@@ -37,7 +37,7 @@ public class TestUnboundedMapSwap extends TestCase {
 	public void setUp(){
 		um = new UnboundedMap();
 		previt = new Item(new Key("Terminenzio"), "This is the payload.".getBytes(), 22);
-		previt.setExpire(999999);
+		previt.setExpire(1252101098);
 		um.repository.put(new Key("Terminenzio"), previt);
 	}
 	
@@ -98,12 +98,12 @@ public class TestUnboundedMapSwap extends TestCase {
 	@Test
 	public void testRainbow() throws NotFoundException, ExistsException, StorageException {
 		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88);
-		it.setExpire(6666);
-		um.swap(it, "9798483132");
+		it.setExpire(1252101098);
+		um.swap(it, "11049584231");
 		
 		assertEquals("new payload", new String(um.repository.get(new Key("Terminenzio")).getData()));
 		assertEquals(88, um.repository.get(new Key("Terminenzio")).getFlags());
-		assertEquals(6666, um.repository.get(new Key("Terminenzio")).getExpire());
+		assertEquals(1252101098, um.repository.get(new Key("Terminenzio")).getExpire());
 	}
 	
 	@Test
