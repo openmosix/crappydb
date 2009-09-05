@@ -201,5 +201,15 @@ public class TestSetServerCommand extends TestCase {
 		
 		assertEquals("{Set key=terminenzio flags=12 expire=48 nbytes=50 noreply=false}", command.toString());
 	}
+	
+	@Test
+	public void testShouldSurviveToABigPayload() throws ErrorException {
+		try {
+			command.parseCommandParams("terminenzio 12 48 2000000000\r\n");
+		} catch (RuntimeException e) {
+			return;
+		}
+		fail();
+	}
 
 }

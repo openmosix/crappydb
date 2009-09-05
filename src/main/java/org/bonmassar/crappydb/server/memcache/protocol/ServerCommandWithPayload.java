@@ -30,6 +30,7 @@ abstract class ServerCommandWithPayload extends ServerCommandAbstract {
 	protected static final int BYTES_POS=3;
 	protected static final int NOREPLY_POS=4;
 	protected static final int CRLF=2;
+	private static final int MAXIMUM_PAYLOAD_SIZE = 64*1024*1024;	//64Mb
 	
 	protected int minparams = 4;
 	protected int maxparams = 5;
@@ -92,6 +93,11 @@ abstract class ServerCommandWithPayload extends ServerCommandAbstract {
 	protected void initPayload() {
 		payloadCursor = 0;
 		int length = payloadContentLength();
+		
+		if(length > ServerCommandWithPayload.MAXIMUM_PAYLOAD_SIZE)
+			throw new RuntimeException(String.format("Received an item (key=%s) with payload size=%d " +
+					"but the maximum payload size is %s", params[KEY_POS], length, ServerCommandWithPayload.MAXIMUM_PAYLOAD_SIZE));
+		
 		if(length >= CRLF)
 			payload = new byte[length-CRLF]; 
 	}

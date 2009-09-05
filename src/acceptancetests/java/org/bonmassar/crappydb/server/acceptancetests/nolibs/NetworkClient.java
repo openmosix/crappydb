@@ -32,7 +32,11 @@ public class NetworkClient {
 	private PrintWriter out;
 
 	public NetworkClient() throws UnknownHostException, IOException {
-		newConnection();
+		newConnection(0);
+	}
+	
+	public NetworkClient(int timeout) throws UnknownHostException, IOException {
+		newConnection(timeout);
 	}
 
 	public void closeConnection() throws IOException {
@@ -53,8 +57,11 @@ public class NetworkClient {
 		return readline(in);
 	}
 	
-	private void newConnection() throws UnknownHostException, IOException {
+	private void newConnection(int timeout) throws UnknownHostException, IOException {
 		echoSocket = new Socket(AcceptanceConfig.HOST, AcceptanceConfig.SERVERPORT);
+		if(timeout > 0)
+			echoSocket.setSoTimeout(timeout);
+		
         out = new PrintWriter(echoSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
 	}
@@ -72,5 +79,4 @@ public class NetworkClient {
 	public boolean isClosed() {
 		return echoSocket.isClosed();
 	}
-
 }
