@@ -27,7 +27,7 @@ import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.bonmassar.crappydb.server.storage.data.Item;
 
-public interface StorageAccessLayer {
+public interface StorageAccessLayer extends Expirable{
 
 	void set(Item item) throws StorageException;
 	

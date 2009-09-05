@@ -18,7 +18,7 @@
 
 package org.bonmassar.crappydb.server.storage.data;
 
-public class Key {
+public class Key implements Comparable<Key> {
 	
 	/**
 	 * Maximum size for an item key as defined by memcache protocol.
@@ -73,5 +73,12 @@ public class Key {
 			return;
 		
 		value = value.substring(0, MAX_KEY_SIZE);
+	}
+
+	public int compareTo(Key k) {
+		if(null == k)
+			throw new NullPointerException();
+		
+		return value.compareTo(k.value);
 	}
 }

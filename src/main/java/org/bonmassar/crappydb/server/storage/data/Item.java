@@ -76,6 +76,10 @@ public class Item {
 		return new CASImpl(flags, expire, data);
 	}
 	
+	public boolean isExpired() {
+		return expire > 0 && expire > now() ;
+	}
+	
 	private long getAbsoluteTime(long expire){
 		if(expire <= 0)
 			return 0;

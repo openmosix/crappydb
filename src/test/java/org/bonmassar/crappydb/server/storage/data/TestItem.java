@@ -27,13 +27,15 @@ public class TestItem extends TestCase {
 
 	private static class MockItem extends Item {
 		
+		public long now = 1252101098L;
+		
 		public MockItem(Key storagekey, byte[] data, int flags) {
 			super(storagekey, data, flags);
 		}
 
 		@Override
 		public long now() {
-			return 1252101098L;
+			return now;
 		}
 	}
 	
@@ -88,6 +90,29 @@ public class TestItem extends TestCase {
 	public void testWithThresholdTimePlus1() {
 		item.setExpire(30*24*60*60+1);
 		assertEquals(2592001L, item.getExpire());
+	}
+	
+	@Test
+	public void testShouldBeExpired() {
+		item.setExpire(190L);
+		item.now = 1252101287L;
+		
+		assertTrue(item.isExpired());
+	}
+	
+	@Test
+	public void testShouldNotBeExpired() {
+		item.setExpire(190L);
+		item.now = 1252101288L;
+		
+		assertFalse(item.isExpired());		
+	}
+	
+	@Test
+	public void testShouldNeverExpire() {
+		item.setExpire(0L);
+		
+		assertFalse(item.isExpired());
 	}
 	
 }

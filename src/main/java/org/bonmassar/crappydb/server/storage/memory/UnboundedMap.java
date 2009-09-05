@@ -231,5 +231,10 @@ public class UnboundedMap implements StorageAccessLayer {
 		return data.length;
 	}
 
+	public void expire(Key k) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

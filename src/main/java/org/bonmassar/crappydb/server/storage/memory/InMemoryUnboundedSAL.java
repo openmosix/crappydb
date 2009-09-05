@@ -78,6 +78,11 @@ public class InMemoryUnboundedSAL implements StorageAccessLayer {
 
 	public void flush(Long time) {
 		// TODO Auto-generated method stub
+
+	}
+
+	public void expire(Key k) {
+		// TODO Auto-generated method stub
 		
 	}
 
