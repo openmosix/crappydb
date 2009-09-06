@@ -16,7 +16,7 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.storage.memory;
+package org.bonmassar.crappydb.server.storage;
 
 import java.util.List;
 
@@ -24,14 +24,26 @@ import org.bonmassar.crappydb.server.exceptions.ExistsException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
-import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.gc.GarbageCollectorScheduler;
+import org.bonmassar.crappydb.server.storage.gc.NullGarbageCollectorScheduler;
 
-public class UnboundedSAL implements StorageAccessLayer {
+public class SALImpl implements StorageAccessLayer, SALBuilder {
 	
-	//private UnboundedMap storage;
-	//private TimeQueue expire;
+	private final StorageAccessLayer storage;
+	private GarbageCollectorScheduler gc = new NullGarbageCollectorScheduler(null);
+	
+	public SALImpl(StorageAccessLayer storage){
+		this.storage = storage; 
+	}
+	
+	public void setGarbageCollector(GarbageCollectorScheduler gc){
+		if(null == gc)
+			throw new NullPointerException();
+		
+		this.gc = gc;
+	}
 
 	public void add(Item item) throws NotStoredException, StorageException {
 		throw new StorageException("Not Implemented.");

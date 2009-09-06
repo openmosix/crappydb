@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.bonmassar.crappydb.server.ShutdownExecutionRegister;
 import org.bonmassar.crappydb.server.storage.Expirable;
 
-public class FixedRateGarbageCollector {
+public class FixedRateGarbageCollector implements GarbageCollectorScheduler {
 	
 	private final long initialGCDelay;	
 	private final long gcRate;
