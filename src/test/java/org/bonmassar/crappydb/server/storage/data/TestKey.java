@@ -56,5 +56,34 @@ public class TestKey {
 	public void testKeysAreEqualsWithNullObject(){
 		assertFalse(key.equals(null));
 	}
+	
+	@Test
+	public void testCompareLess() {
+		Key key2 = new Key("abcdef1234ghilmm");
+		assertTrue(key.compareTo(key2)>0);
+
+	}
+	
+	@Test
+	public void testCompareMore() {
+		Key key2 = new Key("abcdef1234ghilmo");
+		assertTrue(key.compareTo(key2)<0);
+	}
+	
+	@Test
+	public void testCompareEquals() {
+		Key key2 = new Key("abcdef1234ghilmn");
+		assertTrue(key.compareTo(key2)==0);
+	}
+	
+	@Test
+	public void testCompareShouldThrowNPE() {
+		try{
+			key.compareTo(null);
+		}catch(NullPointerException npe){
+			return;
+		}
+		fail();
+	}
 
 }

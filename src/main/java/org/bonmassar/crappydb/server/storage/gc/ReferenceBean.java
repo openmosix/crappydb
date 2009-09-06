@@ -66,7 +66,6 @@ class ReferenceBean implements Comparable<ReferenceBean>{
 	}
 
 	public boolean isExpired() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

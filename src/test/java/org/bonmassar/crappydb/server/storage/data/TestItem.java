@@ -29,13 +29,26 @@ public class TestItem extends TestCase {
 		
 		public long now = 1252101098L;
 		
+		private class MockTimestamp extends Timestamp {
+
+			public MockTimestamp(long timestamp) {
+				super(timestamp);
+				// TODO Auto-generated constructor stub
+			}
+			
+			@Override
+			public long now() {
+				return now;
+			}
+		}
+		
 		public MockItem(Key storagekey, byte[] data, int flags) {
 			super(storagekey, data, flags);
 		}
-
+		
 		@Override
-		public long now() {
-			return now;
+		public void setExpire(long newexpire) {
+			expire = new MockTimestamp(newexpire);
 		}
 	}
 	

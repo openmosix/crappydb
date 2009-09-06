@@ -52,6 +52,13 @@ public class Key implements Comparable<Key> {
 		return value.hashCode();
 	}
 	
+	public int compareTo(Key k) {
+		if(null == k)
+			throw new NullPointerException();
+		
+		return value.compareTo(k.value);
+	}
+	
 	private void importKeyValue(String value) {
 		this.value = value;
 		checkInvalidKey();
@@ -73,12 +80,5 @@ public class Key implements Comparable<Key> {
 			return;
 		
 		value = value.substring(0, MAX_KEY_SIZE);
-	}
-
-	public int compareTo(Key k) {
-		if(null == k)
-			throw new NullPointerException();
-		
-		return value.compareTo(k.value);
 	}
 }
