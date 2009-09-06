@@ -26,6 +26,7 @@ import java.util.TreeSet;
 
 import org.bonmassar.crappydb.server.storage.Expirable;
 import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.data.Timestamp;
 
 class InternalGarbageCollector implements GarbageCollector, Cleaner {
 	
@@ -43,15 +44,15 @@ class InternalGarbageCollector implements GarbageCollector, Cleaner {
 		this(container, new ChangesCollector(), new TreeSet<ReferenceBean>());
 	}
 	
-	public void monitor(Key k, long expiration) {
+	public void monitor(Key k, Timestamp expiration) {
 		changes.monitor(k, expiration);
 	}
 
-	public void replace(Key k, long oldExpiration, long expiration) {
+	public void replace(Key k, Timestamp oldExpiration, Timestamp expiration) {
 		changes.replace(k, expiration, oldExpiration);
 	}
 
-	public void stop(Key k, long expiration) {
+	public void stop(Key k, Timestamp expiration) {
 		changes.stop(k, expiration);
 	}
 

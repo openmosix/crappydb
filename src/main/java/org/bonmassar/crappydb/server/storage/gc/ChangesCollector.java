@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.data.Timestamp;
 
 public class ChangesCollector implements GarbageCollector{
 	private Collection<ReferenceBean> incoming;
@@ -31,21 +32,21 @@ public class ChangesCollector implements GarbageCollector{
 		incoming = new LinkedList<ReferenceBean>();
 	}
 
-	public void monitor(Key k, long expiration) {
+	public void monitor(Key k, Timestamp expiration) {
 		ReferenceBean rb = new ReferenceBean(k, expiration);
 		synchronized(this){
 			incoming.add(rb);
 		}
 	}
 
-	public void replace(Key k, long expiration, long oldExpiration) {
+	public void replace(Key k, Timestamp expiration, Timestamp oldExpiration) {
 		ReferenceBean rb = new ReplaceReferenceBean(k, expiration, oldExpiration);
 		synchronized(this){
 			incoming.add(rb);
 		}	
 	}
 
-	public void stop(Key k, long expiration) {
+	public void stop(Key k, Timestamp expiration) {
 		ReferenceBean rb = new DeleteReferenceBean(k, expiration);
 		synchronized(this){
 			incoming.add(rb);

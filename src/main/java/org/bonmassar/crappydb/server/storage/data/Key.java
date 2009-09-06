@@ -38,18 +38,18 @@ public class Key implements Comparable<Key> {
 
 	@Override
 	public boolean equals(Object dest) {
-		if(null == dest || !(dest instanceof Key))
+		if(!(dest instanceof Key))
 			return false;
+		
+		if(this == dest)
+			return true;
 
 		return value.equals(((Key)dest).value);
 	}
 
 	@Override
 	public int hashCode() {
-		if(null == value)
-			return super.hashCode();
-		
-		return value.hashCode();
+		return 31 * 17 + value.hashCode();
 	}
 	
 	public int compareTo(Key k) {

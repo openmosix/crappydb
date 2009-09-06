@@ -29,7 +29,7 @@ package org.bonmassar.crappydb.server.storage.data;
  * that, the server will consider it to be real Unix time value rather
  * than an offset from current time.*/
 
-public class Timestamp {
+public class Timestamp implements Comparable<Timestamp>{
 	//! any time less than this is considered relative, see above
 	private final static long relativeTimeThreshold = 60*60*24*30;
 
@@ -47,6 +47,34 @@ public class Timestamp {
 		return timestamp;
 	}
 	
+	public long now() {
+		return System.currentTimeMillis() / 1000;
+	}
+
+	public int compareTo(Timestamp oth) {
+		if(null == oth)
+			throw new NullPointerException();
+		
+		return (int)(timestamp - oth.timestamp);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Timestamp))
+			return false;
+		
+		if(this == obj)	//optimization
+			return true;
+
+		return timestamp == ((Timestamp)obj).timestamp;
+	}
+	
+	@Override
+	public int hashCode() {
+		int result = 17;
+		return 31 * result + (int)(timestamp ^ (timestamp>>32));
+	}
+	
 	private long getAbsoluteTime(long expire){
 		if(expire <= 0)
 			return 0;
@@ -56,9 +84,4 @@ public class Timestamp {
 		
 		return expire;
 	}
-	
-	public long now() {
-		return System.currentTimeMillis() / 1000;
-	}
-
 }

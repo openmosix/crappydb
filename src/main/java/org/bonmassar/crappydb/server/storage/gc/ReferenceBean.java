@@ -21,17 +21,20 @@ package org.bonmassar.crappydb.server.storage.gc;
 import java.util.Set;
 
 import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.data.Timestamp;
 
 class ReferenceBean implements Comparable<ReferenceBean>{
 	protected final Key key;
-	protected final Long expire;
+	protected final Timestamp timestamp;
 	
-	public ReferenceBean(Key k, long expire) {
+	public ReferenceBean(Key k, Timestamp expire) {
 		if(null == k)
+			throw new NullPointerException();
+		if(null == expire)
 			throw new NullPointerException();
 		
 		this.key = k;
-		this.expire = expire;	//autoboxing
+		this.timestamp = expire;	//autoboxing
 	}
 	
 	public void visit(final Set<ReferenceBean> timerlist) {
@@ -46,7 +49,7 @@ class ReferenceBean implements Comparable<ReferenceBean>{
 		if(null == in)
 			throw new NullPointerException();
 		
-		int compareLong = expire.compareTo(in.expire);
+		int compareLong = timestamp.compareTo(in.timestamp);
 		if(0 != compareLong)
 			return  compareLong;
 		
@@ -61,11 +64,17 @@ class ReferenceBean implements Comparable<ReferenceBean>{
 	
 	@Override
 	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
-		return super.equals(obj);
+		if(!(obj instanceof ReferenceBean))
+			return false;
+	
+		if(obj == this)	//optimization
+			return true;
+		
+		ReferenceBean oth = (ReferenceBean)obj;
+		return timestamp.equals(oth.timestamp) && key.equals(oth.key);
 	}
 
 	public boolean isExpired() {
-		return false;
+		return timestamp.isExpired();
 	}
 }

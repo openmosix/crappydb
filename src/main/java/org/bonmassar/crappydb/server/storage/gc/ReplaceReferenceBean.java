@@ -21,12 +21,13 @@ package org.bonmassar.crappydb.server.storage.gc;
 import java.util.Set;
 
 import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.data.Timestamp;
 
 class ReplaceReferenceBean extends ReferenceBean {
 
-	private final Long oldExpire;
+	private final Timestamp oldExpire;
 
-	public ReplaceReferenceBean(Key k, long expire, long oldExpire) {
+	public ReplaceReferenceBean(Key k, Timestamp expire, Timestamp oldExpire) {
 		super(k, expire);
 		this.oldExpire = oldExpire;
 	}

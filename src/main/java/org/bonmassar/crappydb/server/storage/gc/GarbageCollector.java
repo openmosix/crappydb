@@ -19,13 +19,14 @@
 package org.bonmassar.crappydb.server.storage.gc;
 
 import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.data.Timestamp;
 
 public interface GarbageCollector {
 
-	void monitor(Key k, long expiration);
+	void monitor(Key k, Timestamp expiration);
 	
-	void replace(Key k, long expiration, long oldExpiration);
+	void replace(Key k, Timestamp expiration, Timestamp oldExpiration);
 	
-	void stop(Key k, long expiration);
+	void stop(Key k, Timestamp expiration);
 	
 }

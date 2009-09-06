@@ -18,6 +18,7 @@
 
 package org.bonmassar.crappydb.server.storage.data;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import junit.framework.TestCase;
@@ -31,7 +32,6 @@ public class TestTimestamp extends TestCase {
 
 		public MockTimestamp(long timestamp) {
 			super(timestamp);
-			// TODO Auto-generated constructor stub
 		}
 		
 		@Override
@@ -39,6 +39,38 @@ public class TestTimestamp extends TestCase {
 			return now;
 		}
 	}
+	
+	@Before
+	public void setUp() {
+		time = new Timestamp(1252243484L);
+	}
+	
+	@Test
+	public void testTimestampsAreEquals(){
+		assertEquals(time, new Timestamp(1252243484L) );
+	}
+	
+	@Test
+	public void testTimestampIdentityIsEqual(){
+		assertEquals(time, time);
+	}
+	
+	
+	@Test
+	public void testTimestampAreEqualsWithOtherObject(){
+		assertFalse(time.equals(new String("abcdef1234ghilmn")));
+	}
+	
+	@Test
+	public void testTimestampAreEqualsWithNullObject(){
+		assertFalse(time.equals(null));
+	}
+	
+	@Test
+	public void testTimestampWithDifferentTimestamp(){
+		assertFalse(time.equals(new Timestamp(2252243484L)));
+	}
+
 	
 	@Test
 	public void testWithAbsoluteTime() {
@@ -99,4 +131,46 @@ public class TestTimestamp extends TestCase {
 		assertFalse(time.isExpired());
 	}
 	
+	@Test
+	public void testCompareIdentity() {
+		time = new Timestamp(1267739498L);
+		assertTrue(time.compareTo(time)==0);
+	}
+	
+	@Test
+	public void testCompareLess() {
+		time = new Timestamp(1267739498L);
+		Timestamp time2 = new Timestamp(1267739497L);
+		assertTrue(time.compareTo(time2)>0);
+	}
+	
+	@Test
+	public void testCompareMore() {
+		time = new Timestamp(1267739498L);
+		Timestamp time2 = new Timestamp(1267739499L);
+		assertTrue(time.compareTo(time2)<0);		
+	}
+	
+	@Test
+	public void testCompareEquals() {
+		time = new Timestamp(1267739498L);
+		Timestamp time2 = new Timestamp(1267739498L);
+		assertTrue(time.compareTo(time2)==0);
+	}
+	
+	@Test
+	public void testHashcode() {
+		assertEquals(1252244011, time.hashCode());
+	}
+	
+	@Test
+	public void testCompareShouldThrowNPE(){
+		time = new Timestamp(1267739498L);
+		try{
+			time.compareTo(null);
+		}catch(NullPointerException npe){
+			return;
+		}
+		fail();
+	}
 }

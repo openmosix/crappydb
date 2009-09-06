@@ -21,10 +21,11 @@ package org.bonmassar.crappydb.server.storage.gc;
 import java.util.Set;
 
 import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.data.Timestamp;
 
 class DeleteReferenceBean extends ReferenceBean {
 
-	public DeleteReferenceBean(Key k, long expire) {
+	public DeleteReferenceBean(Key k, Timestamp expire) {
 		super(k, expire);
 	}
 

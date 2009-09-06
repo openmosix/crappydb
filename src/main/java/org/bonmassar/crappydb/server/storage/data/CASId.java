@@ -22,8 +22,8 @@ public interface CASId {
 	
 	/**
 	 * Compare this CASId with another CASId
-	 * If the two CASIds are identicals, the item was not updated
-	 * and the cas command succeds. If the two CASIds does not match,
+	 * If the two CASIds are identical, the item was not updated
+	 * and the cas command succeed. If the two CASIds does not match,
 	 * the item was updated and the transaction must be aborted.
 	 * 
 	 * @param otherCAS The second item involved in the transaction

@@ -38,6 +38,11 @@ public class TestKey {
 	}
 	
 	@Test
+	public void testKeysIdentityIsEqual(){
+		assertEquals(key, key);
+	}
+	
+	@Test
 	public void testKeysAreEqualsWithWhitespaces(){
 		assertEquals(key, new Key("          abcdef1234ghilmn        "));
 	}
@@ -74,6 +79,11 @@ public class TestKey {
 	public void testCompareEquals() {
 		Key key2 = new Key("abcdef1234ghilmn");
 		assertTrue(key.compareTo(key2)==0);
+	}
+	
+	@Test
+	public void testHashCode() {
+		assertEquals(-1675158567, key.hashCode());
 	}
 	
 	@Test
