@@ -108,7 +108,7 @@ public class TestItem extends TestCase {
 	@Test
 	public void testShouldBeExpired() {
 		item.setExpire(190L);
-		item.now = 1252101287L;
+		item.now = 1252101290L;
 		
 		assertTrue(item.isExpired());
 	}
@@ -116,7 +116,7 @@ public class TestItem extends TestCase {
 	@Test
 	public void testShouldNotBeExpired() {
 		item.setExpire(190L);
-		item.now = 1252101288L;
+		item.now = 1252101286L;
 		
 		assertFalse(item.isExpired());		
 	}

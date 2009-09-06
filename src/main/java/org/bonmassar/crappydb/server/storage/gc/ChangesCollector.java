@@ -26,7 +26,7 @@ import org.bonmassar.crappydb.server.storage.data.Key;
 import org.bonmassar.crappydb.server.storage.data.Timestamp;
 
 public class ChangesCollector implements GarbageCollector{
-	private Collection<ReferenceBean> incoming;
+	Collection<ReferenceBean> incoming;
 	
 	public ChangesCollector() {
 		incoming = new LinkedList<ReferenceBean>();

@@ -108,4 +108,44 @@ public class TestReferenceBean extends TestCase {
 		assertEquals(0, bean.compareTo(bean2));
 	}
 	
+	@Test
+	public void testEquals(){
+		Key k2 = new Key("terminenzio");
+		ReferenceBean bean2 = new ReferenceBean(k2, new Timestamp(1267739498L));
+
+		assertTrue(bean.equals(bean2));
+	}
+	
+	@Test
+	public void testNotEqualsDueToKey(){
+		Key k2 = new Key("terminenzio2");
+		ReferenceBean bean2 = new ReferenceBean(k2, new Timestamp(1267739498L));
+
+		assertFalse(bean.equals(bean2));
+	}
+	
+	@Test
+	public void testNotEqualsDueToTimestamp(){
+		Key k2 = new Key("terminenzio");
+		ReferenceBean bean2 = new ReferenceBean(k2, new Timestamp(1267739497L));
+
+		assertFalse(bean.equals(bean2));
+	}
+	
+	@Test
+	public void testEqualsIdentity() {
+		assertTrue(bean.equals(bean));
+	}
+	
+	@Test
+	public void testEqualsWithDifferentObjType() {
+		assertFalse(bean.equals(new String("blabla")));
+	}
+	
+	@Test
+	public void testHashCode() {
+		assertEquals(2030780405, bean.hashCode());
+	}
+	
+	
 }

@@ -111,7 +111,7 @@ public class TestTimestamp extends TestCase {
 	@Test
 	public void testShouldBeExpired() {
 		time = new MockTimestamp(190L);
-		this.now = 1252101287L;
+		this.now = 1252101290L;
 		
 		assertTrue(time.isExpired());
 	}
@@ -119,7 +119,7 @@ public class TestTimestamp extends TestCase {
 	@Test
 	public void testShouldNotBeExpired() {
 		time = new MockTimestamp(190L);
-		this.now = 1252101288L;
+		this.now = 1252101286L;
 		
 		assertFalse(time.isExpired());		
 	}

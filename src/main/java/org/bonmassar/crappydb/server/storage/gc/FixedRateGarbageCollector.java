@@ -22,12 +22,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.bonmassar.crappydb.server.ShutdownExecutionRegister;
 import org.bonmassar.crappydb.server.storage.Expirable;
 
 public class FixedRateGarbageCollector {
 	
-	private final static long initialGCDelay = 60;	//1 Minute
-	private final static long gcRate = 6*60;	//Every 6 minutes, 10 times/hour
+	private final long initialGCDelay;	
+	private final long gcRate;
 	
 	private static class GCTask implements Runnable {
 
@@ -48,12 +49,15 @@ public class FixedRateGarbageCollector {
 	private final InternalGarbageCollector garbageCollector;
 	
 	public FixedRateGarbageCollector(Expirable container) {
-		this(Executors.newScheduledThreadPool(1), new InternalGarbageCollector(container));
+		this(Executors.newScheduledThreadPool(1), new InternalGarbageCollector(container), 60 /* 1 min */, 6*60 /* 10 times/hour */);
 	}
 	
-	public FixedRateGarbageCollector(ScheduledExecutorService executorService, InternalGarbageCollector collector){
+	public FixedRateGarbageCollector(ScheduledExecutorService executorService, InternalGarbageCollector collector, long initialDelay, long gcRate){
 		this.scheduler = executorService;
 		this.garbageCollector = collector;
+		this.initialGCDelay = initialDelay;
+		this.gcRate = gcRate;
+		ShutdownExecutionRegister.Registry.INSTANCE.book(executorService);
 	}
 	
 	public GarbageCollector getGCRef() {

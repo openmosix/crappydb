@@ -18,27 +18,46 @@
 
 package org.bonmassar.crappydb.server.storage.gc;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import java.util.Set;
 
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.bonmassar.crappydb.server.storage.data.Timestamp;
+import org.junit.Test;
 
-class ReplaceReferenceBean extends ReferenceBean {
+import junit.framework.TestCase;
 
-	private final Timestamp oldExpire;
-
-	public ReplaceReferenceBean(Key k, Timestamp expire, Timestamp oldExpire) {
-		super(k, expire);
-		if(null == oldExpire)
-			throw new NullPointerException();
-		
-		this.oldExpire = oldExpire;
+public class TestDeleteReferenceBean extends TestCase {
+	@Test
+	public void testShouldThrowNPEWithoutKey() {
+		try{
+			new DeleteReferenceBean(null, new Timestamp(123L));
+		}catch(NullPointerException npe){
+			return;
+		}
+		fail();
 	}
-
-	@Override
-	public void visit(Set<ReferenceBean> timerlist) {
-		timerlist.remove(new ReferenceBean(key, oldExpire));
-		timerlist.add(this);
+	
+	@Test
+	public void testShouldThrowNPEWithoutTimestamp() {
+		try{
+			new DeleteReferenceBean(new Key("terminenzio"), null);
+		}catch(NullPointerException npe){
+			return;
+		}
+		fail();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testVisit(){
+		Set<ReferenceBean> treemap = mock(Set.class);
+		ReferenceBean bean = new DeleteReferenceBean(new Key("terminenzio"), new Timestamp(1267739499L));
+		bean.visit(treemap);
+		verify(treemap, times(1)).remove(new ReferenceBean(new Key("terminenzio"), new Timestamp(1267739499L)));
 	}
 
 }

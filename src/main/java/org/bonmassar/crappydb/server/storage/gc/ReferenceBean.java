@@ -58,8 +58,9 @@ class ReferenceBean implements Comparable<ReferenceBean>{
 	
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
-		return super.hashCode();
+		int result = 17;
+		result = 31 * result + key.hashCode();
+		return 31 * result + timestamp.hashCode(); 
 	}
 	
 	@Override

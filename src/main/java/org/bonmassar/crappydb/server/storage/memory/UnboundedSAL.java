@@ -28,7 +28,7 @@ import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
-public class InMemoryUnboundedSAL implements StorageAccessLayer {
+public class UnboundedSAL implements StorageAccessLayer {
 	
 	//private UnboundedMap storage;
 	//private TimeQueue expire;

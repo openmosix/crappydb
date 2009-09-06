@@ -40,7 +40,7 @@ public class Timestamp implements Comparable<Timestamp>{
 	}
 	
 	public boolean isExpired() {
-		return timestamp > 0 && timestamp > now() ;
+		return timestamp > 0 && timestamp < now();
 	}
 	
 	public long getExpire() {

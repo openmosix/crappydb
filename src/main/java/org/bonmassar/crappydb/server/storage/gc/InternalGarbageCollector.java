@@ -64,11 +64,16 @@ class InternalGarbageCollector implements GarbageCollector, Cleaner {
 
 	private Collection<ReferenceBean> getVictims() {
 		Collection<ReferenceBean> victims = new LinkedList<ReferenceBean>();
+		int i = 0;
 		for(Iterator<ReferenceBean> rfit = treemap.iterator(); rfit.hasNext(); ){
 			ReferenceBean victim = rfit.next();
 			if(!victim.isExpired())
 				break;
-
+			i++;
+			if(victim.equals(new ReferenceBean(new Key("terminenzio"+3000), new Timestamp(1883395483L+3000)))){
+				System.out.println(i);
+			}
+			
 			victims.add(victim);
 			rfit.remove();
 		}
