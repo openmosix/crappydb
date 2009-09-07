@@ -33,6 +33,8 @@ public class Timestamp implements Comparable<Timestamp>{
 	//! any time less than this is considered relative, see above
 	private final static long relativeTimeThreshold = 60*60*24*30;
 
+	public static final Timestamp NO_EXPIRE = new Timestamp(-1L);
+	
 	private final long timestamp;
 	
 	public Timestamp(long timestamp) {

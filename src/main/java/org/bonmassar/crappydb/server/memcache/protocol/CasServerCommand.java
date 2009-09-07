@@ -40,8 +40,7 @@ class CasServerCommand extends ServerCommandWithPayload {
 	public void execCommand() {
 		logger.debug("Executed command cas");
 
-		Item it = new Item(getKey(), getPayload(), getFlags());
-		it.setExpire(getExpire());
+		Item it = new Item(getKey(), getPayload(), getFlags(), getExpire());
 		try {
 			storage.swap(it, transactionId());
 			channel.writeToOutstanding("STORED\r\n");

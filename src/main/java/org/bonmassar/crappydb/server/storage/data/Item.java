@@ -18,24 +18,27 @@
 
 package org.bonmassar.crappydb.server.storage.data;
 
-
-
 public class Item {
 	
 	private final Key storagekey;
-	private int flags;
-	private byte[] data;
-	protected Timestamp expire;
+	private final int flags;
+	private final byte[] data;
+	protected final Timestamp expire;
 	
-	public Item(Key storagekey, byte[] data, int flags){
+	public Item(final Key storagekey, final byte[] data, int flags){
+		this(storagekey, data, flags, -1L);
+	}
+	
+	public Item(final Key storagekey, final byte[] data, int flags, long expire){
 		this.storagekey = storagekey;
-		init(data, flags);
+		if (null==storagekey)
+			throw new NullPointerException();
+		
+		this.data = data;
+		this.flags = flags;
+		this.expire = getTimestamp(expire);
 	}
-	
-	public void setExpire(long newexpire){
-		this.expire = new Timestamp(newexpire);
-	}
-	
+		
 	public long getExpire(){
 		if(null == expire)
 			return 0L;
@@ -49,14 +52,6 @@ public class Item {
 	
 	public byte[] getData() {
 		return data;
-	}
-	
-	public void setData(byte[] newdata){
-		data = newdata;
-	}
-	
-	public void setFlags(int flags){
-		this.flags = flags;
 	}
 	
 	public int getFlags() {
@@ -74,13 +69,10 @@ public class Item {
 		return expire.isExpired();
 	}
 	
-	
-	private void init( byte[] data, int flags){
-		if (null==storagekey)
-			throw new NullPointerException();
+	protected Timestamp getTimestamp(long expire){
+		if(expire <= 0)
+			return Timestamp.NO_EXPIRE;
 		
-		this.data = data;
-		this.flags = flags;
+		return new Timestamp(expire);
 	}
-	
 }

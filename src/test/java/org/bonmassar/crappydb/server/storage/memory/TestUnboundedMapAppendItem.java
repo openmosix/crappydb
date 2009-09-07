@@ -66,8 +66,7 @@ public class TestUnboundedMapAppendItem extends TestCase {
 	public void testAppendNull() throws NotStoredException, StorageException, NotFoundException {
 		Item it = getDataToAdd();
 		um.add(it);
-		Item mit = getDataToAppend();
-		mit.setData(null);
+		Item mit = new Item (new Key("Yuppi"), null, 0);
 		um.append(mit);
 		assertEquals("some data", new String( um.get(Arrays.asList(new Key("Yuppi"))).get(0).getData() ));
 	}
@@ -83,8 +82,7 @@ public class TestUnboundedMapAppendItem extends TestCase {
 	
 	@Test
 	public void testAppendWithPreviousNull() throws NotStoredException, StorageException, NotFoundException {
-		Item it = getDataToAdd();
-		it.setData(null);
+		Item it = new Item (new Key("Yuppi"), null, 0);
 		um.add(it);
 		Item mit = getDataToAppend();
 		um.append(mit);
@@ -93,8 +91,7 @@ public class TestUnboundedMapAppendItem extends TestCase {
 	
 	@Test
 	public void testAppendWithPreviousEmpty() throws NotStoredException, StorageException, NotFoundException {
-		Item it = getDataToAdd();
-		it.setData("".getBytes());
+		Item it = new Item (new Key("Yuppi"), "".getBytes(), 0);
 		um.add(it);
 		Item mit = getDataToAppend();
 		um.append(mit);

@@ -36,8 +36,7 @@ class ReplaceServerCommand extends ServerCommandWithPayload {
 	public void execCommand() {
 		logger.debug("Executed command replace");
 
-		Item it = new Item(getKey(), getPayload(), getFlags());
-		it.setExpire(getExpire());
+		Item it = new Item(getKey(), getPayload(), getFlags(), getExpire());
 		try {
 			storage.replace(it);
 			channel.writeToOutstanding("STORED\r\n");

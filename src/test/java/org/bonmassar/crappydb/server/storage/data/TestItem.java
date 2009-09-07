@@ -26,14 +26,14 @@ import junit.framework.TestCase;
 public class TestItem extends TestCase {
 
 	private static class MockItem extends Item {
-		
-		public long now = 1252101098L;
+
+		public static long now = 1252101098L;
 		
 		private class MockTimestamp extends Timestamp {
 
+			
 			public MockTimestamp(long timestamp) {
 				super(timestamp);
-				// TODO Auto-generated constructor stub
 			}
 			
 			@Override
@@ -46,9 +46,13 @@ public class TestItem extends TestCase {
 			super(storagekey, data, flags);
 		}
 		
+		public MockItem(Key storagekey, byte[] data, int flags, long expire) {
+			super(storagekey, data, flags, expire);
+		}
+		
 		@Override
-		public void setExpire(long newexpire) {
-			expire = new MockTimestamp(newexpire);
+		protected Timestamp getTimestamp(long expire){
+			return new MockTimestamp(expire);
 		}
 	}
 	
@@ -71,61 +75,60 @@ public class TestItem extends TestCase {
 	
 	@Test
 	public void testWithAbsoluteTime() {
-		item.setExpire(1267739498L);
+		item = new MockItem(new Key("terminenzio"), "somepayload".getBytes(), 122, 1267739498L);
 		assertEquals(1267739498L, item.getExpire());
 	}
 	
 	@Test
 	public void testWithRelativeTime() {
-		item.setExpire(190L);
+		item = new MockItem(new Key("terminenzio"), "somepayload".getBytes(), 122, 190L);
 		assertEquals(1252101288L, item.getExpire());
 	}
 	
 	@Test
 	public void testWithNullTime() {
-		item.setExpire(0L);
+		item = new MockItem(new Key("terminenzio"), "somepayload".getBytes(), 122, 0L);
 		assertEquals(0L, item.getExpire());
 	}
 	
 	@Test
 	public void testWithNegativeTime() {
-		item.setExpire(-20L);
+		item = new MockItem(new Key("terminenzio"), "somepayload".getBytes(), 122, -20L);
 		assertEquals(0L, item.getExpire());
 	}
 	
 	@Test
 	public void testWithThresholdTime() {
-		item.setExpire(30*24*60*60);
+		item = new MockItem(new Key("terminenzio"), "somepayload".getBytes(), 122, 30*24*60*60L);
 		assertEquals(1254693098L, item.getExpire());
 	}
 	
 	@Test
 	public void testWithThresholdTimePlus1() {
-		item.setExpire(30*24*60*60+1);
+		item = new MockItem(new Key("terminenzio"), "somepayload".getBytes(), 122, 30*24*60*60L+1);
 		assertEquals(2592001L, item.getExpire());
 	}
 	
 	@Test
 	public void testShouldBeExpired() {
-		item.setExpire(190L);
-		item.now = 1252101290L;
+		item = new MockItem(new Key("terminenzio"), "somepayload".getBytes(), 122, 190L);
+		MockItem.now = 1252101290L;
 		
 		assertTrue(item.isExpired());
 	}
 	
 	@Test
 	public void testShouldNotBeExpired() {
-		item.setExpire(190L);
-		item.now = 1252101286L;
+		item = new MockItem(new Key("terminenzio"), "somepayload".getBytes(), 122, 190L);
+		MockItem.now = 1252101286L;
 		
 		assertFalse(item.isExpired());		
 	}
 	
 	@Test
 	public void testShouldNeverExpire() {
-		item.setExpire(0L);
+		item = new MockItem(new Key("terminenzio"), "somepayload".getBytes(), 122, 0L);
 		
 		assertFalse(item.isExpired());
 	}
-	
 }

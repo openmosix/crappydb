@@ -31,8 +31,7 @@ class AddServerCommand extends ServerCommandWithPayload {
 	public void execCommand() {
 		logger.debug("Executed command add");
 
-		Item it = new Item(getKey(), getPayload(), getFlags());
-		it.setExpire(getExpire());
+		Item it = new Item(getKey(), getPayload(), getFlags(), getExpire());
 		try {
 			storage.add(it);
 			channel.writeToOutstanding("STORED\r\n");

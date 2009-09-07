@@ -76,8 +76,7 @@ public class TestUnboundedMapDecrItem extends TestCase {
 	
 	@Test
 	public void testDecrementBaseNull() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		it.setData(null);
+		Item it = new Item (new Key("terminenzio"), null, 0);
 		um.add(it);
 		Item resp = um.decrease(new Key("terminenzio"), "42");
 		assertEquals("0", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
@@ -86,8 +85,7 @@ public class TestUnboundedMapDecrItem extends TestCase {
 	
 	@Test
 	public void testDecrementBaseEmpty() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		it.setData(new byte[0]);
+		Item it = new Item (new Key("terminenzio"), new byte[0], 0);
 		um.add(it);
 		Item resp = um.decrease(new Key("terminenzio"), "42");
 		assertEquals("0", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
@@ -96,8 +94,7 @@ public class TestUnboundedMapDecrItem extends TestCase {
 	
 	@Test
 	public void testDecrementBaseInvalid() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		it.setData("mucca".getBytes());
+		Item it = new Item (new Key("terminenzio"), "mucca".getBytes(), 0);
 		um.add(it);
 		Item resp = um.decrease(new Key("terminenzio"), "42");
 		assertEquals("0", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
@@ -133,8 +130,7 @@ public class TestUnboundedMapDecrItem extends TestCase {
 	
 	@Test
 	public void testDecrementWithBigNumber() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		it.setData("100000042".getBytes());
+		Item it = new Item (new Key("terminenzio"), "100000042".getBytes(), 0);
 		um.add(it);
 		Item resp = um.decrease(new Key("terminenzio"), "100000000");
 		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));

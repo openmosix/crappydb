@@ -82,8 +82,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 	
 	@Test
 	public void testIncrementBaseNull() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		it.setData(null);
+		Item it = new Item ( new Key("terminenzio"), null, 0);
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "42");
 		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
@@ -92,8 +91,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 	
 	@Test
 	public void testIncrementBaseEmpty() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		it.setData(new byte[0]);
+		Item it = new Item ( new Key("terminenzio"), new byte[0], 0);
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "42");
 		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
@@ -102,8 +100,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 	
 	@Test
 	public void testIncrementBaseInvalid() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		it.setData("mucca".getBytes());
+		Item it = new Item ( new Key("terminenzio"), "mucca".getBytes(), 0);
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "42");
 		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));

@@ -38,8 +38,7 @@ public class TestUnboundedMapSwap extends TestCase {
 	@Before
 	public void setUp() throws StorageException{
 		um = new UnboundedMap();
-		previt = new Item(new Key("Terminenzio"), "This is the payload.".getBytes(), 22);
-		previt.setExpire(1252101098);
+		previt = new Item(new Key("Terminenzio"), "This is the payload.".getBytes(), 22, 1252101098L);
 		um.set( previt );
 	}
 	
@@ -99,8 +98,7 @@ public class TestUnboundedMapSwap extends TestCase {
 	
 	@Test
 	public void testRainbow() throws NotFoundException, ExistsException, StorageException {
-		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88);
-		it.setExpire(1252101098);
+		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 1252101098L);
 		um.swap(it, "11049584231");
 		
 		assertEquals("new payload", new String(um.get(Arrays.asList(new Key("Terminenzio"))).get(0).getData()));
@@ -110,13 +108,12 @@ public class TestUnboundedMapSwap extends TestCase {
 	
 	@Test
 	public void testChangedPayload() throws NotFoundException, StorageException {
-		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88);
-		it.setExpire(6666);
+		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 6666L);
 		
-		previt.setData("other payload".getBytes());
+		um.set(new Item(previt.getKey(), "other payload".getBytes(), previt.getFlags()));
 		
 		try {
-			um.swap(it, "9798483132");
+			um.swap(it, "11049584231");
 			fail();
 		} catch (ExistsException e) {
 			return;
@@ -125,13 +122,13 @@ public class TestUnboundedMapSwap extends TestCase {
 	
 	@Test
 	public void testChangedExpiration() throws NotFoundException, StorageException {
-		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88);
-		it.setExpire(6666);
+		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 6666);
 		
-		previt.setExpire(999998);
+		Item newit = new Item(previt.getKey(), previt.getData(), 999998, 1252101298);
+		um.set(newit);
 		
 		try {
-			um.swap(it, "9798483132");
+			um.swap(it, "11049584231");
 			fail();
 		} catch (ExistsException e) {
 			return;
@@ -140,13 +137,12 @@ public class TestUnboundedMapSwap extends TestCase {
 	
 	@Test
 	public void testChangedFlags() throws NotFoundException, StorageException {
-		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88);
-		it.setExpire(6666);
+		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 6666);
 		
-		previt.setFlags(999998);
+		um.set(new Item(previt.getKey(), previt.getData(), 999998));
 		
 		try {
-			um.swap(it, "9798483132");
+			um.swap(it, "11049584231");
 			fail();
 		} catch (ExistsException e) {
 			return;

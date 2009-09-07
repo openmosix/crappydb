@@ -66,8 +66,10 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		Item prevstored = null;
 		synchronized(repository){
 			prevstored = getPreviousStored(item);
-			if(null != prevstored)
-				prevstored.setData(concatData(prevstored, item));
+			if(null != prevstored){
+				Item newItem = new Item(prevstored.getKey(), concatData(prevstored, item), prevstored.getFlags());
+				repository.put(prevstored.getKey(), newItem);
+			}
 		}
 		DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
 	}
@@ -77,8 +79,10 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		Item prevstored = null;
 		synchronized(repository){
 			prevstored = getPreviousStored(item);
-			if(null != prevstored)
-				prevstored.setData(concatData(item, prevstored));
+			if(null != prevstored){
+				Item newItem = new Item(prevstored.getKey(), concatData(item, prevstored), prevstored.getFlags());
+				repository.put(prevstored.getKey(), newItem);
+			}
 		}
 		DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
 	}
@@ -159,20 +163,22 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 	public Item decrease(Key id, String value) throws NotFoundException,
 			StorageException {
 		synchronized(repository){
-			Item it = blowIdInvalidIdOrWrongValue(id, value);
-			String data = getDataAsString(it.getData());
-			it.setData(BigDecrementer.decr(data, value).getBytes());
-			return it;
+			Item oldItem = blowIdInvalidIdOrWrongValue(id, value);
+			String data = getDataAsString(oldItem.getData());
+			Item newItem = new Item(oldItem.getKey(), BigDecrementer.decr(data, value).getBytes(), oldItem.getFlags());
+			repository.put(oldItem.getKey(), newItem);			
+			return newItem;
 		}
 	}
 
 	public Item increase(Key id, String value) throws NotFoundException,
 			StorageException {
 		synchronized(repository){	
-			Item it = blowIdInvalidIdOrWrongValue(id, value);
-			String data = getDataAsString(it.getData());
-			it.setData(BigIncrementer.incr(data, value).getBytes());
-			return it;
+			Item oldItem = blowIdInvalidIdOrWrongValue(id, value);
+			String data = getDataAsString(oldItem.getData());
+			Item newItem = new Item(oldItem.getKey(), BigIncrementer.incr(data, value).getBytes(), oldItem.getFlags());
+			repository.put(oldItem.getKey(), newItem);			
+			return newItem;
 		}
 	}
 	

@@ -37,8 +37,7 @@ class PrependServerCommand extends ServerCommandWithPayload {
 	public void execCommand() {
 		logger.debug("Executed command replace");
 
-		Item it = new Item(getKey(), getPayload(), getFlags());
-		it.setExpire(getExpire());
+		Item it = new Item(getKey(), getPayload(), getFlags(), getExpire());
 		try {
 			storage.prepend(it);
 			channel.writeToOutstanding("STORED\r\n");

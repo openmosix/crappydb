@@ -26,14 +26,15 @@ public class Key implements Comparable<Key> {
 	 */
 	private final static int MAX_KEY_SIZE=250;
 
-	private String value;
+	private final String key;
 	
-	public Key(String value){
-		importKeyValue(value);
+	public Key(final String value){
+		checkInvalidKey(value);
+		key = truncateKeyIfLongerMaximumSize(value.trim()); 
 	}
 	
 	public String toString() {
-		return value;
+		return key;
 	}
 
 	@Override
@@ -44,41 +45,31 @@ public class Key implements Comparable<Key> {
 		if(this == dest)
 			return true;
 
-		return value.equals(((Key)dest).value);
+		return key.equals(((Key)dest).key);
 	}
 
 	@Override
 	public int hashCode() {
-		return 31 * 17 + value.hashCode();
+		return 31 * 17 + key.hashCode();
 	}
 	
 	public int compareTo(Key k) {
 		if(null == k)
 			throw new NullPointerException();
 		
-		return value.compareTo(k.value);
+		return key.compareTo(k.key);
 	}
 	
-	private void importKeyValue(String value) {
-		this.value = value;
-		checkInvalidKey();
-		cleanupKey();
-		truncateKeyIfLongerMaximumSize(); 
-	}
-
-	private void cleanupKey() {
-		value = value.trim();
-	}
-
-	private void checkInvalidKey() {
+	
+	private void checkInvalidKey(String value) {
 		if(null == value || 0 == value.trim().length())
 			throw new IllegalArgumentException("Storage key cannot be null.");	
 	}
 	
-	private void truncateKeyIfLongerMaximumSize() {
+	private String truncateKeyIfLongerMaximumSize(String value) {
 		if(value.length() <= MAX_KEY_SIZE)
-			return;
+			return value;
 		
-		value = value.substring(0, MAX_KEY_SIZE);
+		return value.substring(0, MAX_KEY_SIZE);
 	}
 }

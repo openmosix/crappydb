@@ -31,8 +31,7 @@ class SetServerCommand extends ServerCommandWithPayload {
 	public void execCommand() {
 		logger.debug("Executed command set");
 
-		Item it = new Item(getKey(), getPayload(), getFlags());
-		it.setExpire(getExpire());
+		Item it = new Item(getKey(), getPayload(), getFlags(), getExpire());
 		try {
 			storage.set(it);
 			channel.writeToOutstanding("STORED\r\n");
