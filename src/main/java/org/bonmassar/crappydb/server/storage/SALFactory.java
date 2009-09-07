@@ -30,17 +30,15 @@ import org.bonmassar.crappydb.server.storage.memory.UnboundedMap;
 public class SALFactory {
 	
 	public enum Catalogue {
-		INMEMORY_UNBOUNDED_FIXED_RATE_GC(SALImpl.class, UnboundedMap.class, FixedRateGarbageCollector.class),
-		INMEMORY_UNBOUNDED_NO_GC(SALImpl.class, UnboundedMap.class, NullGarbageCollectorScheduler.class);
+		INMEMORY_UNBOUNDED_FIXED_RATE_GC(UnboundedMap.class, FixedRateGarbageCollector.class),
+		INMEMORY_UNBOUNDED_NO_GC(UnboundedMap.class, NullGarbageCollectorScheduler.class);
 
 		private final static Logger log = Logger.getLogger(SALFactory.class);
 		
-		private final Class<?> sal;
 		private final Class<?> storage;
 		private final Class<?> gc;
 		
-		private Catalogue(Class<?> sal, Class<?> storage, Class<?> gc) {
-			this.sal = sal;
+		private Catalogue(Class<?> storage, Class<?> gc) {
 			this.storage = storage;
 			this.gc = gc;
 		}
@@ -53,11 +51,10 @@ public class SALFactory {
 				log.fatal("Cannot instantiate required sal", e);
 			}
 			
-			StorageAccessLayer salimpl = build( sal, StorageAccessLayer.class, intstorage);
-			GarbageCollectorScheduler scheduler = build(gc, Expirable.class, salimpl);
-			((SALBuilder)salimpl).setGarbageCollector(scheduler);
+			GarbageCollectorScheduler scheduler = build(gc, Expirable.class, intstorage);
+			((SALBuilder)intstorage).setGarbageCollector(scheduler);
 			scheduler.startGC();
-			return salimpl;
+			return intstorage;
 		}
 		
 		

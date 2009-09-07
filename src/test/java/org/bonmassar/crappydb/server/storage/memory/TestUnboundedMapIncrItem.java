@@ -24,6 +24,8 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
+import java.util.Arrays;
+
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
@@ -84,7 +86,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 		it.setData(null);
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "42");
-		assertEquals("42", new String( um.repository.get(new Key("terminenzio")).getData() ));
+		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
 		assertEquals("42", new String(resp.getData()));
 	}
 	
@@ -94,7 +96,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 		it.setData(new byte[0]);
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "42");
-		assertEquals("42", new String( um.repository.get(new Key("terminenzio")).getData() ));
+		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
 		assertEquals("42", new String(resp.getData()));
 	}
 	
@@ -104,7 +106,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 		it.setData("mucca".getBytes());
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "42");
-		assertEquals("42", new String( um.repository.get(new Key("terminenzio")).getData() ));
+		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
 		assertEquals("42", new String(resp.getData()));
 	}
 	
@@ -113,7 +115,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 		Item it = getDataToAdd();
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "0");
-		assertEquals("42", new String( um.repository.get(new Key("terminenzio")).getData() ));
+		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
 		assertEquals("42", new String(resp.getData()));
 	}
 	
@@ -122,7 +124,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 		Item it = getDataToAdd();
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "-10");
-		assertEquals("42", new String( um.repository.get(new Key("terminenzio")).getData() ));
+		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
 		assertEquals("42", new String(resp.getData()));
 	}
 	
@@ -131,7 +133,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 		Item it = getDataToAdd();
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "mucca");
-		assertEquals("42", new String( um.repository.get(new Key("terminenzio")).getData() ));
+		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
 		assertEquals("42", new String(resp.getData()));
 	}
 	
@@ -140,7 +142,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 		Item it = getDataToAdd();
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "100000000");
-		assertEquals("100000042", new String( um.repository.get(new Key("terminenzio")).getData() ));
+		assertEquals("100000042", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
 		assertEquals("100000042", new String(resp.getData()));
 	}
 	
@@ -149,7 +151,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 		Item it = getDataToAdd();
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "18446744073709551610");
-		assertEquals("36", new String( um.repository.get(new Key("terminenzio")).getData() ));
+		assertEquals("36", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
 		assertEquals("36", new String(resp.getData()));
 	}
 	
@@ -158,7 +160,7 @@ public class TestUnboundedMapIncrItem extends TestCase {
 		Item it = getDataToAdd();
 		um.add(it);
 		Item resp = um.increase(new Key("terminenzio"), "18446744073709551616");
-		assertEquals("42", new String( um.repository.get(new Key("terminenzio")).getData() ));
+		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
 		assertEquals("42", new String(resp.getData()));
 	}
 	

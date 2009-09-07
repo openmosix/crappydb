@@ -18,6 +18,8 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
+import java.util.Arrays;
+
 import junit.framework.TestCase;
 
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
@@ -52,8 +54,7 @@ public class TestUnboundedMapAddItem  extends TestCase{
 		try {
 			Item it = getDataToAdd();
 			um.add(it);
-			assertEquals(1, um.repository.size());
-			assertEquals(it, um.repository.get(it.getKey()));
+			assertEquals(it, um.get(Arrays.asList(it.getKey())).get(0));
 		} catch (Exception e) {
 			fail();
 		}

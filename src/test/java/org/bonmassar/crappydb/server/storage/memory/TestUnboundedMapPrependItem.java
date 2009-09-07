@@ -18,6 +18,8 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
+import java.util.Arrays;
+
 import junit.framework.TestCase;
 
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
@@ -67,7 +69,7 @@ public class TestUnboundedMapPrependItem extends TestCase {
 		Item mit = getDataToAppend();
 		mit.setData(null);
 		um.prepend(mit);
-		assertEquals("some data", new String( um.repository.get(new Key("Yuppi")).getData() ));
+		assertEquals("some data", new String( um.get(Arrays.asList(new Key("Yuppi"))).get(0).getData() ));
 	}
 	
 	@Test
@@ -76,7 +78,7 @@ public class TestUnboundedMapPrependItem extends TestCase {
 		um.add(it);
 		Item mit = getDataToAppend();
 		um.prepend(mit);
-		assertEquals(" some other more datasome data", new String( um.repository.get(new Key("Yuppi")).getData() ));
+		assertEquals(" some other more datasome data", new String( um.get(Arrays.asList(new Key("Yuppi"))).get(0).getData()  ));
 	}
 	
 	@Test
@@ -86,7 +88,7 @@ public class TestUnboundedMapPrependItem extends TestCase {
 		um.add(it);
 		Item mit = getDataToAppend();
 		um.prepend(mit);
-		assertEquals(" some other more data", new String( um.repository.get(new Key("Yuppi")).getData() ));
+		assertEquals(" some other more data", new String( um.get(Arrays.asList(new Key("Yuppi"))).get(0).getData()  ));
 	}
 	
 	@Test
@@ -96,7 +98,7 @@ public class TestUnboundedMapPrependItem extends TestCase {
 		um.add(it);
 		Item mit = getDataToAppend();
 		um.prepend(mit);
-		assertEquals(" some other more data", new String( um.repository.get(new Key("Yuppi")).getData() ));
+		assertEquals(" some other more data", new String( um.get(Arrays.asList(new Key("Yuppi"))).get(0).getData() ));
 	}
 	
 	private Item getDataToAdd(){

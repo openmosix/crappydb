@@ -18,6 +18,8 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
+import java.util.Arrays;
+
 import org.bonmassar.crappydb.server.exceptions.ExistsException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
@@ -34,11 +36,11 @@ public class TestUnboundedMapSwap extends TestCase {
 	private Item previt;
 	
 	@Before
-	public void setUp(){
+	public void setUp() throws StorageException{
 		um = new UnboundedMap();
 		previt = new Item(new Key("Terminenzio"), "This is the payload.".getBytes(), 22);
 		previt.setExpire(1252101098);
-		um.repository.put(new Key("Terminenzio"), previt);
+		um.set( previt );
 	}
 	
 	@Test
@@ -101,9 +103,9 @@ public class TestUnboundedMapSwap extends TestCase {
 		it.setExpire(1252101098);
 		um.swap(it, "11049584231");
 		
-		assertEquals("new payload", new String(um.repository.get(new Key("Terminenzio")).getData()));
-		assertEquals(88, um.repository.get(new Key("Terminenzio")).getFlags());
-		assertEquals(1252101098, um.repository.get(new Key("Terminenzio")).getExpire());
+		assertEquals("new payload", new String(um.get(Arrays.asList(new Key("Terminenzio"))).get(0).getData()));
+		assertEquals(88, um.get(Arrays.asList(new Key("Terminenzio"))).get(0).getFlags());
+		assertEquals(1252101098, um.get(Arrays.asList(new Key("Terminenzio"))).get(0).getExpire());
 	}
 	
 	@Test
