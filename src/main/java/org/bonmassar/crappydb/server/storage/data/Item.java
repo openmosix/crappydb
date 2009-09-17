@@ -68,7 +68,7 @@ public class Item {
 		
 		return expire.isExpired();
 	}
-	
+		
 	protected Timestamp getTimestamp(long expire){
 		if(expire <= 0)
 			return Timestamp.NO_EXPIRE;

@@ -46,6 +46,42 @@ public class TestTimestamp extends TestCase {
 	}
 	
 	@Test
+	public void testGetMinTimestampLess() {
+		Timestamp t = Timestamp.getMinTimestamp(2010608581, 2010608589);
+		assertEquals(2010608581, t.getExpire());
+	}
+	
+	@Test
+	public void testGetMinTimestampMore() {
+		Timestamp t = Timestamp.getMinTimestamp(2010608589, 2010608581);
+		assertEquals(2010608581, t.getExpire());
+	}
+	
+	@Test
+	public void testGetMinTimestampEquals() {
+		Timestamp t = Timestamp.getMinTimestamp(2010608581, 2010608581);
+		assertEquals(2010608581, t.getExpire());
+	}
+	
+	@Test
+	public void testGetMinTimestampLessT1Relative() {
+		Timestamp t = Timestamp.getMinTimestamp(10, 2010608581);
+		assertFalse(2010608581 == t.getExpire());
+	}
+	
+	@Test
+	public void testGetMinTimestampMoreT1Relative() {
+		Timestamp t = Timestamp.getMinTimestamp(2010608581, 10 );
+		assertFalse(2010608581 == t.getExpire());
+	}
+			
+	@Test
+	public void testGetMinTimestampLessBothRelative() {
+		Timestamp t = Timestamp.getMinTimestamp(1000000, 1000 );
+		assertFalse((System.currentTimeMillis() / 1000 + 1000) < t.getExpire());
+	}
+	
+	@Test
 	public void testTimestampsAreEquals(){
 		assertEquals(time, new Timestamp(1252243484L) );
 	}

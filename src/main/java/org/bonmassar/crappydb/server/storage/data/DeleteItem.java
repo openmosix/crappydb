@@ -17,10 +17,15 @@
 
 package org.bonmassar.crappydb.server.storage.data;
 
-public class DeleteItem extends Item {
+class DeleteItem extends Item {
 
-	public DeleteItem(Key storagekey, byte[] data, int flags, long expire) {
-		super(storagekey, data, flags, expire);
+	public DeleteItem(final Item item) {
+		super(item.getKey(), item.getData(), item.getFlags(), item.getExpire());
 	}
-
+	
+	public DeleteItem(final Item item, long whenToDelete) {
+		super(item.getKey(), item.getData(), item.getFlags(), 
+				Timestamp.getMinTimestamp(whenToDelete, item.getExpire()).getExpire());
+	}
+	
 }

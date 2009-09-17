@@ -41,6 +41,15 @@ public class Timestamp implements Comparable<Timestamp>{
 		this.timestamp = getAbsoluteTime(timestamp);
 	}
 	
+	public static Timestamp getMinTimestamp(long t1, long t2){
+		Timestamp tt1 = new Timestamp(t1);
+		Timestamp tt2 = new Timestamp(t2);
+		if(tt1.compareTo(tt2) <= 0)
+			return tt1;
+		
+		return tt2;
+	}
+	
 	public boolean isExpired() {
 		return timestamp > 0 && timestamp < now();
 	}
