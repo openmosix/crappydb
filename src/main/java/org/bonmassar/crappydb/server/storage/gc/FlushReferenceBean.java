@@ -18,16 +18,19 @@
 
 package org.bonmassar.crappydb.server.storage.gc;
 
+import java.util.ArrayList;
+import java.util.Set;
+
 import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.data.Timestamp;
 
-public interface GarbageCollector {
+class FlushReferenceBean extends ReferenceBean {
 
-	void monitor(Key k, long expiration);
-	
-	void replace(Key k, long expiration, long oldExpiration);
-	
-	void stop(Key k, long expiration);
-	
-	void flush();
-	
+	public FlushReferenceBean(Key k, Timestamp expire) {
+		super(k, expire);
+	}
+
+	public void visit(Set<ReferenceBean> timerlist) {
+		timerlist.retainAll(new ArrayList<ReferenceBean>());
+	}
 }

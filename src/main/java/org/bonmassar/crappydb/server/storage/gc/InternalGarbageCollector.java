@@ -44,16 +44,20 @@ class InternalGarbageCollector implements GarbageCollector, Cleaner {
 		this(container, new ChangesCollector(), new TreeSet<ReferenceBean>());
 	}
 	
-	public void monitor(Key k, Timestamp expiration) {
+	public void monitor(Key k, long expiration) {
 		changes.monitor(k, expiration);
 	}
 
-	public void replace(Key k, Timestamp oldExpiration, Timestamp expiration) {
+	public void replace(Key k, long oldExpiration, long expiration) {
 		changes.replace(k, expiration, oldExpiration);
 	}
 
-	public void stop(Key k, Timestamp expiration) {
+	public void stop(Key k, long expiration) {
 		changes.stop(k, expiration);
+	}
+	
+	public void flush() {
+		changes.flush();
 	}
 
 	public void expire() {

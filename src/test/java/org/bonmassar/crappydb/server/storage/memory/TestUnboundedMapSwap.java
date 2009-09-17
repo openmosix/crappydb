@@ -38,7 +38,7 @@ public class TestUnboundedMapSwap extends TestCase {
 	@Before
 	public void setUp() throws StorageException{
 		um = new UnboundedMap();
-		previt = new Item(new Key("Terminenzio"), "This is the payload.".getBytes(), 22, 1252101098L);
+		previt = new Item(new Key("Terminenzio"), "This is the payload.".getBytes(), 22, 1979072581L);
 		um.set( previt );
 	}
 	
@@ -85,7 +85,7 @@ public class TestUnboundedMapSwap extends TestCase {
 	public void testItemNotFound() {
 		Item it = new Item(new Key("terminenzio"), "some payload".getBytes(), 90);
 		try {
-			um.swap(it, "19112");
+			um.swap(it, "11776555714");
 			fail();
 		} catch (NotFoundException e) {
 			assertEquals("NOT_FOUND", e.clientResponse());
@@ -98,22 +98,22 @@ public class TestUnboundedMapSwap extends TestCase {
 	
 	@Test
 	public void testRainbow() throws NotFoundException, ExistsException, StorageException {
-		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 1252101098L);
-		um.swap(it, "11049584231");
+		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 2010608581L);
+		um.swap(it, "11776555714");
 		
 		assertEquals("new payload", new String(um.get(Arrays.asList(new Key("Terminenzio"))).get(0).getData()));
 		assertEquals(88, um.get(Arrays.asList(new Key("Terminenzio"))).get(0).getFlags());
-		assertEquals(1252101098, um.get(Arrays.asList(new Key("Terminenzio"))).get(0).getExpire());
+		assertEquals(2010608581L, um.get(Arrays.asList(new Key("Terminenzio"))).get(0).getExpire());
 	}
 	
 	@Test
 	public void testChangedPayload() throws NotFoundException, StorageException {
 		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 6666L);
 		
-		um.set(new Item(previt.getKey(), "other payload".getBytes(), previt.getFlags()));
+		um.set(new Item(previt.getKey(), "other payload".getBytes(), previt.getFlags(), 1979072581L));
 		
 		try {
-			um.swap(it, "11049584231");
+			um.swap(it, "11776555714");
 			fail();
 		} catch (ExistsException e) {
 			return;
@@ -124,11 +124,11 @@ public class TestUnboundedMapSwap extends TestCase {
 	public void testChangedExpiration() throws NotFoundException, StorageException {
 		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 6666);
 		
-		Item newit = new Item(previt.getKey(), previt.getData(), 999998, 1252101298);
+		Item newit = new Item(previt.getKey(), previt.getData(), 999998, 1979072281L);
 		um.set(newit);
 		
 		try {
-			um.swap(it, "11049584231");
+			um.swap(it, "11776555714");
 			fail();
 		} catch (ExistsException e) {
 			return;
@@ -139,10 +139,10 @@ public class TestUnboundedMapSwap extends TestCase {
 	public void testChangedFlags() throws NotFoundException, StorageException {
 		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 6666);
 		
-		um.set(new Item(previt.getKey(), previt.getData(), 999998));
+		um.set(new Item(previt.getKey(), previt.getData(), 999998, 1979072581L));
 		
 		try {
-			um.swap(it, "11049584231");
+			um.swap(it, "11776555714");
 			fail();
 		} catch (ExistsException e) {
 			return;

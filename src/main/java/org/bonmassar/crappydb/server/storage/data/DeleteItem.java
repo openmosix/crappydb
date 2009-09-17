@@ -1,5 +1,4 @@
-/*
- *  This file is part of CrappyDB-Server, 
+/*  This file is part of CrappyDB-Server, 
  *  developed by Luca Bonmassar <luca.bonmassar at gmail.com>
  *
  *  CrappyDB-Server is free software: you can redistribute it and/or modify
@@ -16,18 +15,12 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.storage.gc;
+package org.bonmassar.crappydb.server.storage.data;
 
-import org.bonmassar.crappydb.server.storage.data.Key;
+public class DeleteItem extends Item {
 
-public interface GarbageCollector {
+	public DeleteItem(Key storagekey, byte[] data, int flags, long expire) {
+		super(storagekey, data, flags, expire);
+	}
 
-	void monitor(Key k, long expiration);
-	
-	void replace(Key k, long expiration, long oldExpiration);
-	
-	void stop(Key k, long expiration);
-	
-	void flush();
-	
 }

@@ -49,12 +49,13 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		
 		this.gc = gc;
 	}
-
+	
 	public void add(Item item) throws NotStoredException, StorageException {
 		checkItem(item);
 		synchronized(repository){
 			blowIfItemExists(item);
 			repository.put(item.getKey(), item);
+			gc.getGCRef().monitor(item.getKey(), item.getExpire());
 		}
 		DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
 		DBStats.INSTANCE.getStorage().incrementNoItems();
@@ -67,8 +68,9 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		synchronized(repository){
 			prevstored = getPreviousStored(item);
 			if(null != prevstored){
-				Item newItem = new Item(prevstored.getKey(), concatData(prevstored, item), prevstored.getFlags());
+				Item newItem = new Item(prevstored.getKey(), concatData(prevstored, item), prevstored.getFlags(), item.getExpire());
 				repository.put(prevstored.getKey(), newItem);
+				gc.getGCRef().replace(item.getKey(), newItem.getExpire(), prevstored.getExpire());
 			}
 		}
 		DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
@@ -80,8 +82,9 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		synchronized(repository){
 			prevstored = getPreviousStored(item);
 			if(null != prevstored){
-				Item newItem = new Item(prevstored.getKey(), concatData(item, prevstored), prevstored.getFlags());
+				Item newItem = new Item(prevstored.getKey(), concatData(item, prevstored), prevstored.getFlags(), item.getExpire());
 				repository.put(prevstored.getKey(), newItem);
+				gc.getGCRef().replace(item.getKey(), newItem.getExpire(), prevstored.getExpire());
 			}
 		}
 		DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
@@ -92,9 +95,11 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		int oldSize = 0;
 		
 		synchronized(repository){
-			if (!repository.containsKey(item.getKey()))
+			Item prevItem = getItemAndDestroyItIfExpired(item.getKey());
+			if (null == prevItem)
 				throw new NotStoredException();
 			oldSize = size(repository.put(item.getKey(), item).getData());
+			gc.getGCRef().replace(item.getKey(), item.getExpire(), prevItem.getExpire());
 		}
 
 		DBStats.INSTANCE.getStorage().delBytes(oldSize);
@@ -107,7 +112,9 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 
 		synchronized(repository){
 			blowIfItemDoesNotExists(id);
-			oldSize = size(repository.remove(id).getData());
+			Item oldItem = repository.remove(id);
+			oldSize = size(oldItem.getData());
+			gc.getGCRef().stop(id, oldItem.getExpire());
 		}
 		
 		DBStats.INSTANCE.getStorage().delBytes(oldSize);
@@ -119,7 +126,7 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		List<Item> resp = new LinkedList<Item>();
 		for (Key k : ids) {
 			synchronized(repository){
-				resp.add(repository.get(k));
+				resp.add(getItemAndDestroyItIfExpired(k));
 			}
 		}
 
@@ -131,6 +138,7 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		Item olditem = null;
 		synchronized(repository) {
 			olditem = repository.put(item.getKey(), item);
+			gc.getGCRef().monitor(item.getKey(), item.getExpire());
 		}
 
 		if(null != olditem){
@@ -149,11 +157,13 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 			throw new StorageException("No CAS");
 		
 		synchronized(repository){
-			if(!repository.containsKey(item.getKey()))
+			Item prevItem = getItemAndDestroyItIfExpired(item.getKey());
+			if(null == prevItem)
 				throw new NotFoundException();
-			if(!repository.get(item.getKey()).generateCAS().compareTo(transactionid))
+			if(!prevItem.generateCAS().compareTo(transactionid))
 				throw new ExistsException();
-		
+			
+			gc.getGCRef().replace(item.getKey(), item.getExpire(), prevItem.getExpire());		
 			DBStats.INSTANCE.getStorage().delBytes(size(repository.put(item.getKey(), item).getData()));
 		}
 		
@@ -185,8 +195,22 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 	public void flush(Long time) {
 		synchronized(repository){
 			repository.clear();
+			gc.getGCRef().flush();
 		}
 		DBStats.INSTANCE.getStorage().reset();
+	}
+	
+	public void expire(Key k) {
+		if(null == k)
+			throw new NullPointerException("Key is null");
+
+		synchronized(repository){
+			Item item = repository.get(k);
+			if(null == item)
+				return;
+			if(item.isExpired())
+				repository.remove(k);
+		}
 	}
 
 	private String getDataAsString(byte[] data) {
@@ -196,16 +220,23 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 	private void checkItem(Item item) throws StorageException {
 		if (null == item)
 			throw new StorageException("Null item");
+		if (item.isExpired())
+			throw new StorageException("Item is expired");
 	}
 
 	private void blowIfItemExists(Item item) throws NotStoredException {
-		if (repository.containsKey(item.getKey()))
+		Item storedItem = getItemAndDestroyItIfExpired(item.getKey());
+		if (null != storedItem)
 			throw new NotStoredException();
 	}
 
-	private void blowIfItemDoesNotExists(Key k) throws NotFoundException {
-		if (!repository.containsKey(k))
+	private Item blowIfItemDoesNotExists(Key k) throws NotFoundException {
+		Item storedItem = getItemAndDestroyItIfExpired(k);
+
+		if (null == storedItem)
 			throw new NotFoundException();
+		
+		return storedItem;
 	}
 
 	private boolean noInternalData(Item item) {
@@ -218,13 +249,15 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 
 	private Item getPreviousStored(Item item) throws StorageException,
 			NotFoundException {
-		if (!repository.containsKey(item.getKey()))
+		Item prevItem = getItemAndDestroyItIfExpired(item.getKey());
+		
+		if (null == prevItem)
 			throw new NotFoundException();
 
 		if (noInternalData(item))
 			return null;
 
-		return repository.get(item.getKey());
+		return prevItem;
 	}
 
 	private byte[] concatData(Item prefix, Item postfix) {
@@ -252,10 +285,7 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		checkValidId(id);
 		if (null == value)
 			throw new StorageException("Null item");
-		blowIfItemDoesNotExists(id);
-
-		Item it = repository.get(id);
-		return it;
+		return blowIfItemDoesNotExists(id);
 	}
 
 	private int computeNewInternalDataLength(byte[] prefix, byte[] postfix) {
@@ -279,8 +309,15 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		return data.length;
 	}
 
-	public void expire(Key k) {
-		// TODO Auto-generated method stub
-		
+	private Item getItemAndDestroyItIfExpired(Key key){
+		Item item = repository.get(key);
+		if(null == item)
+			return null;
+		if(item.isExpired()){
+			repository.remove(key);
+			gc.getGCRef().stop(key, item.getExpire());
+			return null;
+		}
+		return item;
 	}
 }

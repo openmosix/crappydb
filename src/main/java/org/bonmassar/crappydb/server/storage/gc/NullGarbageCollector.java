@@ -19,14 +19,15 @@
 package org.bonmassar.crappydb.server.storage.gc;
 
 import org.bonmassar.crappydb.server.storage.data.Key;
-import org.bonmassar.crappydb.server.storage.data.Timestamp;
 
 class NullGarbageCollector implements GarbageCollector {
 
-	public void monitor(Key k, Timestamp expiration) {}
+	public void monitor(Key k, long expiration) {}
 
-	public void replace(Key k, Timestamp expiration, Timestamp oldExpiration) {}
+	public void replace(Key k, long expiration, long oldExpiration) {}
 
-	public void stop(Key k, Timestamp expiration) {}
+	public void stop(Key k, long expiration) {}
+
+	public void flush() {}
 
 }

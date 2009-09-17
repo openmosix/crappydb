@@ -76,13 +76,13 @@ public class TestChangesCollector extends TestCase {
 	
 	private void generateIncoming() {
 		for(int i = 0; i < 30; i++){
-			collector.monitor(new Key(baseKey+i), new Timestamp(baseTimestamp+i));
+			collector.monitor(new Key(baseKey+i), baseTimestamp+i);
 		}
 		for(int i = 30; i < 40; i++){
-			collector.replace(new Key(baseKey+i), new Timestamp(baseTimestamp+i), new Timestamp(baseTimestamp+1000*i));
+			collector.replace(new Key(baseKey+i), baseTimestamp+i, baseTimestamp+1000*i);
 		}
 		for(int i = 40; i < 50; i++){
-			collector.stop(new Key(baseKey+i), new Timestamp(baseTimestamp+i));
+			collector.stop(new Key(baseKey+i), baseTimestamp+i);
 		}
 	}
 }

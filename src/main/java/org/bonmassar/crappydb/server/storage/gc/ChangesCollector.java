@@ -32,35 +32,44 @@ public class ChangesCollector implements GarbageCollector{
 		incoming = new LinkedList<ReferenceBean>();
 	}
 
-	public void monitor(Key k, Timestamp expiration) {
-		ReferenceBean rb = new ReferenceBean(k, expiration);
+	public void monitor(Key k, long expiration) {
+		if(expiration <= 0)
+			return;
+		
+		ReferenceBean rb = new ReferenceBean(k, new Timestamp(expiration));
 		synchronized(this){
 			incoming.add(rb);
 		}
 	}
 
-	public void replace(Key k, Timestamp expiration, Timestamp oldExpiration) {
-		ReferenceBean rb = new ReplaceReferenceBean(k, expiration, oldExpiration);
-		synchronized(this){
-			incoming.add(rb);
-		}	
+	public void replace(Key k, long expiration, long oldExpiration) {
+		if(expiration <= 0 && oldExpiration <= 0)
+			return;
+		
+		ReferenceBean rb = new ReplaceReferenceBean(k, new Timestamp(expiration), new Timestamp(oldExpiration));
+		incoming.add(rb);
 	}
 
-	public void stop(Key k, Timestamp expiration) {
-		ReferenceBean rb = new DeleteReferenceBean(k, expiration);
-		synchronized(this){
-			incoming.add(rb);
-		}	
+	public void stop(Key k, long expiration) {
+		if(expiration <= 0)
+			return;
+
+		ReferenceBean rb = new DeleteReferenceBean(k, new Timestamp(expiration));
+		incoming.add(rb);
 	}
+
+	public void flush() {
+		incoming.add(new FlushReferenceBean(new Key("FAKEKEY"), new Timestamp(0)));
+	}
+
 	
 	public void visitIncoming(Set<ReferenceBean> timemap) {
 		Collection<ReferenceBean> prevIncoming = incoming;
-		synchronized(this){
-			incoming = new LinkedList<ReferenceBean>(); 
-		}
+		incoming = new LinkedList<ReferenceBean>(); 
 		
 		for(ReferenceBean bean : prevIncoming){
 			bean.visit(timemap);
 		}
 	}
+
 }
