@@ -17,7 +17,7 @@
 
 package org.bonmassar.crappydb.server.storage.data;
 
-class DeleteItem extends Item {
+public class DeleteItem extends Item {
 
 	public DeleteItem(final Item item) {
 		super(item.getKey(), item.getData(), item.getFlags(), item.getExpire());

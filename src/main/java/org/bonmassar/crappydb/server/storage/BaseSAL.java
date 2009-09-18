@@ -27,6 +27,7 @@ import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.stats.DBStats;
+import org.bonmassar.crappydb.server.storage.data.DeleteItem;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.bonmassar.crappydb.server.storage.gc.GarbageCollectorScheduler;
@@ -96,7 +97,7 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		
 		synchronized(repository){
 			Item prevItem = getItemAndDestroyItIfExpired(item.getKey());
-			if (null == prevItem)
+			if (null == prevItem || isDeleted(prevItem))
 				throw new NotStoredException();
 			oldSize = size(repository.put(item.getKey(), item).getData());
 			gc.getGCRef().replace(item.getKey(), item.getExpire(), prevItem.getExpire());
@@ -113,8 +114,14 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		synchronized(repository){
 			blowIfItemDoesNotExists(id);
 			Item oldItem = repository.remove(id);
-			oldSize = size(oldItem.getData());
-			gc.getGCRef().stop(id, oldItem.getExpire());
+			if(null == time || -1L == time){
+				oldSize = size(oldItem.getData());
+				gc.getGCRef().stop(id, oldItem.getExpire());
+			} else {
+				Item newItem = new DeleteItem( oldItem );
+				repository.put(id, newItem);
+				gc.getGCRef().replace(id, newItem.getExpire(), oldItem.getExpire());
+			}
 		}
 		
 		DBStats.INSTANCE.getStorage().delBytes(oldSize);
@@ -126,7 +133,9 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		List<Item> resp = new LinkedList<Item>();
 		for (Key k : ids) {
 			synchronized(repository){
-				resp.add(getItemAndDestroyItIfExpired(k));
+				Item it = getItemAndDestroyItIfExpired(k);
+				if(!isDeleted(it))
+					resp.add(it);
 			}
 		}
 
@@ -158,7 +167,7 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		
 		synchronized(repository){
 			Item prevItem = getItemAndDestroyItIfExpired(item.getKey());
-			if(null == prevItem)
+			if(null == prevItem || isDeleted(prevItem))
 				throw new NotFoundException();
 			if(!prevItem.generateCAS().compareTo(transactionid))
 				throw new ExistsException();
@@ -226,8 +235,12 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 
 	private void blowIfItemExists(Item item) throws NotStoredException {
 		Item storedItem = getItemAndDestroyItIfExpired(item.getKey());
-		if (null != storedItem)
+		if (null != storedItem || isDeleted(storedItem))
 			throw new NotStoredException();
+	}
+
+	private boolean isDeleted(Item storedItem) {
+		return storedItem instanceof DeleteItem;
 	}
 
 	private Item blowIfItemDoesNotExists(Key k) throws NotFoundException {
@@ -251,7 +264,7 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 			NotFoundException {
 		Item prevItem = getItemAndDestroyItIfExpired(item.getKey());
 		
-		if (null == prevItem)
+		if (null == prevItem || isDeleted(prevItem))
 			throw new NotFoundException();
 
 		if (noInternalData(item))
