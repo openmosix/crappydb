@@ -40,7 +40,7 @@ public class TestUnboundedMapDeleteItem  extends TestCase{
 	@Test
 	public void testNullObject() {
 		try {
-			um.delete(null);
+			um.delete(null, null);
 			fail();
 		} catch (StorageException e) {
 			assertEquals("StorageException [No valid id]", e.toString());
@@ -53,7 +53,7 @@ public class TestUnboundedMapDeleteItem  extends TestCase{
 	public void getInvalidKey() throws NotStoredException, StorageException {
 		preloadRepository();
 		try {
-			um.delete(new Key("Miao"));
+			um.delete(new Key("Miao"), null);
 			fail();
 		} catch (NotFoundException e) {
 			assertEquals("NOT_FOUND", e.clientResponse());
@@ -65,7 +65,7 @@ public class TestUnboundedMapDeleteItem  extends TestCase{
 	@Test 
 	public void getOneId() throws NotStoredException, StorageException, NotFoundException {
 		preloadRepository();
-		um.delete(new Key("Zuu"));
+		um.delete(new Key("Zuu"), null);
 	}
 	
 	private void preloadRepository() throws NotStoredException, StorageException {

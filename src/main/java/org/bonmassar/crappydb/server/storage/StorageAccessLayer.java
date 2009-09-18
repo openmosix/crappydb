@@ -43,7 +43,7 @@ public interface StorageAccessLayer extends Expirable{
 	
 	List<Item> get(List<Key> ids) throws StorageException;
 	
-	void delete(Key id) throws NotFoundException, StorageException;
+	void delete(Key id, Long time) throws NotFoundException, StorageException;
 	
 	Item increase(Key id, String value) throws NotFoundException, StorageException;
 	

@@ -106,7 +106,7 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		DBStats.INSTANCE.getStorage().addBytes(size(item.getData()));
 	}
 
-	public void delete(Key id) throws NotFoundException, StorageException {
+	public void delete(Key id, Long time) throws NotFoundException, StorageException {
 		checkValidId(id);
 		int oldSize = 0;
 

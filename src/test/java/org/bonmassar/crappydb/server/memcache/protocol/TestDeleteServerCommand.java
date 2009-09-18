@@ -87,20 +87,42 @@ public class TestDeleteServerCommand extends TestCase {
 	
 	@Test
 	public void testRainbow() throws ErrorException, NotFoundException, StorageException {
-		command.parseCommandParams("terminenzio 12345 noreply\r\n");
+		command.parseCommandParams("terminenzio noreply\r\n");
 
 		command.execCommand();
 		
-		verify(storage, times(1)).delete(new Key("terminenzio"));
+		verify(storage, times(1)).delete(new Key("terminenzio"), -1L);
+		verify(output, times(1)).writeToOutstanding("DELETED\r\n");
+	}
+	
+	@Test
+	public void testRainbowWithTime() throws ErrorException, NotFoundException, StorageException {
+		command.parseCommandParams("terminenzio 1123456 noreply\r\n");
+
+		command.execCommand();
+		
+		verify(storage, times(1)).delete(new Key("terminenzio"), 1123456L);
 		verify(output, times(1)).writeToOutstanding("DELETED\r\n");
 	}
 	
 	@Test
 	public void testKeyNotFound() throws ErrorException, NotFoundException, StorageException {
-		command.parseCommandParams("terminenzio 12345 noreply\r\n");
+		command.parseCommandParams("terminenzio noreply\r\n");
 
 		CrappyDBException exception = new NotFoundException(); 
-		doThrow(exception).when(storage).delete(new Key("terminenzio"));
+		doThrow(exception).when(storage).delete(new Key("terminenzio"), -1L);
+		
+		command.execCommand();
+		
+		verify(output, times(1)).writeException(exception);
+	}
+	
+	@Test
+	public void testKeyNotFoundWithTime() throws ErrorException, NotFoundException, StorageException {
+		command.parseCommandParams("terminenzio 18882828 noreply\r\n");
+
+		CrappyDBException exception = new NotFoundException(); 
+		doThrow(exception).when(storage).delete(new Key("terminenzio"), 18882828L);
 		
 		command.execCommand();
 		
@@ -109,10 +131,22 @@ public class TestDeleteServerCommand extends TestCase {
 	
 	@Test
 	public void testErrorOnStorage() throws ErrorException, NotFoundException, StorageException {
-		command.parseCommandParams("terminenzio 12345 noreply\r\n");
+		command.parseCommandParams("terminenzio noreply\r\n");
 
 		CrappyDBException exception = new StorageException("BOOM!");
-		doThrow(exception).when(storage).delete(new Key("terminenzio"));
+		doThrow(exception).when(storage).delete(new Key("terminenzio"), -1L);
+		
+		command.execCommand();
+		
+		verify(output, times(1)).writeException(exception);
+	}
+	
+	@Test
+	public void testErrorOnStorageWithTime() throws ErrorException, NotFoundException, StorageException {
+		command.parseCommandParams("terminenzio 888777333 noreply\r\n");
+
+		CrappyDBException exception = new StorageException("BOOM!");
+		doThrow(exception).when(storage).delete(new Key("terminenzio"), 888777333L);
 		
 		command.execCommand();
 		
@@ -124,16 +158,34 @@ public class TestDeleteServerCommand extends TestCase {
 		command.parseCommandParams("terminenzioterminenzioterminenzioterminenzioterminenzioter" +
 				"minenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenziotermi" +
 				"nenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminen" +
-				"zioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzio 12345 noreply\r\n");
+				"zioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzio noreply\r\n");
 
-		doThrow(new StorageException("BOOM!")).when(storage).delete(new Key("terminenzio"));
+		doThrow(new StorageException("BOOM!")).when(storage).delete(new Key("terminenzio"), -1L);
 		
 		command.execCommand();
 		
 		verify(storage, times(1)).delete(new Key("terminenzioterminenzioterminenzioterminenzioterminenzi" +
 				"oterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzi" +
 				"oterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzi" +
-				"oterminenzioterminen"));
+				"oterminenzioterminen"), -1L);
+		verify(output, times(1)).writeToOutstanding("DELETED\r\n");		
+	}
+	
+	@Test
+	public void testVeryLongLongKeyWithTime() throws ErrorException, NotFoundException, StorageException {
+		command.parseCommandParams("terminenzioterminenzioterminenzioterminenzioterminenzioter" +
+				"minenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenziotermi" +
+				"nenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminen" +
+				"zioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzio 999888777 noreply\r\n");
+
+		doThrow(new StorageException("BOOM!")).when(storage).delete(new Key("terminenzio"), 999888777L);
+		
+		command.execCommand();
+		
+		verify(storage, times(1)).delete(new Key("terminenzioterminenzioterminenzioterminenzioterminenzi" +
+				"oterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzi" +
+				"oterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzioterminenzi" +
+				"oterminenzioterminen"), 999888777L);
 		verify(output, times(1)).writeToOutstanding("DELETED\r\n");		
 	}
 	

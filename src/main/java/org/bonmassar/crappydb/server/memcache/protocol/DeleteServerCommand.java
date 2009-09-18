@@ -38,7 +38,7 @@ class DeleteServerCommand extends ServerCommandNoPayload {
 		Key k = new Key(params[DeleteServerCommand.KEY_POS]);
 		
 		try {
-			storage.delete(k);
+			storage.delete(k, getTime());
 			channel.writeToOutstanding("DELETED\r\n");
 		} catch (CrappyDBException e) {
 			channel.writeException(e);
