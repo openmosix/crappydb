@@ -104,6 +104,7 @@ public class TestGetsServerCommand extends TestCase {
 		fail();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetOneKeySomeData() throws ErrorException, StorageException {
 		command.parseCommandParams("terminenzio");
@@ -128,6 +129,7 @@ public class TestGetsServerCommand extends TestCase {
 		verify(output, times(1)).writeToOutstanding("END\r\n");
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMultipleKeysSomeData() throws ErrorException, StorageException {
 		command.parseCommandParams("terminenzio terminenzio2");
@@ -153,6 +155,7 @@ public class TestGetsServerCommand extends TestCase {
 		verify(output, times(1)).writeToOutstanding("END\r\n");
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMultipleKeysMultipleData() throws ErrorException, StorageException {
 		command.parseCommandParams("terminenzio terminenzio2");
@@ -181,6 +184,7 @@ public class TestGetsServerCommand extends TestCase {
 		verify(output, times(1)).writeToOutstanding("END\r\n");
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMultipleKeysWithCasNullData() throws ErrorException, StorageException {
 		command.parseCommandParams("terminenzio terminenzio2");
@@ -208,6 +212,7 @@ public class TestGetsServerCommand extends TestCase {
 		verify(output, times(1)).writeToOutstanding("END\r\n");
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMultipleKeysWithCasNoData() throws ErrorException, StorageException {
 		command.parseCommandParams("terminenzio terminenzio2");
@@ -235,6 +240,7 @@ public class TestGetsServerCommand extends TestCase {
 		verify(output, times(1)).writeToOutstanding("END\r\n");
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMultipleKeysErrorAccessingStorage() throws ErrorException, StorageException {
 		command.parseCommandParams("terminenzio terminenzio2");
