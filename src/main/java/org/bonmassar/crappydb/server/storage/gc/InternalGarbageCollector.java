@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.stats.DBStats;
 import org.bonmassar.crappydb.server.storage.Expirable;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
@@ -63,14 +64,21 @@ class InternalGarbageCollector implements GarbageCollector, Cleaner {
 
 	public void expire() {
 		long start = System.currentTimeMillis();
+		String nItems = DBStats.INSTANCE.getStorage().getCurrentNoItems();
+		
 		logger.trace(String.format("===Starting a gc cycle (%d)===", start/1000));
 		Collection<ReferenceBean> victims = getVictims();
 		expire(victims);
 		int prevTreemapSize = treemap.size();
 		updateTimeMapWithIncomingChanges();
-		logger.trace(String.format("===Completed a gc cycle in %d ms. %d victims, %d items before, %d items now===", 
-				System.currentTimeMillis() - start, victims.size(), prevTreemapSize, treemap.size()));
+		logger.trace(String.format("===Completed a gc cycle in %d ms. " +
+				"DBItems: %s=>%s, %d selected victims, ExpiringQueue: %d=>%d===", 
+				System.currentTimeMillis() - start, 
+				nItems, DBStats.INSTANCE.getStorage().getCurrentNoItems(),
+				victims.size(), prevTreemapSize, treemap.size()));
 	}
+	
+
 
 	private Collection<ReferenceBean> getVictims() {
 		Collection<ReferenceBean> victims = new LinkedList<ReferenceBean>();

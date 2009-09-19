@@ -26,7 +26,7 @@ public class StorageStats {
 	private final AtomicLong currItems = new AtomicLong();
 	private final AtomicLong currBytes = new AtomicLong();
 	
-	String getCurrentNoItems() {
+	public String getCurrentNoItems() {
 		return String.valueOf(currItems.get());
 	}
 	

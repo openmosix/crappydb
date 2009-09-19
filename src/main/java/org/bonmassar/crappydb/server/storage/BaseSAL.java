@@ -219,8 +219,12 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 			Item item = repository.get(k);
 			if(null == item)
 				return;
-			if(item.isExpired())
-				repository.remove(k);
+			if(!item.isExpired())
+				return;
+			
+			repository.remove(k);
+			DBStats.INSTANCE.getStorage().delBytes(size(item.getData()));
+			DBStats.INSTANCE.getStorage().decrementNoItems();
 		}
 	}
 
@@ -328,12 +332,15 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		Item item = repository.get(key);
 		if(null == item)
 			return null;
-		if(item.isExpired()){
-			logger.trace(String.format("Expiring object %s", key.toString()));
-			repository.remove(key);
-			gc.getGCRef().stop(key, item.getExpire());
-			return null;
-		}
-		return item;
+		if(!item.isExpired())
+			return item;
+		
+		logger.trace(String.format("Expiring object %s", key.toString()));
+		repository.remove(key);
+		gc.getGCRef().stop(key, item.getExpire());
+		
+		DBStats.INSTANCE.getStorage().delBytes(size(item.getData()));
+		DBStats.INSTANCE.getStorage().decrementNoItems();
+		return null;
 	}
 }

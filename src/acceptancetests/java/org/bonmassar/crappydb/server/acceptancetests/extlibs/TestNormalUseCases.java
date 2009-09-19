@@ -20,6 +20,7 @@ package org.bonmassar.crappydb.server.acceptancetests.extlibs;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -338,8 +339,7 @@ public class TestNormalUseCases {
 		try {
 			Thread.sleep(howLong * 1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			fail();
 		}
 	}
 

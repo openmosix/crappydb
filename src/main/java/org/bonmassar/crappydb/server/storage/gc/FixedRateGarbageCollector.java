@@ -49,7 +49,7 @@ public class FixedRateGarbageCollector implements GarbageCollectorScheduler {
 	private final InternalGarbageCollector garbageCollector;
 	
 	public FixedRateGarbageCollector(Expirable container) {
-		this(Executors.newScheduledThreadPool(1), new InternalGarbageCollector(container), 60 /* 1 min */, 6*60 /* 10 times/hour */);
+		this(Executors.newScheduledThreadPool(1), new InternalGarbageCollector(container), 60 /* 1 min */, 60 /* 60 times/hour */);
 	}
 	
 	public FixedRateGarbageCollector(ScheduledExecutorService executorService, InternalGarbageCollector collector, long initialDelay, long gcRate){
