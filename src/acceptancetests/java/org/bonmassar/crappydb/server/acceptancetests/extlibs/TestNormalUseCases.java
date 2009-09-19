@@ -18,6 +18,12 @@
 
 package org.bonmassar.crappydb.server.acceptancetests.extlibs;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import com.danga.MemCached.MemCachedClient;
 import com.danga.MemCached.SockIOPool;
 
@@ -25,14 +31,12 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.bonmassar.crappydb.server.acceptancetests.nolibs.AcceptanceConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestNormalUseCases extends TestCase {
+public class TestNormalUseCases {
 	
 	private MemCachedClient client;
 	private SockIOPool pool;
@@ -126,9 +130,9 @@ public class TestNormalUseCases extends TestCase {
 	
 	@Test
 	public void testAddGetReplaceGetDeleteGet() throws IOException {
-		assertTrue(client.add("terminenzio", "This is simply a string", new Date()));
+		assertTrue(client.add("terminenzio", "This is simply a string"));
 		assertEquals("This is simply a string", ((String)client.get("terminenzio")));
-		assertTrue(client.replace("terminenzio", "This is another string", new Date()));
+		assertTrue(client.replace("terminenzio", "This is another string"));
 		assertEquals("This is another string", ((String)client.get("terminenzio")));
 		assertTrue(client.delete("terminenzio"));
 		assertNull((String) client.get("terminenzio"));
@@ -136,10 +140,10 @@ public class TestNormalUseCases extends TestCase {
 	
 	@Test
 	public void testSetGetReplaceGetDeleteGet() throws IOException {
-		assertTrue(client.set("terminenzio", "This is the first value", new Date()));
+		assertTrue(client.set("terminenzio", "This is the first value"));
 		assertEquals("This is the first value", ((String)client.get("terminenzio")));
 		
-		assertTrue(client.replace("terminenzio", "This is another string", new Date()));
+		assertTrue(client.replace("terminenzio", "This is another string"));
 		assertEquals("This is another string", ((String)client.get("terminenzio")));
 		
 		assertTrue(client.delete("terminenzio"));
@@ -148,13 +152,13 @@ public class TestNormalUseCases extends TestCase {
 	
 	@Test
 	public void testReplaceGet() throws IOException {
-		assertFalse(client.replace("terminenzio", "This is simply a string", new Date()));
+		assertFalse(client.replace("terminenzio", "This is simply a string"));
 		assertEquals(null, ((String)client.get("terminenzio")));
 	}
 	
 	@Test
 	public void testAddGetDeleteGet() throws IOException {
-		assertTrue(client.add("terminenzio", "This is simply a string", new Date()));
+		assertTrue(client.add("terminenzio", "This is simply a string"));
 		assertEquals("This is simply a string", ((String)client.get("terminenzio")));
 		assertTrue(client.delete("terminenzio"));
 		assertNull((String) client.get("terminenzio"));
@@ -162,10 +166,10 @@ public class TestNormalUseCases extends TestCase {
 	
 	@Test
 	public void testSetGetAddGetDeleteGet() throws IOException {
-		assertTrue(client.set("terminenzio", "This is the first value", new Date()));
+		assertTrue(client.set("terminenzio", "This is the first value"));
 		assertEquals("This is the first value", ((String)client.get("terminenzio")));
 		
-		assertFalse(client.add("terminenzio", "This is simply a string", new Date()));
+		assertFalse(client.add("terminenzio", "This is simply a string"));
 		assertEquals("This is the first value", ((String)client.get("terminenzio")));
 		assertTrue(client.delete("terminenzio"));
 		assertNull((String) client.get("terminenzio"));
@@ -173,12 +177,12 @@ public class TestNormalUseCases extends TestCase {
 	
 	@Test
 	public void testAddGetDeleteAddGetDelete() throws IOException {
-		assertTrue(client.add("terminenzio", "This is simply a string", new Date()));
+		assertTrue(client.add("terminenzio", "This is simply a string"));
 		assertEquals("This is simply a string", ((String)client.get("terminenzio")));
 		assertTrue(client.delete("terminenzio"));
 		assertNull((String) client.get("terminenzio"));
 		
-		assertTrue(client.add("terminenzio", "This is simply a string", new Date()));
+		assertTrue(client.add("terminenzio", "This is simply a string"));
 		assertEquals("This is simply a string", ((String)client.get("terminenzio")));
 		assertTrue(client.delete("terminenzio"));
 		assertNull((String) client.get("terminenzio"));
@@ -279,7 +283,66 @@ public class TestNormalUseCases extends TestCase {
 		for(int i = 0; i < 10; i++)
 			assertEquals(null, client.get("terminenzio"+i));
 	}
+	
+	@Test
+	public void testSetExpire() {
+		long fiveMin = System.currentTimeMillis() + 5 * 60 * 1000;
 		
+		Date d = new Date(fiveMin);
+		
+		assertTrue(client.set("terminenzio", "This is simply a string", d));
+		
+		assertEquals("This is simply a string", (String)client.get("terminenzio"));
+	}
+	
+	@Test
+	public void testSetExpireAndItIsExpired() {
+		long fiveMin = System.currentTimeMillis() + 1000;	//1 sec
+		
+		Date d = new Date(fiveMin);
+		
+		assertTrue(client.set("terminenzio", "This is simply a string", d));
+		
+		pause(3);
+		
+		assertNull(client.get("terminenzio"));
+	}
+	
+	@Test
+	public void testAddExpireAndItIsExpired() {
+		long fiveMin = System.currentTimeMillis() + 1000;	//1 sec
+		
+		Date d = new Date(fiveMin);
+		
+		assertTrue(client.add("terminenzio", "This is simply a string", d));
+		
+		pause(3);
+		
+		assertNull(client.get("terminenzio"));
+	}
+	
+	@Test
+	public void testAddExpireAndReplace() {
+		long fiveMin = System.currentTimeMillis() + 1000;	//1 sec
+		
+		Date d = new Date(fiveMin);
+		
+		assertTrue(client.add("terminenzio", "This is simply a string", d));
+		
+		pause(3);
+		
+		assertFalse(client.replace("terminenzio", "bau"));
+	}
+		
+	private void pause(int howLong) {
+		try {
+			Thread.sleep(howLong * 1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private void clean(String key) throws IOException{
 		client.delete(key);
 	}

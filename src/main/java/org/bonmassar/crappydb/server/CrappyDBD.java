@@ -21,7 +21,9 @@ package org.bonmassar.crappydb.server;
 import org.bonmassar.crappydb.server.io.CrappyNetworkServer;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.stats.DBStats;
-import org.bonmassar.crappydb.server.storage.memory.UnboundedMap;
+import org.bonmassar.crappydb.server.storage.SALFactory;
+import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
+import org.bonmassar.crappydb.server.storage.SALFactory.Catalogue;
  
 public class CrappyDBD {
 
@@ -31,7 +33,8 @@ public class CrappyDBD {
 	
 	static public void main(String [] args)
 	{
-		CommandFactory cmdFactory = new CommandFactory(new UnboundedMap());
+		StorageAccessLayer sal = SALFactory.newInstance(Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
+		CommandFactory cmdFactory = new CommandFactory(sal);
 		(new HomerBoot()).splashScreen();
 
 		threadsKiller = new ShutdownExecutionRegister();

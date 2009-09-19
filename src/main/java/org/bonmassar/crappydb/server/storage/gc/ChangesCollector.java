@@ -22,10 +22,14 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.bonmassar.crappydb.server.storage.data.Timestamp;
 
 public class ChangesCollector implements GarbageCollector{
+	
+	private final Logger logger = Logger.getLogger(ChangesCollector.class);  
+	
 	Collection<ReferenceBean> incoming;
 	
 	public ChangesCollector() {
@@ -37,9 +41,10 @@ public class ChangesCollector implements GarbageCollector{
 			return;
 		
 		ReferenceBean rb = new ReferenceBean(k, new Timestamp(expiration));
-		synchronized(this){
+		synchronized(incoming){
 			incoming.add(rb);
 		}
+		logger.trace(String.format("Monitoring %s expected expiring at %d", k.toString(), rb.timestamp.getExpire()));
 	}
 
 	public void replace(Key k, long expiration, long oldExpiration) {
@@ -47,7 +52,10 @@ public class ChangesCollector implements GarbageCollector{
 			return;
 		
 		ReferenceBean rb = new ReplaceReferenceBean(k, new Timestamp(expiration), new Timestamp(oldExpiration));
-		incoming.add(rb);
+		synchronized(incoming){
+			incoming.add(rb);
+		}
+		logger.trace(String.format("Replacing %s expected expiring at %d", k.toString(), rb.timestamp.getExpire()));
 	}
 
 	public void stop(Key k, long expiration) {
@@ -55,17 +63,24 @@ public class ChangesCollector implements GarbageCollector{
 			return;
 
 		ReferenceBean rb = new DeleteReferenceBean(k, new Timestamp(expiration));
-		incoming.add(rb);
+		synchronized(incoming){
+			incoming.add(rb);
+		}
+		logger.trace(String.format("Stopping %s", k.toString()));
 	}
 
 	public void flush() {
-		incoming.add(new FlushReferenceBean(new Key("FAKEKEY"), new Timestamp(0)));
+		synchronized(incoming){
+			incoming.add(new FlushReferenceBean(new Key("FAKEKEY"), new Timestamp(0)));
+		}
 	}
-
 	
 	public void visitIncoming(Set<ReferenceBean> timemap) {
-		Collection<ReferenceBean> prevIncoming = incoming;
-		incoming = new LinkedList<ReferenceBean>(); 
+		Collection<ReferenceBean> prevIncoming = null;
+		synchronized(incoming){
+			prevIncoming = incoming;
+			incoming = new LinkedList<ReferenceBean>();
+		}
 		
 		for(ReferenceBean bean : prevIncoming){
 			bean.visit(timemap);

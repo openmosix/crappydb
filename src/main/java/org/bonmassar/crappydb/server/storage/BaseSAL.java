@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.ExistsException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
@@ -37,6 +38,7 @@ import org.bonmassar.crappydb.utils.BigIncrementer;
 
 public class BaseSAL implements StorageAccessLayer, SALBuilder {
 	
+	private final Logger logger = Logger.getLogger(BaseSAL.class);
 	protected final Map<Key, Item> repository;
 	private GarbageCollectorScheduler gc = new NullGarbageCollectorScheduler(null);
 	
@@ -327,6 +329,7 @@ public class BaseSAL implements StorageAccessLayer, SALBuilder {
 		if(null == item)
 			return null;
 		if(item.isExpired()){
+			logger.trace(String.format("Expiring object %s", key.toString()));
 			repository.remove(key);
 			gc.getGCRef().stop(key, item.getExpire());
 			return null;

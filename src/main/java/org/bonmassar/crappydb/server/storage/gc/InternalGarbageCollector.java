@@ -24,12 +24,13 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.storage.Expirable;
 import org.bonmassar.crappydb.server.storage.data.Key;
-import org.bonmassar.crappydb.server.storage.data.Timestamp;
 
 class InternalGarbageCollector implements GarbageCollector, Cleaner {
 	
+	private final Logger logger = Logger.getLogger(InternalGarbageCollector.class);
 	private final Expirable extContainer;
 	private final ChangesCollector changes;
 	private final Set<ReferenceBean> treemap;
@@ -61,23 +62,23 @@ class InternalGarbageCollector implements GarbageCollector, Cleaner {
 	}
 
 	public void expire() {
+		long start = System.currentTimeMillis();
+		logger.trace(String.format("===Starting a gc cycle (%d)===", start/1000));
 		Collection<ReferenceBean> victims = getVictims();
 		expire(victims);
+		int prevTreemapSize = treemap.size();
 		updateTimeMapWithIncomingChanges();
+		logger.trace(String.format("===Completed a gc cycle in %d ms. %d victims, %d items before, %d items now===", 
+				System.currentTimeMillis() - start, victims.size(), prevTreemapSize, treemap.size()));
 	}
 
 	private Collection<ReferenceBean> getVictims() {
 		Collection<ReferenceBean> victims = new LinkedList<ReferenceBean>();
-		int i = 0;
 		for(Iterator<ReferenceBean> rfit = treemap.iterator(); rfit.hasNext(); ){
 			ReferenceBean victim = rfit.next();
 			if(!victim.isExpired())
 				break;
-			i++;
-			if(victim.equals(new ReferenceBean(new Key("terminenzio"+3000), new Timestamp(1883395483L+3000)))){
-				System.out.println(i);
-			}
-			
+
 			victims.add(victim);
 			rfit.remove();
 		}
