@@ -1,0 +1,4 @@
+* CLI - Command line support for config params
+* Script to start/stop/restart the server
+* BerkleyDB access layer
+* Bounded memory map access layer
