@@ -46,6 +46,11 @@ Dependencies (runtime):
 * Apache Log4j 1.2.15
 * Apache Commons-CLI 1.2
 
+
+Bugs:
+
+* Removed wrong dependency from JUnit at runtime
+
 ===============================================================================
  Rel 0.1 <-20.09.09->
 
