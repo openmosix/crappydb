@@ -24,7 +24,7 @@ import java.util.Map;
 public enum DBStats {
 	INSTANCE;
 	
-	private final String version = "0.1";
+	private final String version = "0.2";
 	private final ProcessStats process = new ProcessStats();
 	private final ServerTime serverTime = new ServerTime();
 	private final StorageStats storage = new StorageStats();

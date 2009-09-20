@@ -21,15 +21,16 @@ package org.bonmassar.crappydb.server.io;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.concurrent.Callable;
+
+import org.bonmassar.crappydb.server.Configuration;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 
 class FrontendPoolExecutor extends PoolThreadExecutor<SelectionKey> {
-	private final static int nFrontendThreads=8;
 	private static CommandFactory cmdFactory;
 	private static Selector serverSelectorForAccept;
 	
 	public FrontendPoolExecutor() {
-		super(FrontendPoolExecutor.nFrontendThreads);
+		super(Configuration.INSTANCE.getEngineThreads());
 	}
 	
 	@Override

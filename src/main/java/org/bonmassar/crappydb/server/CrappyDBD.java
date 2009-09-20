@@ -18,6 +18,8 @@
 
 package org.bonmassar.crappydb.server;
 
+import org.apache.commons.cli.ParseException;
+import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.io.CrappyNetworkServer;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.stats.DBStats;
@@ -27,23 +29,57 @@ import org.bonmassar.crappydb.server.storage.SALFactory.Catalogue;
  
 public class CrappyDBD {
 
-	private static final int serverPort = 11211;
+	private final static Logger logger = Logger.getLogger(CrappyDBD.class);
 	private static CrappyNetworkServer serverInstance;
 	private static ShutdownExecutionRegister threadsKiller;
 	
-	static public void main(String [] args)
-	{
+	public CrappyDBD(String[] args) throws ParseException {
+		Configuration.INSTANCE.parse(args);
+	}
+	
+	public void boot() {
 		StorageAccessLayer sal = SALFactory.newInstance(Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
 		CommandFactory cmdFactory = new CommandFactory(sal);
 		(new HomerBoot()).splashScreen();
+		
+		if(Configuration.INSTANCE.isDumpParams()){
+			String[] config = Configuration.INSTANCE.getConfigParams().split("\n");
+			logger.info("Dumping config parameters");
+			for (int i = 0; i < config.length; i++) {
+				logger.info(config[i]);				
+			}
+		}
 
 		threadsKiller = new ShutdownExecutionRegister();
 		Runtime.getRuntime().addShutdownHook(threadsKiller);
 
 		DBStats.INSTANCE.registerThread();
 		
-		CrappyDBD.serverInstance = new CrappyNetworkServer(cmdFactory, serverPort).serverSetup();
+		CrappyDBD.serverInstance = new CrappyNetworkServer(cmdFactory, Configuration.INSTANCE.getServerPort()).serverSetup();
 		CrappyDBD.serverInstance.start();
+	}
+	
+	static public void main(String [] args){
+		CrappyDBD server = null;
+		try {
+			server = new CrappyDBD(args);
+		} catch (ParseException e) {
+			System.err.println("Invalid option parameter: "+e.getMessage());
+			logger.fatal("Invalid option parameter: "+e.getMessage());
+			return;
+		}
+		
+		if(Configuration.INSTANCE.isHelpMessage()){
+			Configuration.INSTANCE.generateHelp();
+			return;
+		}
+		
+		if(Configuration.INSTANCE.isVersion()){
+			System.out.println("CrappyDBD "+DBStats.INSTANCE.getDBVersion());
+			return;
+		}
+				
+		server.boot();
 	} 
 	
 	static public void shutdown() {
