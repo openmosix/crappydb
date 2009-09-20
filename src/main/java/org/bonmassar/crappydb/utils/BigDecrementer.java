@@ -26,12 +26,10 @@ package org.bonmassar.crappydb.utils;
 
 import java.math.BigInteger;
 
-import junit.framework.TestCase;
-
 /**
  * Simulate a 64bit unsigned int increment and overflow 
  */
-public class BigDecrementer extends TestCase {
+public class BigDecrementer {
 
 	private final static BigInteger overflow = new BigInteger("18446744073709551616");
 	
