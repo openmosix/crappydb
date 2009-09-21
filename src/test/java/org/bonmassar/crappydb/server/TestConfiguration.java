@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 
@@ -62,9 +63,25 @@ public class TestConfiguration {
 	}
 	
 	@Test
-	public void testHelp() throws ParseException {
-		Configuration.INSTANCE.parse(new String[]{"-h"});
-		assertTrue(Configuration.INSTANCE.isHelpMessage());		
+	public void testHost() throws ParseException {
+		Configuration.INSTANCE.parse(new String[]{"-h localhost"});
+		assertEquals("localhost", Configuration.INSTANCE.getHostname());		
+	}
+	
+	@Test
+	public void testHostLongFormat() throws ParseException {
+		Configuration.INSTANCE.parse(new String[]{"--hostname=localhost"});
+		assertEquals("localhost", Configuration.INSTANCE.getHostname());		
+	}
+	
+	@Test
+	public void testHostInvalidFormat() throws ParseException {
+		try{
+			Configuration.INSTANCE.parse(new String[]{"-h"});
+		}catch(MissingArgumentException meg){
+			return;
+		}
+		fail();
 	}
 	
 	@Test
@@ -102,17 +119,34 @@ public class TestConfiguration {
 		Configuration.INSTANCE.parse(new String[]{"--threads=80"});
 		assertEquals(80, Configuration.INSTANCE.getEngineThreads());	
 	}
+		
+	@Test
+	public void testBufferSizeWithLong() throws ParseException {
+		Configuration.INSTANCE.parse(new String[]{"--buffer-size=29090"});
+		assertEquals(29090, Configuration.INSTANCE.getBufferSize());	
+	}
+	
+	@Test
+	public void testMaxPayloadSizeWithLong() throws ParseException {
+		Configuration.INSTANCE.parse(new String[]{"--max-payload-size=301010"});
+		assertEquals(301010, Configuration.INSTANCE.getMaxPayloadSize());	
+	}
 	
 	@Test
 	public void testGetOptions() throws ParseException {
-		Configuration.INSTANCE.parse(new String[]{"-v", "-h", "-p128", "-t12"});
+		Configuration.INSTANCE.parse(new String[]{"-v", "-p128", "-t12"});
 		String params = Configuration.INSTANCE.getConfigParams();
 		
-		assertEquals("dump off\nhelp on\nversion on\nport 128\nthreads 12\n", params);
+		assertEquals("dump off\nhelp off\nversion on\nhostname *\nport 128\nthreads 12\nbuffer-size 8192\nmax-payload-size 67108864\n", params);
 	}
 	
 	@Test
 	public void testHelpMenu() {
 		Configuration.INSTANCE.generateHelp();
+	}
+	
+	@Test
+	public void testReset() throws ParseException {
+		Configuration.INSTANCE.parse(new String[0]);
 	}
 }

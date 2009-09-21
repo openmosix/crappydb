@@ -18,6 +18,7 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
+import org.bonmassar.crappydb.server.Configuration;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.bonmassar.crappydb.utils.Base64;
@@ -30,7 +31,6 @@ abstract class ServerCommandWithPayload extends ServerCommandAbstract {
 	protected static final int BYTES_POS=3;
 	protected static final int NOREPLY_POS=4;
 	protected static final int CRLF=2;
-	private static final int MAXIMUM_PAYLOAD_SIZE = 64*1024*1024;	//64Mb
 	
 	protected int minparams = 4;
 	protected int maxparams = 5;
@@ -94,9 +94,10 @@ abstract class ServerCommandWithPayload extends ServerCommandAbstract {
 		payloadCursor = 0;
 		int length = payloadContentLength();
 		
-		if(length > ServerCommandWithPayload.MAXIMUM_PAYLOAD_SIZE)
+		if(length > Configuration.INSTANCE.getMaxPayloadSize())
 			throw new RuntimeException(String.format("Received an item (key=%s) with payload size=%d " +
-					"but the maximum payload size is %s", params[KEY_POS], length, ServerCommandWithPayload.MAXIMUM_PAYLOAD_SIZE));
+					"but the maximum payload size is %s", params[KEY_POS], length, 
+					Configuration.INSTANCE.getMaxPayloadSize()));
 		
 		if(length >= CRLF)
 			payload = new byte[length-CRLF]; 

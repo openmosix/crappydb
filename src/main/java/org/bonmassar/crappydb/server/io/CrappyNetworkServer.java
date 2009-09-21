@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.Configuration;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 
 public class CrappyNetworkServer {
@@ -111,7 +112,14 @@ public class CrappyNetworkServer {
 
 	private void initListenSocket() throws IOException {
 		listenSock = listenChannel.socket();
-		listenSock.bind(new InetSocketAddress(serverPort));
+		listenSock.bind(getSocketAddress());
+	}
+
+	private InetSocketAddress getSocketAddress() {
+		if(null == Configuration.INSTANCE.getHostname())
+			return new InetSocketAddress(serverPort);
+		
+		return new InetSocketAddress(Configuration.INSTANCE.getHostname(), serverPort);
 	}
 
 	private void initListenChannel() throws IOException {

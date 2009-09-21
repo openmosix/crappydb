@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+import org.bonmassar.crappydb.server.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -156,9 +157,9 @@ public class TestInputPipePrecacheDataFromRemote {
 		input.precacheDataFromRemote();
 		
 		assertTrue(input.buffer.hasRemaining());
-		assertEquals(InputPipe.maxChunkSize, input.buffer.remaining());
+		assertEquals(Configuration.INSTANCE.getBufferSize(), input.buffer.remaining());
 		assertFalse(input.noDataAvailable());
-		byte[] result = new byte[InputPipe.maxChunkSize];
+		byte[] result = new byte[Configuration.INSTANCE.getBufferSize()];
 		input.buffer.get(result);
 		assertEquals(new String(longLongText()), new String(result));
 	}
@@ -181,7 +182,7 @@ public class TestInputPipePrecacheDataFromRemote {
 	
 	private String longLongText() {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < InputPipe.maxChunkSize; i++){
+		for (int i = 0; i < Configuration.INSTANCE.getBufferSize(); i++){
 			sb.append("A");
 		}
 		return sb.toString();

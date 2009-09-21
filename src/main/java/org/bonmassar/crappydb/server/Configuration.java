@@ -31,13 +31,24 @@ public enum Configuration {
 	private CommandLine cli;
 	
 	private int serverPort;
+	private String serverHostname;
 	private int engineThreads;
+	private int buffSize;
+	private int maxPayloadSize;
 	private boolean help;
 	private boolean version;
 	private boolean dump;
 	
+	private Configuration() {
+		fillDefaults();
+	}
+	
 	public int getServerPort() {
 		return serverPort;
+	}
+	
+	public int getBufferSize() {
+		return buffSize;
 	}
 	
 	public int getEngineThreads() {
@@ -56,13 +67,24 @@ public enum Configuration {
 		return version;
 	}
 	
+	public String getHostname() {
+		return serverHostname;
+	}
+	
+	public int getMaxPayloadSize() {
+		return maxPayloadSize;
+	}
+	
 	public String getConfigParams() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("dump %s\n", value(isDumpParams())));
 		sb.append(String.format("help %s\n", value(isHelpMessage())));
-		sb.append(String.format("version %s\n", value(isHelpMessage())));
+		sb.append(String.format("version %s\n", value(isVersion())));
+		sb.append(String.format("hostname %s\n", getHostname() == null ? "*" : getHostname()));
 		sb.append(String.format("port %d\n", getServerPort()));
 		sb.append(String.format("threads %d\n", getEngineThreads()));
+		sb.append(String.format("buffer-size %d\n", getBufferSize()));
+		sb.append(String.format("max-payload-size %d\n", getMaxPayloadSize()));
 		return sb.toString();
 	}
 
@@ -85,6 +107,9 @@ public enum Configuration {
 		fillVersion(line);
 		fillDump(line);
 		fillNumThreads(line);
+		fillHostname(line);
+		fillBuffSize(line);
+		fillMaxPayloadSize(line);
 	}
 
 	private void fillHelp(CommandLine line) {
@@ -101,11 +126,29 @@ public enum Configuration {
 	    dump = true;
 	}
 	
+	private void fillHostname(CommandLine line) {
+	    if( !line.hasOption( "hostname" ) )
+	    	return;
+
+	    serverHostname = line.getOptionValue( "hostname" ).trim();
+	}
+	
 	private void fillVersion(CommandLine line) {
 	    if( !line.hasOption( "version" ) )
 	    	return;
 
 	    version = true;
+	}
+	
+	private void fillMaxPayloadSize(CommandLine line) throws ParseException{
+	    if( !line.hasOption( "max-payload-size" ) )
+	    	return;
+	    
+	    try{
+	    	maxPayloadSize =  Integer.valueOf(line.getOptionValue( "max-payload-size" ).trim());
+	    }catch(NumberFormatException nfe){
+	    	throw new ParseException("Invalid format for threads parameter.");
+	    }
 	}
 	
 	private void fillNumThreads(CommandLine line) throws ParseException{
@@ -117,11 +160,25 @@ public enum Configuration {
 	    }catch(NumberFormatException nfe){
 	    	throw new ParseException("Invalid format for threads parameter.");
 	    }
+	}
+	
+	private void fillBuffSize(CommandLine line) throws ParseException{
+	    if( !line.hasOption( "buffer-size" ) )
+	    	return;
+	    
+	    try{
+	    	buffSize =  Integer.valueOf(line.getOptionValue( "buffer-size" ).trim());
+	    }catch(NumberFormatException nfe){
+	    	throw new ParseException("Invalid format for buffer-size parameter.");
+	    }
 
 	}
 
 	private void fillDefaults() {
 		serverPort = 11211;
+		buffSize = 8 * 1024;
+		maxPayloadSize = 64*1024*1024;	//64Mb
+		serverHostname = null;
 		help = false;
 		version = false;
 		dump = false;
@@ -135,19 +192,34 @@ public enum Configuration {
 		serverPortOption(options);
 		dumpOption(options);
 		engineThreadsOption(options);
+		serverHostnameOption(options);
+		bufferSizeOption(options);
+		payloadSizeOption(options);
 		return options;
+	}
+	
+	private void bufferSizeOption(Options options) {
+		options.addOption( null, "buffer-size", true, "define the internal buffer size for IO operations. (def: 8K)" );
+	}
+	
+	private void payloadSizeOption(Options options) {
+		options.addOption( null, "max-payload-size", true, "define the maximum payload size for a write operation (def: 64M)" );
 	}
 	
 	private void engineThreadsOption(Options options) {
 		options.addOption( "t", "threads", true, "number of engine threads (def: number of processors x 2)." );
 	}
 	
+	private void serverHostnameOption(Options options) {
+		options.addOption( "h", "hostname", true, "bind the server to this hostname." );
+	}
+	
 	private void serverPortOption(Options options) {
-		options.addOption( "p", "port", true, "listen port of the server." );
+		options.addOption( "p", "port", true, "bind the server to this port." );
 	}
 	
 	private void helpOption(Options options) {
-		options.addOption( "h", "help", false, "print this help message." );
+		options.addOption( null, "help", false, "print this help message." );
 	}
 	
 	private void versionOption(Options options) {

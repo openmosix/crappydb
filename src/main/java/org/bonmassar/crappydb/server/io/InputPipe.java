@@ -25,12 +25,12 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.Configuration;
 import org.bonmassar.crappydb.server.stats.DBStats;
 
 class InputPipe {
 	private static final byte CR = 0x0D;
 	private static final byte LF = 0x0A;
-	protected static final int maxChunkSize = 8 * 1024;
 	
 	private SelectionKey requestsDescriptor;
 	protected ByteBuffer buffer;
@@ -40,7 +40,7 @@ class InputPipe {
 	
 	public InputPipe(SelectionKey requestsDescriptor){
 		this.requestsDescriptor = requestsDescriptor;
-		buffer = ByteBuffer.allocate(InputPipe.maxChunkSize);
+		buffer = ByteBuffer.allocate(Configuration.INSTANCE.getBufferSize());
 		lastLengthRead = 0;
 		connectionid = "unknown";
 	}
