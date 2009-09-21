@@ -16,7 +16,7 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server;
+package org.bonmassar.crappydb.server.config;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 
 import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.junit.Test;
 
 public class TestConfiguration {
@@ -137,7 +138,7 @@ public class TestConfiguration {
 		Configuration.INSTANCE.parse(new String[]{"-v", "-p128", "-t12"});
 		String params = Configuration.INSTANCE.getConfigParams();
 		
-		assertEquals("dump off\nhelp off\nversion on\nhostname *\nport 128\nthreads 12\nbuffer-size 8192\nmax-payload-size 67108864\n", params);
+		assertEquals("file CommandLine\ndump off\nhelp off\nversion on\nhostname *\nport 128\nthreads 12\nbuffer-size 8192\nmax-payload-size 67108864\n", params);
 	}
 	
 	@Test

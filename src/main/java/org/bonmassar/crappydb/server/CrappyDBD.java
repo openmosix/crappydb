@@ -20,6 +20,7 @@ package org.bonmassar.crappydb.server;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.io.CrappyNetworkServer;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.stats.DBStats;

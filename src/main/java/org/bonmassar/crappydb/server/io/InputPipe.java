@@ -25,7 +25,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
-import org.bonmassar.crappydb.server.Configuration;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.stats.DBStats;
 
 class InputPipe {

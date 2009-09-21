@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.bonmassar.crappydb.server.Configuration;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 
 public class CrappyNetworkServer {

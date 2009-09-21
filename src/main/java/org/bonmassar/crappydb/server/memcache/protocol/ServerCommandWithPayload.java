@@ -18,7 +18,7 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
-import org.bonmassar.crappydb.server.Configuration;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.bonmassar.crappydb.utils.Base64;

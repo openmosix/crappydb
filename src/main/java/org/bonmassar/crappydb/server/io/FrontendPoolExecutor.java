@@ -22,7 +22,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.concurrent.Callable;
 
-import org.bonmassar.crappydb.server.Configuration;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 
 class FrontendPoolExecutor extends PoolThreadExecutor<SelectionKey> {
