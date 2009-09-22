@@ -34,7 +34,10 @@ public class ConfigurationBuilder {
 		
 		String filename = cliconfig.getConfigurationFileName();
 		try {
-			 return new FileConfiguration(filename);
+			 cliconfig =  new FileConfiguration(filename);
+			 
+			 cliconfig.parse(args);
+			 return cliconfig;
 		} catch (FileNotFoundException e) {
 			logger.warn(String.format("Cannot find %s configuration file, continuing using command line config", filename));
 			cliconfig.setNoConfigFileFound();

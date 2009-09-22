@@ -78,7 +78,7 @@ class CLIConfiguration extends DefaultConfiguration {
 	    if( !cli.hasOption( PORT ) )
 	    	return super.getServerPort();
 
-	    return toInt(cli.getOptionValue( "port" ).trim(), PORT);
+	    return toInt(cli.getOptionValue( PORT ).trim(), PORT);
 	}
 
 	@Override
