@@ -1,0 +1,136 @@
+#!/bin/bash
+###
+## Startup / Shutdown script for CrappyDB-0.1 - Luca Bonmassar <23.09.09>s
+###
+
+###############################################################################
+## Public part - you can customize this area
+###############################################################################
+export JAVA_HOME=/opt/jdk1.6.0_13/bin/
+export PATH="${JAVA_HOME}"/bin:"${PATH}"
+export JAVA_VM_PARAMS=-Xmx768M
+export CRAPPYDB_HOME=/etc/crappydb/
+export CRAPPYDB_CONFIG=crappydb.conf
+export CRAPPYDB_PARAMS=--dump
+
+###############################################################################
+## Private part - you should not touch this area 8-P
+###############################################################################
+
+export PID=0
+export PIDFILE="${CRAPPYDB_HOME}"/server.pid
+
+function readPID() {
+	if [ -e "$PIDFILE" ]; 
+	then
+	    PID=`cat "$PIDFILE"`
+	    if [ "x" == "x$PID" ]; then
+	        PID=0
+	    fi
+	fi
+}
+
+function checkPIDOrDie() {
+    if [ 0 -ne "${PID}" ]; 
+    then
+        STATUS=`ps --pid "${PID}" | grep "${PID}" | wc -l`
+        if [ "${STATUS}" ]; 
+        then
+            echo "CrappyDB is already running (PID ${PID}), remove ${PIDFILE} if it is not the case."
+            exit -1
+        fi
+
+        echo "Dangling pidfile but the process (PID ${PID}) is not found. Resetting pidfile."
+        rm "$PIDFILE"
+        PID=0
+    fi
+}
+
+function start() {
+	checkPIDOrDie
+
+    echo "Starting CrappyDB.."
+
+	"{JAVA_HOME}"/java "${JAVA_VM_PARAMS}" -jar "${CRAPPYDB_HOME}"/lib/crappydbd.jar \
+		--file="${CRAPPYDB_HOME}"/lib/conf/"${CRAPPYDB_CONFIG}" "${CRAPPYDB_PARAMS}"
+    
+    echo $! > $PIDFILE
+
+    sleep 2
+    echo "CrappyDB is now running!" 
+    echo "Pid: $!"
+}
+
+function waitForDeath(){
+    while [ 1 ];
+    do
+        if ps --pid "${PID}" > /dev/null; 
+        then
+            echo -n ".";
+            sleep 1;
+        else
+            break;
+        fi
+    done
+}
+
+function stop() {
+	readPID
+	
+    if [ 0 -eq "${PID}" ]; 
+    then
+        echo "CrappyDB is not running, noop"
+        exit 1
+    fi
+
+    echo "CrappyDB running with PID ${PID}, sending a kill signal..."
+    kill ${PID}
+    waitForDeath
+    rm ${PIDFILE}
+    
+    echo "CrappyDB stopped."
+}
+
+function printStatus() {
+   if [ 0 -ne "${PID}" ]; 
+   then
+        STATUS=`ps --pid "${PID}" | grep "${PID}" | wc -l`
+   fi
+
+   if [ "${STATUS}" ]; 
+   then
+        echo "CrappyDB is running with PID ${PID}"
+   else
+        echo "Cannot find running instances of CrappyDB."
+   fi
+}
+
+function printUsage() {
+    echo "Usage: "`basename $0`" (status|start|stop|restart)"
+ }
+
+case "$1" in
+
+	status)
+		printStatus
+		;;
+		
+    start)
+		start
+        ;;
+  
+    stop)
+		stop
+        ;;
+
+    restart)
+        $0 stop
+        $0 start
+        ;;
+
+    *)
+		printUsage
+
+        exit 1
+        ;;
+esac
