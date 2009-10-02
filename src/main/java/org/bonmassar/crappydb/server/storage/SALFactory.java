@@ -44,17 +44,19 @@ public class SALFactory {
 		}
 		
 		public StorageAccessLayer newInstance() {
-			StorageAccessLayer intstorage = null;
+			PhysicalAccessLayer phystorage = null;
 			try {
-				intstorage = (StorageAccessLayer) storage.newInstance();
+				phystorage = (PhysicalAccessLayer) storage.newInstance();
 			} catch (Exception e) {
 				log.fatal("Cannot instantiate required sal", e);
 			}
 			
-			GarbageCollectorScheduler scheduler = build(gc, Expirable.class, intstorage);
-			((SALBuilder)intstorage).setGarbageCollector(scheduler);
+			StatisticsSAL sal = new StatisticsSAL(phystorage);
+			((PAL)phystorage).setSAL(sal);
+			GarbageCollectorScheduler scheduler = build(gc, Expirable.class, sal);
+			((SALBuilder)sal).setGarbageCollector(scheduler);
 			scheduler.startGC();
-			return intstorage;
+			return sal;
 		}
 		
 		

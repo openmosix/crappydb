@@ -18,10 +18,11 @@
 
 package org.bonmassar.crappydb.server.storage;
 
+import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
 public interface Expirable {
 
-	void expire(Key k);
+	Item expire(Key k);
 	
 }

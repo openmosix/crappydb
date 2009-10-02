@@ -16,17 +16,13 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.storage.memory;
+package org.bonmassar.crappydb.server.storage;
 
-import java.util.HashMap;
-
-import org.bonmassar.crappydb.server.storage.data.Item;
-import org.bonmassar.crappydb.server.storage.data.Key;
-
-public class UnboundedMap extends CollectionPAL {
-
-	public UnboundedMap() {	
-		super(new HashMap<Key, Item>());
-	}
+/**
+ * 
+ * This interface is a marker iface
+ *
+ */
+public interface PhysicalAccessLayer extends StorageAccessLayer {
 
 }

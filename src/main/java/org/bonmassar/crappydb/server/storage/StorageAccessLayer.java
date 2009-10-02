@@ -29,25 +29,27 @@ import org.bonmassar.crappydb.server.storage.data.Item;
 
 public interface StorageAccessLayer extends Expirable{
 
-	void set(Item item) throws StorageException;
+	Item set(Item item) throws StorageException;
 	
 	void add(Item item) throws NotStoredException, StorageException;
 	
-	void replace(Item item) throws NotStoredException, StorageException;
+	Item replace(Item item) throws NotStoredException, StorageException;
 	
-	void append(Item item) throws NotFoundException, StorageException;
+	Item append(Item item) throws NotFoundException, StorageException;
 	
-	void prepend(Item item) throws NotFoundException, StorageException;
+	Item prepend(Item item) throws NotFoundException, StorageException;
 	
-	void swap(Item item, String CASId) throws NotFoundException, ExistsException, StorageException;
+	Item swap(Item item, String CASId) throws NotFoundException, ExistsException, StorageException;
 	
 	List<Item> get(List<Key> ids) throws StorageException;
 	
-	void delete(Key id, Long time) throws NotFoundException, StorageException;
-	
+	Item delete(Key id, Long time) throws NotFoundException, StorageException;
+		
 	Item increase(Key id, String value) throws NotFoundException, StorageException;
 	
 	Item decrease(Key id, String value) throws NotFoundException, StorageException;
 	
 	void flush(Long time);
+	
+	Item remove(Item it);
 }
