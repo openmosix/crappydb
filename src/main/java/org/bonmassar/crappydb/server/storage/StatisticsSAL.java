@@ -109,13 +109,12 @@ class StatisticsSAL extends GcSAL {
 	}
 	
 	@Override
-	public Item remove(Item it){
-		Item old = super.remove(it);
-		DBStats.INSTANCE.getStorage().delBytes(size(old.getData()));
+	public void notifyEviction(Item it) {
+		super.notifyEviction(it);
+		DBStats.INSTANCE.getStorage().delBytes(size(it.getData()));
 		DBStats.INSTANCE.getStorage().decrementNoItems();
-		return old;
 	}
-	
+		
 	private int size(byte[] data) {
 		if(null == data)
 			return 0;

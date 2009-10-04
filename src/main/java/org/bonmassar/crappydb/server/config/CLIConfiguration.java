@@ -24,6 +24,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.bonmassar.crappydb.server.storage.SALFactory.Catalogue;
 
 class CLIConfiguration extends DefaultConfiguration {
 
@@ -92,6 +93,21 @@ class CLIConfiguration extends DefaultConfiguration {
 	    return cli.getOptionValue( FILE ).trim();
 	}
 	
+	@Override
+	public String getDBPath() throws ParseException {
+	    if( !cli.hasOption( DB ) )
+	    	return super.getDBPath();
+
+	    return cli.getOptionValue( DB ).trim();
+	}
+
+	public Catalogue getStorage() throws ParseException {
+	    if( !cli.hasOption( STORAGE ) )
+	    	return super.getStorage();
+
+	    return fromEnum(Catalogue.class, cli.getOptionValue(STORAGE), STORAGE);
+	}	
+	
 	public boolean isDumpParams() {
 	    return cli.hasOption( DUMP );
 	}
@@ -107,6 +123,8 @@ class CLIConfiguration extends DefaultConfiguration {
 	private Options buildOptions() {
 		Options options = new Options();
 		options.addOption( null, "help", false, "print this help message." );
+		options.addOption( "d", "dbpath", true, String.format("the fs path where the db stores its data (def: %s).", DefaultConfiguration.DB.toString() ));
+		options.addOption( "s", "storage", true, String.format("select the storage layer (e.g.: memory only, persistent db, etc.). Allowed values: %s", getStorageAllowedValues() ));
 		options.addOption( "v", "version", false, "print server version." );
 		options.addOption( null, "dump", false, "dump runtime config parameters in log files." );
 		options.addOption( null, "buffer-size", true, "define the internal buffer size for IO operations. (def: 8K)" );
@@ -118,7 +136,17 @@ class CLIConfiguration extends DefaultConfiguration {
 		return options;
 	}
 
+	private String getStorageAllowedValues() {
+		StringBuilder sb = new StringBuilder();
+		for(Catalogue c : Catalogue.values()){
+			if(sb.length() > 0)
+				sb.append(", ");
+			sb.append(String.format("\"%s\"", c));
+		}
+		return sb.toString();
+	}
+
 	public void setNoConfigFileFound() {
 		configFileNotFound = true;
-	}	
+	}
 }

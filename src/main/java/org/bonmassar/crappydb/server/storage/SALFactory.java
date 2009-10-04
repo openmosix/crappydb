@@ -21,6 +21,7 @@ package org.bonmassar.crappydb.server.storage;
 import java.lang.reflect.Constructor;
 
 import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.storage.berkley.data.BerkleyAdapter;
 import org.bonmassar.crappydb.server.storage.gc.FixedRateGarbageCollector;
 import org.bonmassar.crappydb.server.storage.gc.GarbageCollectorScheduler;
 import org.bonmassar.crappydb.server.storage.gc.NullGarbageCollectorScheduler;
@@ -30,17 +31,21 @@ import org.bonmassar.crappydb.server.storage.memory.UnboundedMap;
 public class SALFactory {
 	
 	public enum Catalogue {
-		INMEMORY_UNBOUNDED_FIXED_RATE_GC(UnboundedMap.class, FixedRateGarbageCollector.class),
-		INMEMORY_UNBOUNDED_NO_GC(UnboundedMap.class, NullGarbageCollectorScheduler.class);
+		INMEMORY_UNBOUNDED_FIXED_RATE_GC("unbounded-memory", UnboundedMap.class, FixedRateGarbageCollector.class),
+		INMEMORY_UNBOUNDED_NO_GC("unbounded-memory-no-gc", UnboundedMap.class, NullGarbageCollectorScheduler.class),
+		BERKLEY_FIXED_RATE_GC("berkley", BerkleyAdapter.class, FixedRateGarbageCollector.class),
+		BERKLEY_NO_GC("berkley-no-gc", BerkleyAdapter.class, NullGarbageCollectorScheduler.class);
 
 		private final static Logger log = Logger.getLogger(SALFactory.class);
 		
+		private final String storageName;
 		private final Class<?> storage;
 		private final Class<?> gc;
 		
-		private Catalogue(Class<?> storage, Class<?> gc) {
+		private Catalogue(String name, Class<?> storage, Class<?> gc) {
 			this.storage = storage;
 			this.gc = gc;
+			this.storageName = name;
 		}
 		
 		public StorageAccessLayer newInstance() {
@@ -48,7 +53,8 @@ public class SALFactory {
 			try {
 				phystorage = (PhysicalAccessLayer) storage.newInstance();
 			} catch (Exception e) {
-				log.fatal("Cannot instantiate required sal", e);
+				log.fatal("Cannot instantiate required physical access layer", e);
+				throw new RuntimeException("Cannot instantiate required physical access layer", e);
 			}
 			
 			StatisticsSAL sal = new StatisticsSAL(phystorage);
@@ -70,6 +76,11 @@ public class SALFactory {
 				log.fatal("Cannot instantiate required sal", e);
 				return null;
 			}
+		}
+		
+		@Override
+		public String toString() {
+			return storageName;
 		}
 	}
 

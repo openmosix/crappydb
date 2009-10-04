@@ -20,6 +20,8 @@ package org.bonmassar.crappydb.server.storage.berkley.data;
 
 import java.io.File;
 
+import org.bonmassar.crappydb.server.config.Configuration;
+
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
@@ -27,16 +29,16 @@ import com.sleepycat.je.EnvironmentLockedException;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.StoreConfig;
 
-public class BerkleyFactory {
+class BerkleyFactory {
 
 	/**
-	 * Create a BerkleyPAL db specifying the fs path
+	 * Create a EntityStore for berkley db specifying the fs path
 	 * @param dbpath	The path to the database
 	 * @return	An handler for BerkleyDB
 	 * @throws DatabaseException 
 	 * @throws EnvironmentLockedException 
 	 */
-	public BerkleyPAL newInstance(String dbpath) throws EnvironmentLockedException, DatabaseException{
+	public static EntityStore newInstance(String dbpath) throws EnvironmentLockedException, DatabaseException{
 		EnvironmentConfig envConfig = new EnvironmentConfig(); 
 		envConfig.setAllowCreate(true); 
 		envConfig.setTransactional(true); 
@@ -47,7 +49,10 @@ public class BerkleyFactory {
 		storeConfig.setTransactional(true); 
 		EntityStore store = new EntityStore(env, "ItemStore", storeConfig); 
 
-		return new BerkleyPAL(env, store);
+		return store;
 	}
 	
+	public static EntityStore newInstance() throws EnvironmentLockedException, DatabaseException {
+		return newInstance(Configuration.INSTANCE.getDbPath());
+	}
 }

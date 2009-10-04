@@ -26,7 +26,6 @@ import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.stats.DBStats;
 import org.bonmassar.crappydb.server.storage.SALFactory;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
-import org.bonmassar.crappydb.server.storage.SALFactory.Catalogue;
  
 public class CrappyDBD {
 
@@ -40,7 +39,7 @@ public class CrappyDBD {
 	}
 	
 	public void boot() {
-		sal = SALFactory.newInstance(Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
+		sal = SALFactory.newInstance(Configuration.INSTANCE.getStorage());
 		CommandFactory cmdFactory = new CommandFactory(sal);
 		(new HomerBoot()).splashScreen();
 		

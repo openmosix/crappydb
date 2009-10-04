@@ -108,10 +108,9 @@ class GcSAL extends SAL {
 		gc.getGCRef().flush();
 	}
 	
-	public Item remove(Item it){
-		gc.getGCRef().stop(it.getKey(), it.getExpire());
-		return it;
-	}
-
 	public void close() { /* nothing to do */ }
+
+	public void notifyEviction(Item it) {
+		gc.getGCRef().stop(it.getKey(), it.getExpire());	
+	}
 }

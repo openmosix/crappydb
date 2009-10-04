@@ -109,6 +109,10 @@ public abstract class PAL implements PhysicalAccessLayer {
 		return blowIfItemDoesNotExists(lock, id);
 	}
 	
+	public void notifyEviction(Item it) {
+		sal.notifyEviction(it);
+	}
+	
 	protected abstract Item getItemAndDestroyItIfExpired(Object lock, Key key);
 
 }

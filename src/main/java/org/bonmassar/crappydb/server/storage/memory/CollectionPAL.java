@@ -128,14 +128,10 @@ public class CollectionPAL extends PAL {
 		if(null == item || !item.isExpired())
 			return item;
 		
-		sal.remove(item);
+		repository.remove(key);
+		
 		return null;
 	}
 
-	public Item remove(Item k){
-		return repository.remove(k);
-	}
-
 	public void close() {}
-
 }

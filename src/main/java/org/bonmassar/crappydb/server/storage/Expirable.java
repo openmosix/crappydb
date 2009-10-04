@@ -25,4 +25,5 @@ public interface Expirable {
 
 	Item expire(Key k);
 	
+	void notifyEviction(Item it);
 }

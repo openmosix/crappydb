@@ -40,17 +40,17 @@ import com.sleepycat.je.Transaction;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 
-public class BerkleyPAL extends PAL {
+class BerkleyPAL extends PAL {
 
 	private final static Logger logger = Logger.getLogger(BerkleyPAL.class);
 	
-	final PrimaryIndex<String, ItemEntity> repositoryByCip; 
+	final PrimaryIndex<String, ItemEntity> repository; 
 	final Environment environment;
 	final EntityStore store;
 	
-	public BerkleyPAL(Environment environment, EntityStore store) throws DatabaseException{
-		this.repositoryByCip = store.getPrimaryIndex( String.class, ItemEntity.class );
-		this.environment = environment;
+	public BerkleyPAL(EntityStore store) throws DatabaseException{
+		this.repository = store.getPrimaryIndex( String.class, ItemEntity.class );
+		this.environment = store.getEnvironment();
 		this.store = store;
 	}
 	
@@ -230,12 +230,14 @@ public class BerkleyPAL extends PAL {
 		if(null == item || !item.isExpired())
 			return item;
 		
-		sal.remove(item);
-		return null;
-	}
-
-	public Item remove(Item k){
-		//return repository.remove(k);
+		try {
+			delete(txn, item.getKey());
+		} catch (StorageException e) {
+			logger.error(String.format("Cannot delete expired key %s, error writing on db"), e);
+			return null;
+		}
+		
+		notifyEviction(item);
 		return null;
 	}
 	
@@ -274,7 +276,7 @@ public class BerkleyPAL extends PAL {
 	
 	private void put(Transaction transaction, Item it) throws StorageException{
 		try {
-			repositoryByCip.put(transaction, new ItemEntity(it));
+			repository.put(transaction, new ItemEntity(it));
 		} catch (DatabaseException e) {
 			logger.error("Error writing on database", e);
 			throw new StorageException("Error writing on database");
@@ -283,8 +285,8 @@ public class BerkleyPAL extends PAL {
 	
 	private Item delete(Transaction transaction, Key k) throws StorageException{
 		try {
-			ItemEntity old = repositoryByCip.get(transaction, k.toString(), LockMode.RMW);
-			repositoryByCip.delete(transaction, k.toString());
+			ItemEntity old = repository.get(transaction, k.toString(), LockMode.RMW);
+			repository.delete(transaction, k.toString());
 			
 			return old.toItem();
 		} catch (DatabaseException e) {
@@ -295,7 +297,7 @@ public class BerkleyPAL extends PAL {
 	
 	private Item get(Transaction transaction, Key k) throws StorageException{
 		try {
-			ItemEntity old = repositoryByCip.get(transaction, k.toString(), LockMode.RMW);
+			ItemEntity old = repository.get(transaction, k.toString(), LockMode.RMW);
 			if(null == old)
 				return null;
 			return old.toItem();

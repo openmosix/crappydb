@@ -19,9 +19,12 @@
 package org.bonmassar.crappydb.server.config;
 
 import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.storage.SALFactory.Catalogue;
 
 abstract class DefaultConfiguration implements ConfigurationIface {
 
+	protected final static String DB = "dbpath";
+	protected final static String STORAGE = "storage";
 	protected final static String THREADS = "threads";
 	protected final static String DUMP = "dump";
 	protected final static String BUFFSIZE = "buffer-size";
@@ -31,7 +34,15 @@ abstract class DefaultConfiguration implements ConfigurationIface {
 	protected final static String VERSION = "version";
 	protected final static String HELP = "help";
 	protected final static String FILE = "file";
-		
+	
+	public Catalogue getStorage() throws ParseException{
+		return Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC;
+	}
+	
+	public String getDBPath() throws ParseException{
+		return "/var/crappydb/db";
+	}
+	
 	public int getBufferSize() throws ParseException {
 		return 8 * 1024;
 	}
@@ -54,6 +65,11 @@ abstract class DefaultConfiguration implements ConfigurationIface {
 	
 	public String getConfigurationFileName() {
 		return "crappydb.conf";
+	}
+	
+	protected <T extends Enum<T>> T fromEnum(Class<T> enumType, String value, String paramName) throws ParseException{
+		T result = Enum.valueOf(enumType, value);
+		return result;
 	}
 	
 	protected int toInt(String value, String paramName) throws ParseException{

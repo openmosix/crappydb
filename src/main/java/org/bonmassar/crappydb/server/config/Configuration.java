@@ -19,12 +19,15 @@
 package org.bonmassar.crappydb.server.config;
 
 import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.storage.SALFactory.Catalogue;
 
 public enum Configuration {
 	INSTANCE;
 		
 	private CLIConfiguration config;
 	
+	private Catalogue storage;
+	private String dbpath;
 	private int serverPort;
 	private String serverHostname;
 	private int engineThreads;
@@ -38,7 +41,15 @@ public enum Configuration {
 	private String configFileName() {
 		return configFile;
 	}
-		
+	
+	public Catalogue getStorage() {
+		return storage;
+	}
+	
+	public String getDbPath() {
+		return dbpath;
+	}
+	
 	public int getServerPort() {
 		return serverPort;
 	}
@@ -81,6 +92,8 @@ public enum Configuration {
 		version = config.isVersion();
 		dump = config.isDumpParams();
 		configFile = config.getConfigurationFileName();
+		storage = config.getStorage();
+		dbpath = config.getDBPath();
 	}
 	
 	public String getConfigParams() {
@@ -94,6 +107,8 @@ public enum Configuration {
 		sb.append(String.format("threads %d\n", getEngineThreads()));
 		sb.append(String.format("buffer-size %d\n", getBufferSize()));
 		sb.append(String.format("max-payload-size %d\n", getMaxPayloadSize()));
+		sb.append(String.format("storage %s\n", getStorage()));		
+		sb.append(String.format("dbpath %s\n", getDbPath()));
 		return sb.toString();
 	}
 	

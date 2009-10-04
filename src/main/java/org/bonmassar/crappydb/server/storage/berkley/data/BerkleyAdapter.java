@@ -16,32 +16,15 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.config;
+package org.bonmassar.crappydb.server.storage.berkley.data;
 
-import org.apache.commons.cli.ParseException;
-import org.bonmassar.crappydb.server.storage.SALFactory.Catalogue;
+import com.sleepycat.je.DatabaseException;
+import com.sleepycat.je.EnvironmentLockedException;
 
-public interface ConfigurationIface {
-	
-	Catalogue getStorage() throws ParseException;
-	
-	String getDBPath() throws ParseException;
-	
-	int getServerPort() throws ParseException ;
+public class BerkleyAdapter extends BerkleyPAL {
 
-	int getBufferSize() throws ParseException ;
-	
-	int getEngineThreads() throws ParseException ;
-	
-	boolean isHelpMessage() throws ParseException ;
-	
-	boolean isDumpParams() throws ParseException ;
-	
-	boolean isVersion() throws ParseException ;
-	
-	String getHostname() throws ParseException ;
-	
-	int getMaxPayloadSize()throws ParseException ;
-	
-	String getConfigurationFileName()throws ParseException ;
+	public BerkleyAdapter() throws EnvironmentLockedException, DatabaseException {
+		super(BerkleyFactory.newInstance());
+	}
+
 }
