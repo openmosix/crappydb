@@ -56,6 +56,7 @@ public class TestPrependServerCommand extends TestCase {
 		output = mock(OutputCommandWriter.class);
 		command.setStorage(storage);
 		command.channel = output;
+		Configuration.INSTANCE.parse(null);
 	}
 	
 	@Test
@@ -147,8 +148,8 @@ public class TestPrependServerCommand extends TestCase {
 		command.addPayloadContentPart("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789".getBytes());
 		assertEquals(50, command.payloadCursor);
 
-		doAnswer(new Answer<Integer>() {
-			public Integer answer(InvocationOnMock invocation) throws Throwable {
+		doAnswer(new Answer<Item>() {
+			public Item answer(InvocationOnMock invocation) throws Throwable {
 				Item it = (Item) invocation.getArguments()[0];
 				assertNotNull(it);
 				assertEquals(new Key("terminenzio"), it.getKey());
@@ -156,7 +157,7 @@ public class TestPrependServerCommand extends TestCase {
 				assertEquals(1252101098, it.getExpire());
 				assertEquals("01234567890123456789012345678901234567890123456789", new String(it.getData()));
 				
-				return 0; 
+				return null; 
 			}
 		}).when(storage).prepend((Item) anyObject());
 		

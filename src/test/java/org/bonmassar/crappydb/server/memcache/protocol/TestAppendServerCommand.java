@@ -25,6 +25,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
@@ -46,12 +48,13 @@ public class TestAppendServerCommand extends TestCase {
 	private OutputCommandWriter output;
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws ParseException {
 		command = new AppendServerCommand();
 		storage = mock(StorageAccessLayer.class);
 		output = mock(OutputCommandWriter.class);
 		command.setStorage(storage);
 		command.channel = output;
+		Configuration.INSTANCE.parse(null);
 	}
 	
 	@Test
@@ -143,9 +146,9 @@ public class TestAppendServerCommand extends TestCase {
 		command.addPayloadContentPart("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789".getBytes());
 		assertEquals(50, command.payloadCursor);
 
-		doAnswer(new Answer<Integer>() {
+		doAnswer(new Answer<Item>() {
 
-			public Integer answer(InvocationOnMock invocation) throws Throwable {
+			public Item answer(InvocationOnMock invocation) throws Throwable {
 
 				Item it = (Item) invocation.getArguments()[0];
 				assertNotNull(it);
@@ -154,7 +157,7 @@ public class TestAppendServerCommand extends TestCase {
 				assertEquals(1252101098, it.getExpire());
 				assertEquals("01234567890123456789012345678901234567890123456789", new String(it.getData()));
 				
-				return 0;
+				return null;
 			}
 			
 		}).when(storage).append((Item) anyObject());

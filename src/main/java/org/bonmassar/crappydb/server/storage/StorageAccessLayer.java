@@ -28,6 +28,20 @@ import org.bonmassar.crappydb.server.storage.data.Key;
 import org.bonmassar.crappydb.server.storage.data.Item;
 
 public interface StorageAccessLayer extends Expirable{
+	
+	/**
+	 *	Represent the result of an StorageAccessLayer operation
+	 */
+	class OperationResult {
+		/**
+		 * The item currently stored in the system
+		 */
+		public Item stored;
+		/**
+		 * Item removed from the system due to expiration or deferred deletion
+		 */
+		public Item victim;
+	}
 
 	Item set(Item item) throws StorageException;
 	
@@ -52,4 +66,6 @@ public interface StorageAccessLayer extends Expirable{
 	void flush(Long time);
 	
 	Item remove(Item it);
+	
+	void close();
 }

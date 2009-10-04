@@ -25,12 +25,12 @@ public class CollectionPAL extends PAL {
 	}
 
 	public synchronized void add(Item item) throws NotStoredException, StorageException {
-		blowIfItemExists(item);
+		blowIfItemExists(null, item);
 		repository.put(item.getKey(), item);
 	}
 
 	public synchronized Item append(Item item) throws NotFoundException, StorageException {
-		Item prevstored = getPreviousStored(item);
+		Item prevstored = getPreviousStored(null, item);
 		if(null != prevstored){
 			Item newItem = new Item(prevstored.getKey(), concatData(prevstored, item), prevstored.getFlags(), item.getExpire());
 			repository.put(prevstored.getKey(), newItem);
@@ -40,7 +40,7 @@ public class CollectionPAL extends PAL {
 
 	public synchronized Item decrease(Key id, String value) throws NotFoundException,
 			StorageException {
-		Item oldItem = blowIdInvalidIdOrWrongValue(id, value);
+		Item oldItem = blowIdInvalidIdOrWrongValue(null, id, value);
 		String data = getDataAsString(oldItem.getData());
 		Item newItem = new Item(oldItem.getKey(), BigDecrementer.decr(data, value).getBytes(), oldItem.getFlags());
 		repository.put(oldItem.getKey(), newItem);			
@@ -49,7 +49,7 @@ public class CollectionPAL extends PAL {
 
 	public synchronized Item delete(Key id, Long time) throws NotFoundException,
 			StorageException {
-		blowIfItemDoesNotExists(id);
+		blowIfItemDoesNotExists(null, id);
 
 		Item oldItem = repository.remove(id);
 		if(null != time && -1L != time){
@@ -66,7 +66,7 @@ public class CollectionPAL extends PAL {
 	public synchronized List<Item> get(List<Key> ids) throws StorageException {
 		List<Item> resp = new LinkedList<Item>();
 		for (Key k : ids) {
-			Item it = getItemAndDestroyItIfExpired(k);
+			Item it = getItemAndDestroyItIfExpired(null, k);
 			if(!isDeleted(it))
 				resp.add(it);
 		}
@@ -75,7 +75,7 @@ public class CollectionPAL extends PAL {
 
 	public synchronized Item increase(Key id, String value) throws NotFoundException,
 			StorageException {
-		Item oldItem = blowIdInvalidIdOrWrongValue(id, value);
+		Item oldItem = blowIdInvalidIdOrWrongValue(null, id, value);
 		String data = getDataAsString(oldItem.getData());
 		Item newItem = new Item(oldItem.getKey(), BigIncrementer.incr(data, value).getBytes(), oldItem.getFlags());
 		repository.put(oldItem.getKey(), newItem);			
@@ -83,7 +83,7 @@ public class CollectionPAL extends PAL {
 	}
 
 	public synchronized Item prepend(Item item) throws NotFoundException, StorageException {
-		Item prevstored = getPreviousStored(item);
+		Item prevstored = getPreviousStored(null, item);
 		if(null != prevstored){
 			Item newItem = new Item(prevstored.getKey(), concatData(item, prevstored), prevstored.getFlags(), item.getExpire());
 			repository.put(prevstored.getKey(), newItem);
@@ -92,7 +92,7 @@ public class CollectionPAL extends PAL {
 	}
 
 	public synchronized Item replace(Item item) throws NotStoredException, StorageException {
-		Item prevItem = getItemAndDestroyItIfExpired(item.getKey());
+		Item prevItem = getItemAndDestroyItIfExpired(null, item.getKey());
 		if (null == prevItem || isDeleted(prevItem))
 			throw new NotStoredException();
 		return repository.put(item.getKey(), item);
@@ -104,7 +104,7 @@ public class CollectionPAL extends PAL {
 
 	public synchronized Item swap(Item item, String CASId) throws NotFoundException,
 			ExistsException, StorageException {
-		Item prevItem = getItemAndDestroyItIfExpired(item.getKey());
+		Item prevItem = getItemAndDestroyItIfExpired(null, item.getKey());
 		if(null == prevItem || isDeleted(prevItem))
 			throw new NotFoundException();
 		if(!prevItem.generateCAS().compareTo(CASId))
@@ -123,7 +123,7 @@ public class CollectionPAL extends PAL {
 		return repository.remove(k);	
 	}
 
-	protected Item getItemAndDestroyItIfExpired(Key key){
+	protected Item getItemAndDestroyItIfExpired(Object lock, Key key){
 		Item item = repository.get(key);
 		if(null == item || !item.isExpired())
 			return item;
@@ -135,5 +135,7 @@ public class CollectionPAL extends PAL {
 	public Item remove(Item k){
 		return repository.remove(k);
 	}
+
+	public void close() {}
 
 }

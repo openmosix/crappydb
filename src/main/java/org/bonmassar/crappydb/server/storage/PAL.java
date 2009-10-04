@@ -33,9 +33,9 @@ public abstract class PAL implements PhysicalAccessLayer {
 		this.sal = sal;
 	}
 	
-	protected Item getPreviousStored(Item item) throws StorageException,
+	protected Item getPreviousStored(Object lock, Item item) throws StorageException,
 	NotFoundException {
-		Item prevItem = getItemAndDestroyItIfExpired(item.getKey());
+		Item prevItem = getItemAndDestroyItIfExpired(lock, item.getKey());
 
 		if (null == prevItem || isDeleted(prevItem))
 			throw new NotFoundException();
@@ -46,8 +46,8 @@ public abstract class PAL implements PhysicalAccessLayer {
 		return prevItem;
 	}
 	
-	protected Item blowIfItemDoesNotExists(Key k) throws NotFoundException {
-		Item storedItem = getItemAndDestroyItIfExpired(k);
+	protected Item blowIfItemDoesNotExists(Object lock, Key k) throws NotFoundException {
+		Item storedItem = getItemAndDestroyItIfExpired(lock, k);
 
 		if (null == storedItem)
 			throw new NotFoundException();
@@ -63,8 +63,8 @@ public abstract class PAL implements PhysicalAccessLayer {
 		return (null == data) ? "" : new String(data);
 	}
 
-	protected void blowIfItemExists(Item item) throws NotStoredException {
-		Item storedItem = getItemAndDestroyItIfExpired(item.getKey());
+	protected void blowIfItemExists(Object lock, Item item) throws NotStoredException {
+		Item storedItem = getItemAndDestroyItIfExpired(lock, item.getKey());
 		if (null != storedItem || isDeleted(storedItem))
 			throw new NotStoredException();
 	}
@@ -102,13 +102,13 @@ public abstract class PAL implements PhysicalAccessLayer {
 		return length + (noBinaryData(postfix) ? 0 : postfix.length);
 	}
 
-	protected Item blowIdInvalidIdOrWrongValue(Key id, String value) throws StorageException,
+	protected Item blowIdInvalidIdOrWrongValue(Object lock, Key id, String value) throws StorageException,
 		NotFoundException {
 		if (null == value)
 			throw new StorageException("Null item");
-		return blowIfItemDoesNotExists(id);
+		return blowIfItemDoesNotExists(lock, id);
 	}
 	
-	protected abstract Item getItemAndDestroyItIfExpired(Key key);
+	protected abstract Item getItemAndDestroyItIfExpired(Object lock, Key key);
 
 }

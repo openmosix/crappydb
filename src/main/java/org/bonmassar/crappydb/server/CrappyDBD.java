@@ -33,13 +33,14 @@ public class CrappyDBD {
 	private final static Logger logger = Logger.getLogger(CrappyDBD.class);
 	private static CrappyNetworkServer serverInstance;
 	private static ShutdownExecutionRegister threadsKiller;
+	private static StorageAccessLayer sal;
 	
 	public CrappyDBD(String[] args) throws ParseException {
 		Configuration.INSTANCE.parse(args);
 	}
 	
 	public void boot() {
-		StorageAccessLayer sal = SALFactory.newInstance(Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
+		sal = SALFactory.newInstance(Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
 		CommandFactory cmdFactory = new CommandFactory(sal);
 		(new HomerBoot()).splashScreen();
 		
@@ -85,5 +86,6 @@ public class CrappyDBD {
 	
 	static public void shutdown() {
 		threadsKiller.start();
+		sal.close();
 	}
 }

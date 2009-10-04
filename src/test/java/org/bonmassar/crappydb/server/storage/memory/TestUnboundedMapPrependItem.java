@@ -25,17 +25,19 @@ import junit.framework.TestCase;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
+import org.bonmassar.crappydb.server.storage.SALFactory;
+import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestUnboundedMapPrependItem extends TestCase {
-	private UnboundedMap um;
+	private StorageAccessLayer um;
 	
 	@Before
 	public void setUp(){
-		um = new UnboundedMap();
+		um = SALFactory.newInstance(SALFactory.Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
 	}
 	
 	@Test

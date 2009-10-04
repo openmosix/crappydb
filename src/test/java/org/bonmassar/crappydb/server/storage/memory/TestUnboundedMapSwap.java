@@ -23,6 +23,8 @@ import java.util.Arrays;
 import org.bonmassar.crappydb.server.exceptions.ExistsException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
+import org.bonmassar.crappydb.server.storage.SALFactory;
+import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.Before;
@@ -32,12 +34,12 @@ import junit.framework.TestCase;
 
 public class TestUnboundedMapSwap extends TestCase {
 
-	private UnboundedMap um;
+	private StorageAccessLayer um;
 	private Item previt;
 	
 	@Before
 	public void setUp() throws StorageException{
-		um = new UnboundedMap();
+		um = SALFactory.newInstance(SALFactory.Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
 		previt = new Item(new Key("Terminenzio"), "This is the payload.".getBytes(), 22, 1979072581L);
 		um.set( previt );
 	}

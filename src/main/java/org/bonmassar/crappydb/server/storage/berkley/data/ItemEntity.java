@@ -19,6 +19,7 @@
 package org.bonmassar.crappydb.server.storage.berkley.data;
 
 import org.bonmassar.crappydb.server.storage.data.Item;
+import org.bonmassar.crappydb.server.storage.data.Key;
 
 import com.sleepycat.persist.model.Entity;
 import com.sleepycat.persist.model.PrimaryKey;
@@ -27,17 +28,27 @@ import com.sleepycat.persist.model.PrimaryKey;
 public class ItemEntity {
 
 	@PrimaryKey
-	private String primarykey;
+	private String primaryKey;
 	
 	private byte[] payload;
 	private int flags;
 	private long expiration;
 
-	private ItemEntity(){
+	ItemEntity(){
 		//injection constructor
 	}
 	
 	public ItemEntity(final Item item){
+		if(null == item)
+			throw new NullPointerException();
 		
+		primaryKey = item.getKey().toString();
+		payload = item.getData();
+		flags = item.getFlags();
+		expiration = item.getExpire();
+	}
+	
+	public Item toItem() {
+		return new Item(new Key(primaryKey), payload, flags, expiration);
 	}
 }

@@ -49,6 +49,8 @@ class FrontendTask implements Callable<Integer> {
 		while (true) {
 			try{
 				executeTask();
+			}catch(InterruptedException ie) {
+				continue;
 			}catch(java.lang.Throwable t){
 				frontend.getBarrier().countDown();
 				logger.fatal("Internal error executing db operations", t);

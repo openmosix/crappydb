@@ -112,4 +112,6 @@ class GcSAL extends SAL {
 		gc.getGCRef().stop(it.getKey(), it.getExpire());
 		return it;
 	}
+
+	public void close() { /* nothing to do */ }
 }

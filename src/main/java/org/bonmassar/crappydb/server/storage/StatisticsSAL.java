@@ -26,7 +26,7 @@ import org.bonmassar.crappydb.server.stats.DBStats;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
-public class StatisticsSAL extends GcSAL {
+class StatisticsSAL extends GcSAL {
 
 	public StatisticsSAL(PhysicalAccessLayer delegate) {
 		super(delegate);
