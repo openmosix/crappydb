@@ -21,6 +21,8 @@ package org.bonmassar.crappydb.server.memcache.protocol;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +32,8 @@ public class TestCommandFactory {
 	private CommandFactory factory;
 	
 	@Before
-	public void setUp(){
+	public void setUp() throws ParseException{
+		Configuration.INSTANCE.parse(null);
 		factory = new CommandFactory(null);
 	}
 	

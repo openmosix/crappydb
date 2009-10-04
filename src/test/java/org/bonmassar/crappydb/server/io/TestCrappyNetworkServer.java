@@ -29,7 +29,9 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -43,8 +45,9 @@ public class TestCrappyNetworkServer extends TestCase {
 	private CommandFactory cmdFactory;
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws ParseException {
 		cmdFactory = mock(CommandFactory.class);
+		Configuration.INSTANCE.parse(null);
 	}
 	
 	@After

@@ -18,6 +18,8 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
+import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
@@ -47,7 +49,8 @@ public class TestAddServerCommand extends TestCase {
 	private OutputCommandWriter output;
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws ParseException {
+		Configuration.INSTANCE.parse(null);
 		command = new AddServerCommand();
 		storage = mock(StorageAccessLayer.class);
 		output = mock(OutputCommandWriter.class);

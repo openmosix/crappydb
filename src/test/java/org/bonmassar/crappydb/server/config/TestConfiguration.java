@@ -138,8 +138,9 @@ public class TestConfiguration {
 		Configuration.INSTANCE.parse(new String[]{"-v", "-p128", "-t12"});
 		String params = Configuration.INSTANCE.getConfigParams();
 		
-		assertEquals("file CommandLine\ndump off\nhelp off\nversion on\nhostname *\nport 128\nthreads 12\nbuffer-size 8192\nmax-payload-size 67108864\n", params);
+		assertEquals("file CommandLine\ndump off\nhelp off\nversion on\nhostname *\nport 128\nthreads 12\nbuffer-size 8192\nmax-payload-size 67108864\nstorage unbounded-memory\ndbpath /var/crappydb/db\n", params);
 	}
+	
 	
 	@Test
 	public void testHelpMenu() {

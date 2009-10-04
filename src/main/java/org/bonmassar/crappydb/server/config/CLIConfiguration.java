@@ -105,7 +105,7 @@ class CLIConfiguration extends DefaultConfiguration {
 	    if( !cli.hasOption( STORAGE ) )
 	    	return super.getStorage();
 
-	    return fromEnum(Catalogue.class, cli.getOptionValue(STORAGE), STORAGE);
+	    return fromCatalogue(cli.getOptionValue(STORAGE), STORAGE);
 	}	
 	
 	public boolean isDumpParams() {
@@ -135,17 +135,7 @@ class CLIConfiguration extends DefaultConfiguration {
 		options.addOption( "p", "port", true, "bind the server to this port." );
 		return options;
 	}
-
-	private String getStorageAllowedValues() {
-		StringBuilder sb = new StringBuilder();
-		for(Catalogue c : Catalogue.values()){
-			if(sb.length() > 0)
-				sb.append(", ");
-			sb.append(String.format("\"%s\"", c));
-		}
-		return sb.toString();
-	}
-
+	
 	public void setNoConfigFileFound() {
 		configFileNotFound = true;
 	}

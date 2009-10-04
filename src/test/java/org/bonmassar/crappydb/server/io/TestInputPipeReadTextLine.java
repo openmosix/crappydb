@@ -30,6 +30,8 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,7 +42,8 @@ public class TestInputPipeReadTextLine {
 	private SelectionKey fakeSelector;
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws ParseException {
+		Configuration.INSTANCE.parse(null);
 		fakeSelector = mock(SelectionKey.class);
 		socketchannel = mock(SocketChannel.class);
 		input = new InputPipeMock(fakeSelector);

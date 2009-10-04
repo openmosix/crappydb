@@ -67,9 +67,11 @@ abstract class DefaultConfiguration implements ConfigurationIface {
 		return "crappydb.conf";
 	}
 	
-	protected <T extends Enum<T>> T fromEnum(Class<T> enumType, String value, String paramName) throws ParseException{
-		T result = Enum.valueOf(enumType, value);
-		return result;
+	protected Catalogue fromCatalogue(String value, String paramName) throws ParseException{
+		Catalogue c = Catalogue.valueOf(value);
+		if(null == c)
+			throw new ParseException(String.format("Invalid value %s for parameter %s. Allowed values are %s.", value, paramName, getStorageAllowedValues()));
+		return c;
 	}
 	
 	protected int toInt(String value, String paramName) throws ParseException{
@@ -79,6 +81,17 @@ abstract class DefaultConfiguration implements ConfigurationIface {
 			throw new ParseException(String.format("Invalid value for parameter %s", paramName));
 		}
 	}
+	
+	protected String getStorageAllowedValues() {
+		StringBuilder sb = new StringBuilder();
+		for(Catalogue c : Catalogue.values()){
+			if(sb.length() > 0)
+				sb.append(", ");
+			sb.append(String.format("\"%s\"", c));
+		}
+		return sb.toString();
+	}
+
 	
 	protected boolean toBool(String value, String paramName){		
 		return Boolean.parseBoolean(value);

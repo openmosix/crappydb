@@ -26,8 +26,10 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
+import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.mocks.FakeSelectionKey;
 import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +41,8 @@ public class TestFrontendPoolExecutor extends TestCase {
 	private FrontendPoolExecutor frontend;
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws ParseException {
+		Configuration.INSTANCE.parse(null);
 		frontend = new FrontendPoolExecutor();
 	}
 	

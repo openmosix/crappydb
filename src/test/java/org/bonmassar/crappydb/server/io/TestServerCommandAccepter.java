@@ -26,9 +26,11 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
+import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.mocks.FakeSelectionKey;
 import org.bonmassar.crappydb.mocks.WhateverChannel;
 import org.bonmassar.crappydb.mocks.WhateverServerChannel;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,7 +73,9 @@ public class TestServerCommandAccepter extends TestCase {
 	}
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws ParseException {
+		Configuration.INSTANCE.parse(null);
+
 		cmdFactory = mock(CommandFactory.class);
 		selection = mock(FakeSelectionKey.class);
 		parentSelector = mock(Selector.class);

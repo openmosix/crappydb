@@ -65,6 +65,19 @@ public class SALFactory {
 			return sal;
 		}
 		
+		public static Catalogue parseString(String value){
+			if(null == value)
+				throw new NullPointerException("Catalogue value is null.");
+			
+			String valueLw = value.toLowerCase();
+			
+			for(Catalogue c : Catalogue.values()){
+				if(c.storageName.equals(valueLw))
+					return c;
+			}
+			
+			return null;
+		}
 		
 		@SuppressWarnings("unchecked")
 		private <E, T> E build(Class<?> type, Class<?> paramType, T constructorParam){

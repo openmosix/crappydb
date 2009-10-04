@@ -18,12 +18,23 @@
 
 package org.bonmassar.crappydb.server.storage;
 
+import java.io.File;
+
+import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.storage.SALFactory.Catalogue;
+import org.junit.Before;
 import org.junit.Test;
 
 import junit.framework.TestCase;
 
 public class TestSALFactory extends TestCase {
+	
+	@Before
+	public void setUp() throws ParseException {
+		Configuration.INSTANCE.parse(new String[]{"-d","/tmp/crappydb/db"});
+		new File("/tmp/crappydb/db").mkdirs();
+	}
 
 	@Test
 	public void testBuildInMemoryUnboundedWithFixedRateGC(){
@@ -35,4 +46,33 @@ public class TestSALFactory extends TestCase {
 		assertNotNull(SALFactory.newInstance(Catalogue.INMEMORY_UNBOUNDED_NO_GC));
 	}
 	
+	@Test
+	public void testBuildBerkleyFixedRateGc() {
+		assertNotNull(SALFactory.newInstance(Catalogue.BERKLEY_FIXED_RATE_GC));
+	}
+	
+	@Test
+	public void testBuildBerkleyNoGc() {
+		assertNotNull(SALFactory.newInstance(Catalogue.BERKLEY_NO_GC));
+	}
+	
+	@Test
+	public void testGetEnumFromString() {
+		for(Catalogue c : Catalogue.values()){
+			String c_string = c.toString();
+			
+			Catalogue result = Catalogue.parseString(c_string);
+			assertEquals(c, result);
+		}
+	}
+	
+	@Test
+	public void testGetEnumFromNullString() {
+		try {
+			Catalogue.parseString(null);
+		} catch (NullPointerException e) {
+			return;
+		}
+		fail();
+	}
 }
