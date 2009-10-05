@@ -63,7 +63,7 @@ public class HomerBoot {
 		private String h40="               .,,@@h@#&s. .:,                                          hGAAH@"; 
 		private String h41="===============================================================================";
 		
-		private Logger logger = Logger.getLogger(HomerBoot.class);
+		protected Logger logger = Logger.getLogger(HomerBoot.class);
 		
 		public void splashScreen() {
 			logger.info(h1);
