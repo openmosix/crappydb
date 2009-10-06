@@ -57,7 +57,6 @@ public class TestCrappyDBDBoot {
 		t.start();
 		Thread.sleep(3000);
 		assertTrue(isRunning());
-		CrappyDBD.shutdown();
 		t.stop();
 	}
 	
