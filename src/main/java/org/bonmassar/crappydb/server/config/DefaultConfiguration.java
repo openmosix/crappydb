@@ -68,7 +68,7 @@ abstract class DefaultConfiguration implements ConfigurationIface {
 	}
 	
 	protected Catalogue fromCatalogue(String value, String paramName) throws ParseException{
-		Catalogue c = Catalogue.valueOf(value);
+		Catalogue c = Catalogue.parseString(value);
 		if(null == c)
 			throw new ParseException(String.format("Invalid value %s for parameter %s. Allowed values are %s.", value, paramName, getStorageAllowedValues()));
 		return c;
