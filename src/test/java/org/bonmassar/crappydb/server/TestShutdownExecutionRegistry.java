@@ -44,6 +44,26 @@ public class TestShutdownExecutionRegistry extends TestCase {
 		Registry.INSTANCE.clear();
 	}
 	
+	@Test 
+	public void testSingleInstance() {
+		assertEquals(1, Registry.values().length);
+	}
+	
+	@Test 
+	public void testValueOf() {
+		assertNotNull(Registry.valueOf("INSTANCE"));
+	}
+	
+	@Test 
+	public void testValueOfWrongType() {
+		try{
+			Registry.valueOf("INSTANCE2");
+		}catch(IllegalArgumentException arg){
+			return;
+		}
+		fail();
+	}
+	
 	@Test
 	public void testBookWithMockObj() throws Exception {
 		assertTrue(Registry.INSTANCE.book(service));
