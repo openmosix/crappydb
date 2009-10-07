@@ -30,61 +30,67 @@ import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 public class CrappyDBD {
 
 	private final static Logger logger = Logger.getLogger(CrappyDBD.class);
-	private static CrappyNetworkServer serverInstance;
-	private static ShutdownExecutionRegister threadsKiller;
-	private static StorageAccessLayer sal;
-	
-	public CrappyDBD(String[] args) throws ParseException {
-		Configuration.INSTANCE.parse(args);
-	}
-	
-	public void boot() {
-		sal = SALFactory.newInstance(Configuration.INSTANCE.getStorage());
-		CommandFactory cmdFactory = new CommandFactory(sal);
-		(new HomerBoot()).splashScreen();
+	private CrappyNetworkServer serverInstance;
+	ShutdownExecutionRegister threadsKiller;
 		
-		if(Configuration.INSTANCE.isDumpParams()){
-			String[] config = Configuration.INSTANCE.getConfigParams().split("\n");
-			logger.info("Dumping config parameters");
-			for (int i = 0; i < config.length; i++) {
-				logger.info(config[i]);				
-			}
-		}
-
-		threadsKiller = new ShutdownExecutionRegister();
-		Runtime.getRuntime().addShutdownHook(threadsKiller);
-
-		DBStats.INSTANCE.registerThread();
-		
-		CrappyDBD.serverInstance = new CrappyNetworkServer(cmdFactory, Configuration.INSTANCE.getServerPort()).serverSetup();
-		CrappyDBD.serverInstance.start();
-	}
-	
-	static public void main(String [] args){
-		CrappyDBD server = null;
+	public void boot(String[] args) {
 		try {
-			server = new CrappyDBD(args);
+			Configuration.INSTANCE.parse(args);
 		} catch (ParseException e) {
 			System.err.println("Invalid option parameter: "+e.getMessage());
 			logger.fatal("Invalid option parameter: "+e.getMessage());
 			return;
 		}
 		
+		if(serviceIsDone())
+			return;
+		
+		start();
+	}
+
+	private void start() {
+		StorageAccessLayer sal = SALFactory.newInstance(Configuration.INSTANCE.getStorage());
+		CommandFactory cmdFactory = new CommandFactory(sal);
+		(new HomerBoot()).splashScreen();
+		
+		dumpConfigParams();
+		setHandlers4Shutdown(sal);
+		
+		serverInstance = new CrappyNetworkServer(cmdFactory, Configuration.INSTANCE.getServerPort()).serverSetup();
+		serverInstance.start();
+	}
+
+	private void dumpConfigParams() {
+		if(!Configuration.INSTANCE.isDumpParams())
+			return;
+
+		String[] config = Configuration.INSTANCE.getConfigParams().split("\n");
+		logger.info("Dumping config parameters");
+		for (int i = 0; i < config.length; i++)
+			logger.info(config[i]);				
+	}
+
+	private void setHandlers4Shutdown(StorageAccessLayer sal) {
+		threadsKiller = new ShutdownExecutionRegister(sal);
+		Runtime.getRuntime().addShutdownHook(threadsKiller);
+		DBStats.INSTANCE.registerThread();
+	}
+
+	private boolean serviceIsDone() {
 		if(Configuration.INSTANCE.isHelpMessage()){
 			Configuration.INSTANCE.generateHelp();
-			return;
+			return true;
 		}
 		
 		if(Configuration.INSTANCE.isVersion()){
 			System.out.println("CrappyDBD "+DBStats.INSTANCE.getDBVersion());
-			return;
+			return true;
 		}
-				
-		server.boot();
-	} 
-	
-	static public void shutdown() {
-		threadsKiller.start();
-		sal.close();
+		
+		return false;
 	}
+	
+	static public void main(String [] args){
+		new CrappyDBD().boot(args);				
+	} 
 }

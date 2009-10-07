@@ -22,9 +22,14 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.log4j.Logger;
+import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
 public class ShutdownExecutionRegister extends Thread {
 	
+	private final StorageAccessLayer sal;
+
+	private Logger logger = Logger.getLogger(ShutdownExecutionRegister.class);
+
 	public enum Registry {
 		INSTANCE;
 		
@@ -56,11 +61,14 @@ public class ShutdownExecutionRegister extends Thread {
 		}
 	}
 	
-	private Logger logger = Logger.getLogger(ShutdownExecutionRegister.class);
+	public ShutdownExecutionRegister(StorageAccessLayer sal){
+		this.sal = sal;
+	}
 	
 	public void run() {
 		 logger.info("Shutdown of all executors...");
 		 Registry.INSTANCE.shutdown();
+		 sal.close();
 		 logger.info("All executors terminated");
 	}
 }

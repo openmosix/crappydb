@@ -39,13 +39,19 @@ public class TestCrappyDBDBoot {
 	
 	private static class VM implements Runnable{
 		private final String[] argv;
+		private CrappyDBD db; 
 		
 		public VM(String[] argv){
 			this.argv = argv;
 		}
 		
 		public void run() {
-			CrappyDBD.main(argv);
+			db = new CrappyDBD();
+			db.boot(argv);
+		}
+		
+		public void removeShutdown() {
+			Runtime.getRuntime().removeShutdownHook(db.threadsKiller);
 		}
 	}
 	
@@ -57,6 +63,7 @@ public class TestCrappyDBDBoot {
 		t.start();
 		Thread.sleep(3000);
 		assertTrue(isRunning());
+		vm.removeShutdown();
 		t.stop();
 	}
 	

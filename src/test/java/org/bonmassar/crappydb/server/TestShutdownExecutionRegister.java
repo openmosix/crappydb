@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verify;
 import java.util.concurrent.ExecutorService;
 
 import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
+import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,12 +55,15 @@ public class TestShutdownExecutionRegister {
 		for (int i = 0; i < services.length; i++)
 			assertTrue(Registry.INSTANCE.book(services[i]));
 		
-		ShutdownExecutionRegister register = new ShutdownExecutionRegister();
+		StorageAccessLayer sal = mock(StorageAccessLayer.class);
+		ShutdownExecutionRegister register = new ShutdownExecutionRegister(sal);
 		register.run();
 		
 		assertEquals(0, Registry.INSTANCE.size());
 		
 		for (int i = 0; i < services.length; i++)
 			verify(services[i], times(1)).shutdownNow();
+		
+		verify(sal, times(1)).close();
 	}
 }
