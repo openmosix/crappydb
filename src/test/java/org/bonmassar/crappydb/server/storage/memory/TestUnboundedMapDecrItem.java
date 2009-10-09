@@ -18,148 +18,16 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
-import java.util.Arrays;
-
-import org.bonmassar.crappydb.server.exceptions.NotFoundException;
-import org.bonmassar.crappydb.server.exceptions.NotStoredException;
-import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.SALFactory;
-import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
-import org.bonmassar.crappydb.server.storage.data.Item;
-import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.TestDecrItem;
 import org.junit.Before;
-import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestUnboundedMapDecrItem extends TestCase {
-
-	private StorageAccessLayer um;
+public class TestUnboundedMapDecrItem extends TestDecrItem {
 	
 	@Before
 	public void setUp(){
 		um = SALFactory.newInstance(SALFactory.Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
 	}
 	
-	@Test
-	public void testNullKey() {
-		try {
-			um.decrease(null, null);
-			fail();
-		} catch (NotFoundException e) {
-			fail();
-		} catch (StorageException e) {
-			assertEquals("StorageException [No valid id]", e.clientResponse());
-		}
-	}
 	
-	@Test
-	public void testNullItem() {
-		try {
-			um.decrease(new Key("terminenzio"), null);
-			fail();
-		} catch (NotFoundException e) {
-			fail();
-		} catch (StorageException e) {
-			assertEquals("StorageException [Null item]", e.clientResponse());
-		}
-	}
-	
-	@Test
-	public void testKeyNotFound() {
-		try {
-			um.decrease(new Key("terminenzio"), "180");
-		} catch (NotFoundException e) {
-			assertEquals("NOT_FOUND", e.clientResponse());
-		} catch (StorageException e) {
-			fail();
-		}
-	}
-	
-	@Test
-	public void testDecrementBaseNull() throws NotStoredException, StorageException, NotFoundException{
-		Item it = new Item (new Key("terminenzio"), null, 0);
-		um.add(it);
-		Item resp = um.decrease(new Key("terminenzio"), "42");
-		assertEquals("0", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
-		assertEquals("0", new String(resp.getData()));
-	}
-	
-	@Test
-	public void testDecrementBaseEmpty() throws NotStoredException, StorageException, NotFoundException{
-		Item it = new Item (new Key("terminenzio"), new byte[0], 0);
-		um.add(it);
-		Item resp = um.decrease(new Key("terminenzio"), "42");
-		assertEquals("0", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
-		assertEquals("0", new String(resp.getData()));
-	}
-	
-	@Test
-	public void testDecrementBaseInvalid() throws NotStoredException, StorageException, NotFoundException{
-		Item it = new Item (new Key("terminenzio"), "mucca".getBytes(), 0);
-		um.add(it);
-		Item resp = um.decrease(new Key("terminenzio"), "42");
-		assertEquals("0", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
-		assertEquals("0", new String(resp.getData()));
-	}
-	
-	@Test
-	public void testDecrementZero() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		um.add(it);
-		Item resp = um.decrease(new Key("terminenzio"), "0");
-		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
-		assertEquals("42", new String(resp.getData()));
-	}
-	
-	@Test
-	public void testDecrementNegative() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		um.add(it);
-		Item resp = um.decrease(new Key("terminenzio"), "-10");
-		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
-		assertEquals("42", new String(resp.getData()));
-	}
-	
-	@Test
-	public void testIncrementWithMucca() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		um.add(it);
-		Item resp = um.decrease(new Key("terminenzio"), "mucca");
-		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
-		assertEquals("42", new String(resp.getData()));
-	}
-	
-	@Test
-	public void testDecrementWithBigNumber() throws NotStoredException, StorageException, NotFoundException{
-		Item it = new Item (new Key("terminenzio"), "100000042".getBytes(), 0);
-		um.add(it);
-		Item resp = um.decrease(new Key("terminenzio"), "100000000");
-		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
-		assertEquals("42", new String(resp.getData()));
-	}
-	
-	@Test
-	public void testDecrementWithOverflow() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		um.add(it);
-		Item resp = um.decrease(new Key("terminenzio"), "18446744073709551610");
-		assertEquals("0", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
-		assertEquals("0", new String(resp.getData()));
-	}
-	
-	@Test
-	public void testDecrementWithCompleteOverflow() throws NotStoredException, StorageException, NotFoundException{
-		Item it = getDataToAdd();
-		um.add(it);
-		Item resp = um.decrease(new Key("terminenzio"), "18446744073709551616");
-		assertEquals("42", new String( um.get(Arrays.asList(new Key("terminenzio"))).get(0).getData() ));
-		assertEquals("42", new String(resp.getData()));
-	}
-	
-	private Item getDataToAdd(){
-		Key k = new Key("terminenzio");
-		Item it = new Item (k, "42".getBytes(), 0);
-		return it;
-	}
 }

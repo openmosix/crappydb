@@ -20,20 +20,32 @@ package org.bonmassar.crappydb.server.storage;
 
 import java.io.File;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.storage.SALFactory.Catalogue;
+import org.bonmassar.crappydb.server.storage.berkley.TestBerkleyFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.TestCase;
-
 public class TestSALFactory extends TestCase {
+	
+	private static String dbpath = "/tmp/crappydb/db";
+	private String path;
 	
 	@Before
 	public void setUp() throws ParseException {
-		Configuration.INSTANCE.parse(new String[]{"-d","/tmp/crappydb/db"});
-		new File("/tmp/crappydb/db").mkdirs();
+		path = dbpath+System.currentTimeMillis();
+		assertTrue((new File(path)).mkdirs());
+		Configuration.INSTANCE.parse(new String[]{"-d", path});
+		new File(path).mkdirs();
+	}
+	
+	@After
+	public void tearDown() {
+		TestBerkleyFactory.erase(new File(path));	
 	}
 
 	@Test

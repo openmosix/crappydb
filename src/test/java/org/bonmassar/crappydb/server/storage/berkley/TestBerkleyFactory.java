@@ -40,7 +40,7 @@ import com.sleepycat.persist.EntityStore;
 
 public class TestBerkleyFactory {
 
-	private static final String path = "/var/tmp/test-crappydb-test";
+	private static final String path = "/tmp/test-crappydb-test";
 	
 	@After
 	public void tearDown() {
@@ -61,7 +61,7 @@ public class TestBerkleyFactory {
 		store.close();
 	}
 	
-	private boolean erase(File folder) {
+	public static boolean erase(File folder) {
         if (folder.isDirectory()) {
             String[] contents = folder.list();
             for (String content : contents) 

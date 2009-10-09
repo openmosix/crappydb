@@ -18,70 +18,16 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
-import junit.framework.TestCase;
-
-import org.bonmassar.crappydb.server.exceptions.NotFoundException;
-import org.bonmassar.crappydb.server.exceptions.NotStoredException;
-import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.SALFactory;
-import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
-import org.bonmassar.crappydb.server.storage.data.Item;
-import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.TestDeleteItem;
 import org.junit.Before;
-import org.junit.Test;
 
-public class TestUnboundedMapDeleteItem  extends TestCase{
+public class TestUnboundedMapDeleteItem  extends TestDeleteItem{
 
-	private StorageAccessLayer um;
 	
 	@Before
 	public void setUp(){
 		um = SALFactory.newInstance(SALFactory.Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
-	}
-	
-	@Test
-	public void testNullObject() {
-		try {
-			um.delete(null, null);
-			fail();
-		} catch (StorageException e) {
-			assertEquals("StorageException [No valid id]", e.toString());
-		} catch (NotFoundException e) {
-			fail();
-		}
-	}
-	
-	@Test 
-	public void getInvalidKey() throws NotStoredException, StorageException {
-		preloadRepository();
-		try {
-			um.delete(new Key("Miao"), null);
-			fail();
-		} catch (NotFoundException e) {
-			assertEquals("NOT_FOUND", e.clientResponse());
-		} catch (StorageException  e) {
-			fail();
-		}
-	}
-	
-	@Test 
-	public void getOneId() throws NotStoredException, StorageException, NotFoundException {
-		preloadRepository();
-		um.delete(new Key("Zuu"), null);
-	}
-	
-	private void preloadRepository() throws NotStoredException, StorageException {
-		um.add(getDataToAdd("Muu"));
-		um.add(getDataToAdd("Boo"));
-		um.add(getDataToAdd("Zuu"));
-		um.add(getDataToAdd("Roo"));
-		um.add(getDataToAdd("Too"));
-	}
-	
-	private Item getDataToAdd(String key){
-		Key k = new Key(key);
-		Item it = new Item (k, "some data".getBytes(), 0);
-		return it;
 	}
 
 }

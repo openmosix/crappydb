@@ -16,17 +16,24 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.storage.memory;
+package org.bonmassar.crappydb.server.storage.berkley;
 
-import org.bonmassar.crappydb.server.storage.SALFactory;
-import org.bonmassar.crappydb.server.storage.TestAppendItem;
+import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.storage.TestDeleteItem;
+import org.junit.After;
 import org.junit.Before;
 
-public class TestUnboundedMapAppendItem  extends TestAppendItem {
-	
+public class TestBerkleyDelete extends TestDeleteItem {
+	private DBBuilderHelper builder;
+
 	@Before
-	public void setUp(){
-		um = SALFactory.newInstance(SALFactory.Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
+	public void setUp() throws ParseException{
+		builder = new DBBuilderHelper();
+		um = builder.build(); 
 	}
-	
+
+	@After
+	public void tearDown() {
+		builder.clean();
+	}
 }

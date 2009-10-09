@@ -18,66 +18,14 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
-import java.util.Arrays;
-
-import junit.framework.TestCase;
-
-import org.bonmassar.crappydb.server.exceptions.NotStoredException;
-import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.SALFactory;
-import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
-import org.bonmassar.crappydb.server.storage.data.Item;
-import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.TestAddItem;
 import org.junit.Before;
-import org.junit.Test;
 
-public class TestUnboundedMapAddItem  extends TestCase{
-
-	private StorageAccessLayer um;
+public class TestUnboundedMapAddItem  extends TestAddItem {
 	
 	@Before
 	public void setUp(){
 		um = SALFactory.newInstance(SALFactory.Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
-	}
-	
-	@Test
-	public void testNullObject() {
-		try {
-			um.add(null);
-		} catch (StorageException e) {
-			assertEquals("StorageException [Null item]", e.toString());
-		} catch (NotStoredException e) {
-			fail();
-		}
-	}
-		
-	@Test
-	public void testKeyAdded() {
-		try {
-			Item it = getDataToAdd();
-			um.add(it);
-			assertEquals(it, um.get(Arrays.asList(it.getKey())).get(0));
-		} catch (Exception e) {
-			fail();
-		}
-	}
-	
-	@Test
-	public void testFailDataAlreadyExisting() throws NotStoredException, StorageException {
-		Item it = getDataToAdd();
-		um.add(it);
-		
-		try {
-			um.add(it);
-			fail();
-		} catch (NotStoredException e) {
-			assertEquals("NOT_STORED", e.clientResponse());
-		}
-	}
-	
-	private Item getDataToAdd(){
-		Key k = new Key("Yuppi");
-		Item it = new Item (k, "some data".getBytes(), 0);
-		return it;
 	}
 }
