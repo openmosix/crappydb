@@ -35,6 +35,12 @@ public class TestBigDecrementer extends TestCase {
 		assertNull(BigDecrementer.decr(null, null));
 	}
 	
+	@SuppressWarnings("static-access")
+	@Test
+	public void testBaseNull() {
+		assertEquals("0", (new BigDecrementer()).decr(null, "32"));
+	}
+	
 	@Test
 	public void testdecrementBaseNull() {
 		assertEquals("32", BigDecrementer.decr("32", null));

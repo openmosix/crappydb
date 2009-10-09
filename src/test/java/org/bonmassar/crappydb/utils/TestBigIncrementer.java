@@ -35,6 +35,12 @@ public class TestBigIncrementer extends TestCase {
 		assertNull(BigIncrementer.incr(null, null));
 	}
 	
+	@SuppressWarnings("static-access")
+	@Test
+	public void testBaseNull() {
+		assertEquals("32", (new BigIncrementer()).incr(null, "32"));
+	}
+	
 	@Test
 	public void testIncrementBaseNull() {
 		assertEquals("32", BigIncrementer.incr("32", null));
