@@ -52,6 +52,7 @@ public class TestCrappyDBDBoot {
 		
 		public void removeShutdown() {
 			Runtime.getRuntime().removeShutdownHook(db.threadsKiller);
+			db.threadsKiller.start();
 		}
 	}
 	

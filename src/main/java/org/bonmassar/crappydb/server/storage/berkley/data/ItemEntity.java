@@ -51,4 +51,16 @@ public class ItemEntity {
 	public Item toItem() {
 		return new Item(new Key(primaryKey), payload, flags, expiration);
 	}
+	
+	public String getPrimaryKey() {
+		return primaryKey;
+	}
+	
+	public long getExpiration() {
+		return expiration;
+	}
+	
+	public int getFlags() {
+		return flags;
+	}
 }
