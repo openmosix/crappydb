@@ -21,7 +21,7 @@ package org.bonmassar.crappydb.server.storage;
 import java.lang.reflect.Constructor;
 
 import org.apache.log4j.Logger;
-import org.bonmassar.crappydb.server.storage.berkley.data.BerkleyAdapter;
+import org.bonmassar.crappydb.server.storage.berkley.BerkleyAdapter;
 import org.bonmassar.crappydb.server.storage.gc.FixedRateGarbageCollector;
 import org.bonmassar.crappydb.server.storage.gc.GarbageCollectorScheduler;
 import org.bonmassar.crappydb.server.storage.gc.NullGarbageCollectorScheduler;

@@ -22,7 +22,7 @@
  *  
  */
 
-package org.bonmassar.crappydb.server.storage.berkley.data;
+package org.bonmassar.crappydb.server.storage.berkley;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
+import org.bonmassar.crappydb.server.storage.berkley.BerkleyFactory;
 import org.junit.After;
 import org.junit.Test;
 
