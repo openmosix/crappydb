@@ -65,7 +65,7 @@ public class TestItemEntity {
 		ItemEntity it = new ItemEntity(new Item(new Key("terminenzio"), "blabla".getBytes(), 0, 2201806658L));
 		assertEquals(2201806658L , it.getExpiration());
 		assertEquals("terminenzio", it.getPrimaryKey());
-		assertEquals(0L, it.getFlags());
+		assertEquals(0, it.getFlags());
 	}
 	
 	@Test
@@ -99,7 +99,7 @@ public class TestItemEntity {
 		ItemEntity it = new ItemEntity(new Item(new Key("terminenzio"), "blabla".getBytes(), 0, 2201806658L));
 		Item back = it.toItem();
 		assertEquals(2201806658L, back.getExpire());
-		assertEquals(0L, back.getFlags());
+		assertEquals(0, back.getFlags());
 		assertEquals(new Key("terminenzio"), back.getKey());
 		assertTrue(Arrays.equals("blabla".getBytes(), back.getData()));
 	}
