@@ -110,25 +110,12 @@ class BerkleyPAL extends PAL {
 		}
 	}
 
-	//FIXME: change the interface and report error to the client
-	public void flush(Long time) {
-		Transaction txn;
-		try {
-			txn = newTransaction();
-		} catch (StorageException e1) {
-			logger.error("Cannot obtain a lock while flushing", e1);
-			return;
-		}
+	public void flush(Long time) throws StorageException{
+		Transaction txn = newTransaction();
 		try{
 			flushDB(txn);
-		} catch (DatabaseException e) {
-			logger.error("Error while flushing database", e);
 		} finally {
-			try {
-				commit(txn);
-			} catch (StorageException e) {
-				logger.error("Cannot obtain execute commit while flushing", e);
-			}
+			commit(txn);
 		}
 	}
 
@@ -330,13 +317,18 @@ class BerkleyPAL extends PAL {
 		}
 	}
 	
-	private void flushDB(Transaction transaction) throws DatabaseException {
-		EntityCursor<ItemEntity> cursor = repository.entities(transaction, CursorConfig.READ_COMMITTED);
-		try {
-			for (ItemEntity entity = cursor.first(); entity != null; entity = cursor.next())
-				cursor.delete();
-		} finally {
-			cursor.close();
+	private void flushDB(Transaction transaction) throws StorageException {
+		try{
+			EntityCursor<ItemEntity> cursor = repository.entities(transaction, CursorConfig.READ_COMMITTED);
+			try {
+				for (ItemEntity entity = cursor.first(); entity != null; entity = cursor.next())
+					cursor.delete();
+			} finally {
+				cursor.close();
+			}
+		} catch(DatabaseException e){
+			logger.error("Error flushing database", e);
+			throw new StorageException("Error flushing database");			
 		}
 	}
 }
