@@ -35,19 +35,18 @@ import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
 public class DBBuilderHelper {
 	private static final String dbpath = "/tmp/test-crappydb-test";
-	private String path ;
 	private StorageAccessLayer um;
 	
 	public StorageAccessLayer build() throws ParseException {
-		path = dbpath+System.currentTimeMillis();
-		assertTrue((new File(path)).mkdirs());
-		Configuration.INSTANCE.parse(new String[]{"-d", path});
+		assertTrue((new File(dbpath)).mkdirs());
+		Configuration.INSTANCE.parse(new String[]{"-d", dbpath});
 		return um = SALFactory.newInstance(SALFactory.Catalogue.BERKLEY_FIXED_RATE_GC);
 	}
 	
 	public void clean() {
+		um.flush(0L);
 		if(null != um)
 			um.close();
-		TestBerkleyFactory.erase(new File(path));
+		TestBerkleyFactory.erase(new File(dbpath));
 	}
 }

@@ -22,16 +22,24 @@
  *  
  */
 
-package org.bonmassar.crappydb.server.storage.memory;
+package org.bonmassar.crappydb.server.storage.berkley;
 
-import org.bonmassar.crappydb.server.storage.SALFactory;
-import org.bonmassar.crappydb.server.storage.TestIncr;
+import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.storage.TestFlush;
+import org.junit.After;
 import org.junit.Before;
 
-public class TestUnboundedMapIncrItem extends TestIncr {
-	
+public class TestBerkleyFlush extends TestFlush {
+	private DBBuilderHelper builder;
+
 	@Before
-	public void setUp(){
-		um = SALFactory.newInstance(SALFactory.Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
+	public void setUp() throws ParseException{
+		builder = new DBBuilderHelper();
+		um = builder.build(); 
+	}
+
+	@After
+	public void tearDown() {
+		builder.clean();
 	}
 }

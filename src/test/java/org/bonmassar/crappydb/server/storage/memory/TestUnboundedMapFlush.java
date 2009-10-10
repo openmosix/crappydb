@@ -18,48 +18,13 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
-import java.util.Arrays;
-
-import org.bonmassar.crappydb.server.exceptions.NotStoredException;
-import org.bonmassar.crappydb.server.exceptions.StorageException;
-import org.bonmassar.crappydb.server.storage.data.Item;
-import org.bonmassar.crappydb.server.storage.data.Key;
-import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
+import org.bonmassar.crappydb.server.storage.TestFlush;
 import org.junit.Before;
-import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestUnboundedMapFlush extends TestCase {
-
-	private StorageAccessLayer map;
+public class TestUnboundedMapFlush extends TestFlush {
 	
 	@Before
 	public void setUp(){
-		map = new UnboundedMap();
+		um = new UnboundedMap();
 	}
-	
-	@Test
-	public void testFlush() throws NotStoredException, StorageException{
-		map.add(new Item(new Key("Terminenzio1"), "werwer".getBytes(), 33));
-		map.add(new Item(new Key("Terminenzio2"), "werwer".getBytes(), 33));
-		map.add(new Item(new Key("Terminenzio3"), "werwer".getBytes(), 33));
-		map.add(new Item(new Key("Terminenzio4"), "werwer".getBytes(), 33));
-		map.add(new Item(new Key("Terminenzio5"), "werwer".getBytes(), 33));
-		map.add(new Item(new Key("Terminenzio6"), "werwer".getBytes(), 33));
-		map.add(new Item(new Key("Terminenzio7"), "werwer".getBytes(), 33));
-		map.add(new Item(new Key("Terminenzio8"), "werwer".getBytes(), 33));
-		map.add(new Item(new Key("Terminenzio9"), "werwer".getBytes(), 33));
-		map.add(new Item(new Key("Terminenzio0"), "werwer".getBytes(), 33));
-
-		for(int i = 0; i < 10; i++)
-			assertEquals(new Key("Terminenzio"+i), map.get(Arrays.asList(new Key("Terminenzio"+i))).get(0).getKey());
-	
-		map.flush(200L);
-
-		for(int i = 0; i < 10; i++)
-			assertEquals(null, map.get(Arrays.asList(new Key("Terminenzio"+i))).get(0));
-
-	}
-	
 }

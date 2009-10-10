@@ -33,10 +33,12 @@ import org.bonmassar.crappydb.server.storage.data.Key;
 import org.bonmassar.crappydb.utils.BigDecrementer;
 import org.bonmassar.crappydb.utils.BigIncrementer;
 
+import com.sleepycat.je.CursorConfig;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.Transaction;
+import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 
@@ -108,8 +110,26 @@ class BerkleyPAL extends PAL {
 		}
 	}
 
+	//FIXME: change the interface and report error to the client
 	public void flush(Long time) {
-		throw new UnsupportedOperationException();
+		Transaction txn;
+		try {
+			txn = newTransaction();
+		} catch (StorageException e1) {
+			logger.error("Cannot obtain a lock while flushing", e1);
+			return;
+		}
+		try{
+			flushDB(txn);
+		} catch (DatabaseException e) {
+			logger.error("Error while flushing database", e);
+		} finally {
+			try {
+				commit(txn);
+			} catch (StorageException e) {
+				logger.error("Cannot obtain execute commit while flushing", e);
+			}
+		}
 	}
 
 	public List<Item> get(List<Key> ids) throws StorageException {
@@ -118,7 +138,7 @@ class BerkleyPAL extends PAL {
 			List<Item> resp = new LinkedList<Item>();
 			for (Key k : ids) {
 				Item it = getItemAndDestroyItIfExpired(txn, k);
-				if(!isDeleted(it))
+				if(null != it && !isDeleted(it))
 					resp.add(it);
 			}
 			return resp;
@@ -219,6 +239,9 @@ class BerkleyPAL extends PAL {
 	}
 
 	protected Item getItemAndDestroyItIfExpired(Object lock, Key key){
+		if(null == key)
+			return null;
+		
 		Transaction txn = (Transaction)lock;
 	
 		Item item;
@@ -304,6 +327,16 @@ class BerkleyPAL extends PAL {
 		} catch (DatabaseException e) {
 			logger.error("Error writing on database", e);
 			throw new StorageException("Error writing on database");
+		}
+	}
+	
+	private void flushDB(Transaction transaction) throws DatabaseException {
+		EntityCursor<ItemEntity> cursor = repository.entities(transaction, CursorConfig.READ_COMMITTED);
+		try {
+			for (ItemEntity entity = cursor.first(); entity != null; entity = cursor.next())
+				cursor.delete();
+		} finally {
+			cursor.close();
 		}
 	}
 }

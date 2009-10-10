@@ -18,136 +18,19 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
-import java.util.Arrays;
-
-import org.bonmassar.crappydb.server.exceptions.ExistsException;
-import org.bonmassar.crappydb.server.exceptions.NotFoundException;
+import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.SALFactory;
-import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
-import org.bonmassar.crappydb.server.storage.data.Item;
-import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.TestSwap;
 import org.junit.Before;
-import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestUnboundedMapSwap extends TestCase {
-
-	private StorageAccessLayer um;
-	private Item previt;
+public class TestUnboundedMapSwap extends TestSwap {
 	
 	@Before
-	public void setUp() throws StorageException{
+	public void setUp() throws StorageException, ParseException{
 		um = SALFactory.newInstance(SALFactory.Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
-		previt = new Item(new Key("Terminenzio"), "This is the payload.".getBytes(), 22, 1979072581L);
-		um.set( previt );
+		super.setUp();
 	}
 	
-	@Test
-	public void testNullObject() {
-		try {
-			um.swap(null, "19822");
-		} catch (StorageException e) {
-			assertEquals("StorageException [Null item]", e.toString());
-		} catch (NotFoundException e) {
-			fail();
-		} catch (ExistsException e) {
-			fail();
-		}
-	}
 	
-	@Test
-	public void testEmptyCasId() {
-		try {
-			um.swap(new Item(new Key("T"), "".getBytes(), 0), "");
-		} catch (StorageException e) {
-			assertEquals("StorageException [No CAS]", e.toString());
-		} catch (NotFoundException e) {
-			fail();
-		} catch (ExistsException e) {
-			fail();
-		}
-	}
-	
-	@Test
-	public void testNullCasId() {
-		try {
-			um.swap(new Item(new Key("T"), "".getBytes(), 0), null);
-		} catch (StorageException e) {
-			assertEquals("StorageException [No CAS]", e.toString());
-		} catch (NotFoundException e) {
-			fail();
-		} catch (ExistsException e) {
-			fail();
-		}
-	}
-	
-	@Test
-	public void testItemNotFound() {
-		Item it = new Item(new Key("terminenzio"), "some payload".getBytes(), 90);
-		try {
-			um.swap(it, "11776555714");
-			fail();
-		} catch (NotFoundException e) {
-			assertEquals("NOT_FOUND", e.clientResponse());
-		} catch (ExistsException e) {
-			fail();
-		} catch (StorageException e) {
-			fail();
-		}
-	}
-	
-	@Test
-	public void testRainbow() throws NotFoundException, ExistsException, StorageException {
-		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 2010608581L);
-		um.swap(it, "11776555714");
-		
-		assertEquals("new payload", new String(um.get(Arrays.asList(new Key("Terminenzio"))).get(0).getData()));
-		assertEquals(88, um.get(Arrays.asList(new Key("Terminenzio"))).get(0).getFlags());
-		assertEquals(2010608581L, um.get(Arrays.asList(new Key("Terminenzio"))).get(0).getExpire());
-	}
-	
-	@Test
-	public void testChangedPayload() throws NotFoundException, StorageException {
-		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 6666L);
-		
-		um.set(new Item(previt.getKey(), "other payload".getBytes(), previt.getFlags(), 1979072581L));
-		
-		try {
-			um.swap(it, "11776555714");
-			fail();
-		} catch (ExistsException e) {
-			return;
-		}
-	}
-	
-	@Test
-	public void testChangedExpiration() throws NotFoundException, StorageException {
-		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 6666);
-		
-		Item newit = new Item(previt.getKey(), previt.getData(), 999998, 1979072281L);
-		um.set(newit);
-		
-		try {
-			um.swap(it, "11776555714");
-			fail();
-		} catch (ExistsException e) {
-			return;
-		}
-	}
-	
-	@Test
-	public void testChangedFlags() throws NotFoundException, StorageException {
-		Item it = new Item(new Key("Terminenzio"), "new payload".getBytes(), 88, 6666);
-		
-		um.set(new Item(previt.getKey(), previt.getData(), 999998, 1979072581L));
-		
-		try {
-			um.swap(it, "11776555714");
-			fail();
-		} catch (ExistsException e) {
-			return;
-		}
-	}
 }

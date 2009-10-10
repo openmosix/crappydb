@@ -18,57 +18,16 @@
 
 package org.bonmassar.crappydb.server.storage.memory;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.bonmassar.crappydb.server.exceptions.NotStoredException;
-import org.bonmassar.crappydb.server.exceptions.StorageException;
+import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.storage.SALFactory;
-import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
-import org.bonmassar.crappydb.server.storage.data.Item;
-import org.bonmassar.crappydb.server.storage.data.Key;
+import org.bonmassar.crappydb.server.storage.TestReplaceItem;
 import org.junit.Before;
-import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestUnboundedMapReplaceItem extends TestCase {
-
-	private StorageAccessLayer map;
-	private Item it;
+public class TestUnboundedMapReplaceItem extends TestReplaceItem {
 	
 	@Before
-	public void setUp(){
-		map = SALFactory.newInstance(SALFactory.Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
-		it = new Item(new Key("key"), "this is payload".getBytes(), 0);
+	public void setUp() throws ParseException{
+		um = SALFactory.newInstance(SALFactory.Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC);
+		super.setUp();
 	}
-	
-	@Test
-	public void testReplaceNoValidItem() {
-		try {
-			map.replace(null);
-		} catch (NotStoredException e) { } 
-		catch (StorageException e) { return ; }
-		fail();
-	}
-	
-	@Test
-	public void testReplaceNoPreviousItem() {
-		try {
-			map.replace(it);
-		} catch (NotStoredException e) {
-			return;
-		} catch (StorageException e) { }
-		fail();
-	}
-	
-	@Test
-	public void testReplaceRainbow() throws NotStoredException, StorageException {
-		map.add(it);
-		it = new Item(new Key("key"), "this is a new payload".getBytes(), 0);
-		map.replace(it);
-		List<Item> res = map.get(Arrays.asList(new Key("key")));
-		assertEquals("this is a new payload", new String(res.get(0).getData()) );
-	}
-	
 }

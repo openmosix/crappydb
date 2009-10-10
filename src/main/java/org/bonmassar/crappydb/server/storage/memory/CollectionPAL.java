@@ -67,7 +67,7 @@ public class CollectionPAL extends PAL {
 		List<Item> resp = new LinkedList<Item>();
 		for (Key k : ids) {
 			Item it = getItemAndDestroyItIfExpired(null, k);
-			if(!isDeleted(it))
+			if(null != it && !isDeleted(it))
 				resp.add(it);
 		}
 		return resp;
