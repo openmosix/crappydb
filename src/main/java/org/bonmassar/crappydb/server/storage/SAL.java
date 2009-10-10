@@ -101,6 +101,10 @@ public abstract class SAL implements StorageAccessLayer, SALBuilder {
 
 		return delegate.expire(k);
 	}
+	
+	public void close() { 
+		delegate.close();
+	}
 
 	private void checkItem(Item item) throws StorageException {
 		if (null == item)

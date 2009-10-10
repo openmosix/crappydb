@@ -42,6 +42,7 @@ public class TestFrontendPoolExecutor extends TestCase {
 	
 	@Before
 	public void setUp() throws ParseException {
+		Registry.INSTANCE.clear();
 		Configuration.INSTANCE.parse(null);
 		frontend = new FrontendPoolExecutor();
 	}
