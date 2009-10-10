@@ -19,6 +19,7 @@
 package org.bonmassar.crappydb.server.storage.berkley;
 
 import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.TestIncr;
 import org.junit.After;
 import org.junit.Before;
@@ -33,7 +34,7 @@ public class TestBerkleyIncr extends TestIncr {
 	}
 
 	@After
-	public void tearDown() {
+	public void tearDown() throws StorageException {
 		builder.clean();
 	}
 }

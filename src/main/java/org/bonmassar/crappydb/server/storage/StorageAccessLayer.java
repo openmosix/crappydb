@@ -49,7 +49,7 @@ public interface StorageAccessLayer extends Expirable{
 	
 	Item decrease(Key id, String value) throws NotFoundException, StorageException;
 	
-	void flush(Long time);
+	void flush(Long time) throws StorageException;
 	
 	void close();
 }

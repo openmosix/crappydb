@@ -25,6 +25,7 @@
 package org.bonmassar.crappydb.server.storage.berkley;
 
 import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.TestFlush;
 import org.junit.After;
 import org.junit.Before;
@@ -39,7 +40,7 @@ public class TestBerkleyFlush extends TestFlush {
 	}
 
 	@After
-	public void tearDown() {
+	public void tearDown() throws StorageException {
 		builder.clean();
 	}
 }

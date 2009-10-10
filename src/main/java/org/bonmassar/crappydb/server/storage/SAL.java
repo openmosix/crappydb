@@ -91,7 +91,7 @@ public abstract class SAL implements StorageAccessLayer, SALBuilder {
 		return delegate.increase(id, value);
 	}
 	
-	public void flush(Long time) {
+	public void flush(Long time) throws StorageException {
 		delegate.flush(time);
 	}
 	

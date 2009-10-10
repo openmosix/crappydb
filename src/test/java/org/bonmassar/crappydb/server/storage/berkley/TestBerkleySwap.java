@@ -35,7 +35,7 @@ public class TestBerkleySwap extends TestSwap {
 	}
 
 	@After
-	public void tearDown() {
+	public void tearDown() throws StorageException {
 		builder.clean();
 	}
 }

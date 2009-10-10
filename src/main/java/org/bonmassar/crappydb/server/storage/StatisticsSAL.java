@@ -92,7 +92,7 @@ class StatisticsSAL extends GcSAL {
 	}
 	
 	@Override
-	public void flush(Long time) {
+	public void flush(Long time) throws StorageException {
 		super.flush(time);
 		DBStats.INSTANCE.getStorage().reset();
 	}

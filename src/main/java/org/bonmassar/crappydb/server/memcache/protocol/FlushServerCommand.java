@@ -18,6 +18,7 @@
 
 package org.bonmassar.crappydb.server.memcache.protocol;
 
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 
 //flush [time] [noreply]
@@ -44,7 +45,12 @@ class FlushServerCommand extends ServerCommandNoPayload {
 	}
 
 	public void execCommand() {
-		storage.flush(getTime());
+		try {
+			storage.flush(getTime());
+		} catch (CrappyDBException e) {
+			channel.writeException(e);
+			return;
+		}
 		channel.writeToOutstanding("OK\r\n");
 	}
 	

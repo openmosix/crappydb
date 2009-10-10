@@ -19,9 +19,11 @@
 package org.bonmassar.crappydb.server.memcache.protocol;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
@@ -90,8 +92,19 @@ public class TestFlushServerCommand extends TestCase {
 	}
 	
 	@Test
+	public void testStorageException() throws ErrorException, StorageException {
+		CrappyDBException exc = new StorageException("BOOM!");
+		doThrow(exc).when(storage).flush(Long.valueOf(-1L));
+		command.parseCommandParams("noreply\r\n");
+		command.execCommand();
+		
+		verify(storage, times(1)).flush(Long.valueOf(-1L));
+		verify(output, times(1)).writeException(exc);		
+	}
+	
+	@Test
 	public void testRainbow() throws ErrorException, NotFoundException, StorageException {
-		command.parseCommandParams("");
+		command.parseCommandParams("noreply\r\n");
 
 		command.execCommand();
 		

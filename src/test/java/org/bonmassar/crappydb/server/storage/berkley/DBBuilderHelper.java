@@ -30,6 +30,7 @@ import java.io.File;
 
 import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.config.Configuration;
+import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.SALFactory;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
@@ -43,7 +44,7 @@ public class DBBuilderHelper {
 		return um = SALFactory.newInstance(SALFactory.Catalogue.BERKLEY_FIXED_RATE_GC);
 	}
 	
-	public void clean() {
+	public void clean() throws StorageException {
 		um.flush(0L);
 		if(null != um)
 			um.close();

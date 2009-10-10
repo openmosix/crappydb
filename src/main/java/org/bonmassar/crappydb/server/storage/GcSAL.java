@@ -103,7 +103,7 @@ class GcSAL extends SAL {
 	}
 	
 	@Override
-	public void flush(Long time) {
+	public void flush(Long time) throws StorageException {
 		super.flush(time);
 		gc.getGCRef().flush();
 	}
