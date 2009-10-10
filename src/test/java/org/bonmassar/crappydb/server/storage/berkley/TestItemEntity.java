@@ -32,6 +32,7 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 
 import org.bonmassar.crappydb.server.storage.berkley.ItemEntity;
+import org.bonmassar.crappydb.server.storage.data.DeleteItem;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.Test;
@@ -56,6 +57,14 @@ public class TestItemEntity {
 	@Test
 	public void testRainbow() {
 		ItemEntity it = new ItemEntity(new Item(new Key("terminenzio"), "blabla".getBytes(), 18, 2201806658L));
+		assertEquals(2201806658L , it.getExpiration());
+		assertEquals("terminenzio", it.getPrimaryKey());
+		assertEquals(18, it.getFlags());
+	}
+	
+	@Test
+	public void testDeleted() {
+		ItemEntity it = new ItemEntity(new DeleteItem(new Item(new Key("terminenzio"), "blabla".getBytes(), 18, 2201806658L)));
 		assertEquals(2201806658L , it.getExpiration());
 		assertEquals("terminenzio", it.getPrimaryKey());
 		assertEquals(18, it.getFlags());
@@ -93,6 +102,17 @@ public class TestItemEntity {
 		assertEquals(18, back.getFlags());
 		assertEquals(new Key("terminenzio"), back.getKey());
 		assertTrue(Arrays.equals("blabla".getBytes(), back.getData()));
+	}
+	
+	@Test
+	public void testToItemDeleted() {
+		ItemEntity it = new ItemEntity(new DeleteItem(new Item(new Key("terminenzio"), "blabla".getBytes(), 18, 2201806658L)));
+		Item back = it.toItem();
+		assertEquals(2201806658L, back.getExpire());
+		assertEquals(18, back.getFlags());
+		assertEquals(new Key("terminenzio"), back.getKey());
+		assertTrue(Arrays.equals("blabla".getBytes(), back.getData()));
+		assertTrue(back instanceof DeleteItem);
 	}
 	
 	@Test

@@ -27,6 +27,8 @@ package org.bonmassar.crappydb.server.storage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
+
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
@@ -67,9 +69,11 @@ public abstract class TestDeleteItem {
 	public void getOneId() throws NotStoredException, StorageException, NotFoundException {
 		preloadRepository();
 		um.delete(new Key("Zuu"), null);
+		
+		assertEquals(0, um.get(Arrays.asList(new Key("Zuu"))).size());
 	}
 	
-	private void preloadRepository() throws NotStoredException, StorageException {
+	protected void preloadRepository() throws NotStoredException, StorageException {
 		um.add(getDataToAdd("Muu"));
 		um.add(getDataToAdd("Boo"));
 		um.add(getDataToAdd("Zuu"));

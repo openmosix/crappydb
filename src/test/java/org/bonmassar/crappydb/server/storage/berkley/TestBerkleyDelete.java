@@ -18,11 +18,19 @@
 
 package org.bonmassar.crappydb.server.storage.berkley;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+
 import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.exceptions.NotFoundException;
+import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.TestDeleteItem;
+import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 public class TestBerkleyDelete extends TestDeleteItem {
 	private DBBuilderHelper builder;
@@ -36,5 +44,13 @@ public class TestBerkleyDelete extends TestDeleteItem {
 	@After
 	public void tearDown() throws StorageException {
 		builder.clean();
+	}
+	
+	@Test
+	public void testDeleteWithTime() throws NotStoredException, StorageException, NotFoundException {
+		preloadRepository();
+		um.delete(new Key("Zuu"), Long.valueOf(300L));
+		
+		assertEquals(0, um.get(Arrays.asList(new Key("Zuu"))).size());
 	}
 }

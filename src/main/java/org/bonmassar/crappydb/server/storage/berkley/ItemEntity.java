@@ -18,6 +18,7 @@
 
 package org.bonmassar.crappydb.server.storage.berkley;
 
+import org.bonmassar.crappydb.server.storage.data.DeleteItem;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 
@@ -33,6 +34,7 @@ public class ItemEntity {
 	private byte[] payload;
 	private int flags;
 	private long expiration;
+	private boolean deleted;
 
 	ItemEntity(){
 		//injection constructor
@@ -46,10 +48,15 @@ public class ItemEntity {
 		payload = item.getData();
 		flags = item.getFlags();
 		expiration = item.getExpire();
+		deleted = item instanceof DeleteItem;
 	}
 	
 	public Item toItem() {
-		return new Item(new Key(primaryKey), payload, flags, expiration);
+		Item it = new Item(new Key(primaryKey), payload, flags, expiration);
+		if(!deleted)
+			return it;
+		
+		return new DeleteItem(it);
 	}
 	
 	public String getPrimaryKey() {
