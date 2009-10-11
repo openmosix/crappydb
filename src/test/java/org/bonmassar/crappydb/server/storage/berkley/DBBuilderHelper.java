@@ -34,20 +34,41 @@ import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.SALFactory;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 
+import com.sleepycat.je.DatabaseConfig;
+import com.sleepycat.je.EnvironmentConfig;
+
 public class DBBuilderHelper {
-	private static final String dbpath = "/tmp/test-crappydb-test";
 	private StorageAccessLayer um;
 	
+	public static class HelperPair {
+		public EnvironmentConfig envConfig;
+		public DatabaseConfig dbConfig;
+		public static final String dbpath = "/tmp/test-crappydb-test";
+	}
+	
 	public StorageAccessLayer build() throws ParseException {
-		assertTrue((new File(dbpath)).mkdirs());
-		Configuration.INSTANCE.parse(new String[]{"-d", dbpath});
+		assertTrue((new File(HelperPair.dbpath)).mkdirs());
+		Configuration.INSTANCE.parse(new String[]{"-d", HelperPair.dbpath});
 		return um = SALFactory.newInstance(SALFactory.Catalogue.BERKLEY_FIXED_RATE_GC);
 	}
 	
+	public HelperPair createSettingForMock() {
+		HelperPair pair = new HelperPair();
+		pair.envConfig = new EnvironmentConfig();
+		pair.envConfig.setTransactional(true);
+		pair.envConfig.setAllowCreate(true);
+		pair.dbConfig = new DatabaseConfig();
+		pair.dbConfig.setTransactional(true);
+		pair.dbConfig.setAllowCreate(true);
+		pair.dbConfig.setSortedDuplicates(true);
+		return pair;
+	}
+	
 	public void clean() throws StorageException {
-		um.flush(0L);
-		if(null != um)
+		if(null != um){
+			um.flush(0L);
 			um.close();
-		TestBerkleyFactory.erase(new File(dbpath));
+		}
+		TestBerkleyFactory.erase(new File(HelperPair.dbpath));
 	}
 }
