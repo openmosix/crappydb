@@ -18,16 +18,11 @@
 
 package org.bonmassar.crappydb.server.storage.berkley;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;

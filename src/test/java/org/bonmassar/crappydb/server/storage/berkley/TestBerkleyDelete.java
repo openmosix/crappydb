@@ -19,7 +19,11 @@
 package org.bonmassar.crappydb.server.storage.berkley;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
+import java.io.File;
 import java.util.Arrays;
 
 import org.apache.commons.cli.ParseException;
@@ -27,10 +31,19 @@ import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.TestDeleteItem;
+import org.bonmassar.crappydb.server.storage.berkley.DBBuilderHelper.HelperPair;
+import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.sleepycat.je.DatabaseException;
+import com.sleepycat.je.Environment;
+import com.sleepycat.je.LockMode;
+import com.sleepycat.je.Transaction;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.PrimaryIndex;
 
 public class TestBerkleyDelete extends TestDeleteItem {
 	private DBBuilderHelper builder;
@@ -52,5 +65,44 @@ public class TestBerkleyDelete extends TestDeleteItem {
 		um.delete(new Key("Zuu"), Long.valueOf(300L));
 		
 		assertEquals(0, um.get(Arrays.asList(new Key("Zuu"))).size());
+	}
+	
+	@Test
+	public void testDBExceptionOnDelete() throws DatabaseException, NotFoundException, NotStoredException, StorageException  {
+		um = new BerkleyPAL(mockExceptionOnDelete());
+		try{
+			um.delete(new Key("zzzzzz"), 0L);
+		}catch(StorageException se){
+			return;
+		}
+		fail();
+	}
+	
+	@SuppressWarnings("unchecked")	//mock because Mockito does not mock that method...
+	private EntityStore mockExceptionOnDelete() throws DatabaseException {
+		final HelperPair pair = builder.createSettingForMock();
+		class PrimaryIndexExceptionOnEntities extends PrimaryIndex<String, ItemEntity>{
+			PrimaryIndexExceptionOnEntities() throws DatabaseException {
+				super(new Environment(new File(HelperPair.dbpath), pair.envConfig).openDatabase(null, "tryppy", pair.dbConfig), 
+						String.class, null, ItemEntity.class, null);
+			}
+			
+			@Override
+			public boolean delete(Transaction txn, String key)
+					throws DatabaseException {
+				throw new DatabaseException();
+			}
+			
+			@Override
+			public ItemEntity get(Transaction txn, String key, LockMode lockMode)
+					throws DatabaseException {
+				return new ItemEntity(new Item(new Key("zzzzzz"), "123456".getBytes(), 123457));
+			}
+		}
+		
+		EntityStore store = mock(EntityStore.class);
+		doReturn(new PrimaryIndexExceptionOnEntities()).when(store).getPrimaryIndex(String.class, ItemEntity.class);
+		doReturn(mock(Environment.class)).when(store).getEnvironment();
+		return store;
 	}
 }
