@@ -18,13 +18,11 @@
 
 package org.bonmassar.crappydb.server.storage.berkley;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
-import java.util.Arrays;
 
 import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
@@ -58,15 +56,7 @@ public class TestBerkleyDelete extends TestDeleteItem {
 	public void tearDown() throws StorageException {
 		builder.clean();
 	}
-	
-	@Test
-	public void testDeleteWithTime() throws NotStoredException, StorageException, NotFoundException {
-		preloadRepository();
-		um.delete(new Key("Zuu"), Long.valueOf(300L));
 		
-		assertEquals(0, um.get(Arrays.asList(new Key("Zuu"))).size());
-	}
-	
 	@Test
 	public void testDBExceptionOnDelete() throws DatabaseException, NotFoundException, NotStoredException, StorageException  {
 		um = new BerkleyPAL(mockExceptionOnDelete());

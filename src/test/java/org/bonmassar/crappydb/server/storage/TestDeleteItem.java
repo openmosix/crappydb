@@ -73,6 +73,14 @@ public abstract class TestDeleteItem {
 		assertEquals(0, um.get(Arrays.asList(new Key("Zuu"))).size());
 	}
 	
+	@Test
+	public void testDeleteWithTime() throws NotStoredException, StorageException, NotFoundException {
+		preloadRepository();
+		um.delete(new Key("Zuu"), Long.valueOf(300L));
+		
+		assertEquals(0, um.get(Arrays.asList(new Key("Zuu"))).size());
+	}
+	
 	protected void preloadRepository() throws NotStoredException, StorageException {
 		um.add(getDataToAdd("Muu"));
 		um.add(getDataToAdd("Boo"));
