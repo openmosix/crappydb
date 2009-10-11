@@ -1,3 +1,4 @@
+
 /*
  *  This file is part of CrappyDB-Server, 
  *  developed by Luca Bonmassar <luca.bonmassar at gmail.com>
@@ -18,19 +19,16 @@
 
 package org.bonmassar.crappydb.server.storage.berkley;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
-import org.bonmassar.crappydb.server.storage.TestGetItems;
+import org.bonmassar.crappydb.server.storage.TestExpiration;
 import org.bonmassar.crappydb.server.storage.berkley.DBBuilderHelper.HelperPair;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
@@ -45,8 +43,9 @@ import com.sleepycat.je.Transaction;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 
-public class TestBerkleyGetItems extends TestGetItems {
+public class TestBerkleyExpiration extends TestExpiration{
 	private DBBuilderHelper builder;
+	
 
 	@Before
 	public void setUp() throws ParseException{
@@ -58,40 +57,20 @@ public class TestBerkleyGetItems extends TestGetItems {
 	public void tearDown() throws StorageException {
 		builder.clean();
 	}
-		
-	@Test
-	public void testGetExpiredItemExceptionOnDelete() throws StorageException, InterruptedException, DatabaseException {
-		um = new BerkleyPAL(mockExceptionOnDelete());
-		List<Item> result = um.get(Arrays.asList(new Key("Zzz")));
-		assertNotNull(result);
-		assertEquals(0, result.size());
-	}
+
 	
 	@Test
-	public void testRuntimeExceptionIsPropagatedButCommit() throws DatabaseException, StorageException {
-		um = new BerkleyPAL(mockNullPointerExceptionOnGet());
-		try{
-			um.get(Arrays.asList(new Key("Zuuu")));
-		}catch(NullPointerException npe){
-			return;
-		}
-		fail();
-	}
-	
-	@Test
-	public void testDBExceptionOnGet() throws DatabaseException, StorageException {
+	public void testExceptionOnGet() throws DatabaseException {
 		um = new BerkleyPAL(mockExceptionOnGet());
-		List<Item> result = um.get(Arrays.asList(new Key("Zuuu")));
-		assertNotNull(result);
-		assertEquals(0, result.size());
+		Item result = um.expire(new Key("Zuuu"));
+		assertNull(result);
 	}
 	
-	@SuppressWarnings("unchecked")	//mock because Mockito does not mock that method...
-	private EntityStore mockNullPointerExceptionOnGet() throws DatabaseException {
-		EntityStore store = mock(EntityStore.class);
-		doReturn(null).when(store).getPrimaryIndex(String.class, ItemEntity.class);
-		doReturn(mock(Environment.class)).when(store).getEnvironment();
-		return store;
+	@Test
+	public void testExceptionOnCommit() throws DatabaseException {
+		um = new BerkleyPAL(mockExceptionOnCommit());
+		Item result = um.expire(new Key("Zuuu"));
+		assertNull(result);
 	}
 	
 	@SuppressWarnings("unchecked")	//mock because Mockito does not mock that method...
@@ -117,30 +96,22 @@ public class TestBerkleyGetItems extends TestGetItems {
 	}
 	
 	@SuppressWarnings("unchecked")	//mock because Mockito does not mock that method...
-	private EntityStore mockExceptionOnDelete() throws DatabaseException {
+	private EntityStore mockExceptionOnCommit() throws DatabaseException {
 		final HelperPair pair = builder.createSettingForMock();
 		class PrimaryIndexExceptionOnEntities extends PrimaryIndex<String, ItemEntity>{
 			PrimaryIndexExceptionOnEntities() throws DatabaseException {
 				super(new Environment(new File(HelperPair.dbpath), pair.envConfig).openDatabase(null, "tryppy", pair.dbConfig), 
 						String.class, null, ItemEntity.class, null);
 			}
-			
-			@Override
-			public boolean delete(Transaction txn, String key)
-					throws DatabaseException {
-				throw new DatabaseException();
-			}
-			
-			@Override
-			public ItemEntity get(Transaction txn, String key, LockMode lockMode)
-					throws DatabaseException {
-				return new ItemEntity(new Item(new Key("Zzz"), "payload".getBytes(), 12, 1002811787));
-			}
 		}
 		
 		EntityStore store = mock(EntityStore.class);
 		doReturn(new PrimaryIndexExceptionOnEntities()).when(store).getPrimaryIndex(String.class, ItemEntity.class);
-		doReturn(mock(Environment.class)).when(store).getEnvironment();
+		Environment env = mock(Environment.class);
+		doReturn(env).when(store).getEnvironment();
+		Transaction txn = mock(Transaction.class);
+		doReturn(txn).when(env).beginTransaction(null, null);
+		doThrow(new DatabaseException()).when(txn).commit();
 		return store;
 	}
 }

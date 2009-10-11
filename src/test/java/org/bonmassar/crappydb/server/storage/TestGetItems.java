@@ -82,6 +82,15 @@ public abstract class TestGetItems {
 		assertEquals(new Key("Too"), found.get(0).getKey());
 		assertEquals(new Key("Zuu"), found.get(1).getKey());
 	}
+	
+	@Test
+	public void testGetExpiredItem() throws StorageException, InterruptedException {
+		um.set(new Item(new Key("Zzz"), "payload".getBytes(), 12, 2));
+		Thread.sleep(3000);
+		List<Item> result = um.get(Arrays.asList(new Key("Zzz")));
+		assertNotNull(result);
+		assertEquals(0, result.size());
+	}
 
 	private void preloadRepository() throws NotStoredException, StorageException {
 		um.add(getDataToAdd("Muu"));

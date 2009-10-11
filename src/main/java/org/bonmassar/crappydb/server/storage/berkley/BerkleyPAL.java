@@ -209,11 +209,9 @@ class BerkleyPAL extends PAL {
 			Transaction txn = newTransaction();
 			try{	
 				Item item = get(txn, k);
-				if(null == item)
+				if(null == item || !item.isExpired())
 					return null;
-				if(!item.isExpired())
-					return null;
-				
+
 				delete(txn, k);
 				return item;
 			} finally {
@@ -243,7 +241,7 @@ class BerkleyPAL extends PAL {
 		try {
 			delete(txn, item.getKey());
 		} catch (StorageException e) {
-			logger.error(String.format("Cannot delete expired key %s, error writing on db"), e);
+			logger.error(String.format("Cannot delete expired key %s, error writing on db", item.getKey()), e);
 			return null;
 		}
 		
