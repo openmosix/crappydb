@@ -20,6 +20,7 @@ package org.bonmassar.crappydb.server.config;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
@@ -42,5 +43,20 @@ public class TestConfigurationBuilder {
 	public void testWithConfigFileButFileDoesNotExists() throws ParseException {
 		CLIConfiguration config = ConfigurationBuilder.getConfig(new String[]{"--file=crappycrappy.conf"});
 		assertFalse(config instanceof FileConfiguration);
+	}
+	
+	@Test
+	public void testEmptyCreation() {
+		new ConfigurationBuilder();	//do not throw exception
+	}
+	
+	@Test
+	public void testIOException() throws ParseException {
+		try {
+			ConfigurationBuilder.getConfig(new String[]{"--file=src/test/resources/crappytestbin.conf"});
+		} catch (RuntimeException e) {
+			return;
+		}
+		fail();
 	}
 }

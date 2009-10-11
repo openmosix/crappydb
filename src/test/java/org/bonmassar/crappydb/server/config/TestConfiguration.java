@@ -52,6 +52,16 @@ public class TestConfiguration {
 	}
 	
 	@Test
+	public void testInvalidCatalogue() throws ParseException {
+		try{
+			Configuration.INSTANCE.parse(new String[]{"--storage terminenzio"});
+		}catch(ParseException pe){
+			return;
+		}
+		fail();
+	}
+	
+	@Test
 	public void testDetaultServerPort() throws ParseException {
 		Configuration.INSTANCE.parse(new String[]{""});
 		assertEquals(11211, Configuration.INSTANCE.getServerPort());		
