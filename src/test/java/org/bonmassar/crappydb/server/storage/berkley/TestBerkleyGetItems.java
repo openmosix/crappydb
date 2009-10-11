@@ -60,6 +60,23 @@ public class TestBerkleyGetItems extends TestGetItems {
 	}
 	
 	@Test
+	public void testGetExpiredItem() throws StorageException, InterruptedException {
+		um.set(new Item(new Key("Zzz"), "payload".getBytes(), 12, 2));
+		Thread.sleep(3000);
+		List<Item> result = um.get(Arrays.asList(new Key("Zzz")));
+		assertNotNull(result);
+		assertEquals(0, result.size());
+	}
+	
+	@Test
+	public void testGetExpiredItemExceptionOnDelete() throws StorageException, InterruptedException, DatabaseException {
+		um = new BerkleyPAL(mockExceptionOnDelete());
+		List<Item> result = um.get(Arrays.asList(new Key("Zzz")));
+		assertNotNull(result);
+		assertEquals(0, result.size());
+	}
+	
+	@Test
 	public void testRuntimeExceptionIsPropagatedButCommit() throws DatabaseException, StorageException {
 		um = new BerkleyPAL(mockNullPointerExceptionOnGet());
 		try{
@@ -99,6 +116,34 @@ public class TestBerkleyGetItems extends TestGetItems {
 			public ItemEntity get(Transaction txn, String key, LockMode lockMode)
 					throws DatabaseException {
 				throw new DatabaseException();
+			}
+		}
+		
+		EntityStore store = mock(EntityStore.class);
+		doReturn(new PrimaryIndexExceptionOnEntities()).when(store).getPrimaryIndex(String.class, ItemEntity.class);
+		doReturn(mock(Environment.class)).when(store).getEnvironment();
+		return store;
+	}
+	
+	@SuppressWarnings("unchecked")	//mock because Mockito does not mock that method...
+	private EntityStore mockExceptionOnDelete() throws DatabaseException {
+		final HelperPair pair = builder.createSettingForMock();
+		class PrimaryIndexExceptionOnEntities extends PrimaryIndex<String, ItemEntity>{
+			PrimaryIndexExceptionOnEntities() throws DatabaseException {
+				super(new Environment(new File(HelperPair.dbpath), pair.envConfig).openDatabase(null, "tryppy", pair.dbConfig), 
+						String.class, null, ItemEntity.class, null);
+			}
+			
+			@Override
+			public boolean delete(Transaction txn, String key)
+					throws DatabaseException {
+				throw new DatabaseException();
+			}
+			
+			@Override
+			public ItemEntity get(Transaction txn, String key, LockMode lockMode)
+					throws DatabaseException {
+				return new ItemEntity(new Item(new Key("Zzz"), "payload".getBytes(), 12, 1002811787));
 			}
 		}
 		
