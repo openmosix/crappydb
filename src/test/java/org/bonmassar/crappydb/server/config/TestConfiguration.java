@@ -164,6 +164,15 @@ public class TestConfiguration {
 	
 	
 	@Test
+	public void testGetOptionsWithHostname() throws ParseException {
+		Configuration.INSTANCE.parse(new String[]{"-v", "-p128", "-t12", "--hostname", "terminenzio"});
+		String params = Configuration.INSTANCE.getConfigParams();
+		
+		assertEquals("file CommandLine\ndump off\nhelp off\nversion on\nhostname terminenzio\nport 128\nthreads 12\nbuffer-size 8192\nmax-payload-size 67108864\nstorage unbounded-memory\ndbpath /var/crappydb/db\n", params);
+	}
+	
+	
+	@Test
 	public void testHelpMenu() {
 		Configuration.INSTANCE.generateHelp();
 	}
