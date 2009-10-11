@@ -54,7 +54,7 @@ public class TestConfiguration {
 	@Test
 	public void testInvalidCatalogue() throws ParseException {
 		try{
-			Configuration.INSTANCE.parse(new String[]{"--storage terminenzio"});
+			Configuration.INSTANCE.parse(new String[]{"--storage", "terminenzio"});
 		}catch(ParseException pe){
 			return;
 		}
