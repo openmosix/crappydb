@@ -18,11 +18,32 @@
 
 package org.bonmassar.crappydb.server.storage.berkley;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
 import org.bonmassar.crappydb.server.storage.TestGetItems;
+import org.bonmassar.crappydb.server.storage.berkley.DBBuilderHelper.HelperPair;
+import org.bonmassar.crappydb.server.storage.data.Item;
+import org.bonmassar.crappydb.server.storage.data.Key;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
+
+import com.sleepycat.je.DatabaseException;
+import com.sleepycat.je.Environment;
+import com.sleepycat.je.LockMode;
+import com.sleepycat.je.Transaction;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.PrimaryIndex;
 
 public class TestBerkleyGetItems extends TestGetItems {
 	private DBBuilderHelper builder;
@@ -36,5 +57,54 @@ public class TestBerkleyGetItems extends TestGetItems {
 	@After
 	public void tearDown() throws StorageException {
 		builder.clean();
+	}
+	
+	@Test
+	public void testRuntimeExceptionIsPropagatedButCommit() throws DatabaseException, StorageException {
+		um = new BerkleyPAL(mockNullPointerExceptionOnGet());
+		try{
+			um.get(Arrays.asList(new Key("Zuuu")));
+		}catch(NullPointerException npe){
+			return;
+		}
+		fail();
+	}
+	
+	@Test
+	public void testDBExceptionOnGet() throws DatabaseException, StorageException {
+		um = new BerkleyPAL(mockExceptionOnGet());
+		List<Item> result = um.get(Arrays.asList(new Key("Zuuu")));
+		assertNotNull(result);
+		assertEquals(0, result.size());
+	}
+	
+	@SuppressWarnings("unchecked")	//mock because Mockito does not mock that method...
+	private EntityStore mockNullPointerExceptionOnGet() throws DatabaseException {
+		EntityStore store = mock(EntityStore.class);
+		doReturn(null).when(store).getPrimaryIndex(String.class, ItemEntity.class);
+		doReturn(mock(Environment.class)).when(store).getEnvironment();
+		return store;
+	}
+	
+	@SuppressWarnings("unchecked")	//mock because Mockito does not mock that method...
+	private EntityStore mockExceptionOnGet() throws DatabaseException {
+		final HelperPair pair = builder.createSettingForMock();
+		class PrimaryIndexExceptionOnEntities extends PrimaryIndex<String, ItemEntity>{
+			PrimaryIndexExceptionOnEntities() throws DatabaseException {
+				super(new Environment(new File(HelperPair.dbpath), pair.envConfig).openDatabase(null, "tryppy", pair.dbConfig), 
+						String.class, null, ItemEntity.class, null);
+			}
+			
+			@Override
+			public ItemEntity get(Transaction txn, String key, LockMode lockMode)
+					throws DatabaseException {
+				throw new DatabaseException();
+			}
+		}
+		
+		EntityStore store = mock(EntityStore.class);
+		doReturn(new PrimaryIndexExceptionOnEntities()).when(store).getPrimaryIndex(String.class, ItemEntity.class);
+		doReturn(mock(Environment.class)).when(store).getEnvironment();
+		return store;
 	}
 }
