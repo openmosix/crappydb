@@ -93,11 +93,17 @@ public class TestBerkleySetItems extends TestSetItems {
 				super(new Environment(new File(HelperPair.dbpath), pair.envConfig).openDatabase(null, "tryppy", pair.dbConfig), 
 						String.class, null, ItemEntity.class, null);
 			}
-			
+
+			@Override
+			public ItemEntity put(Transaction arg0, ItemEntity arg1)
+					throws DatabaseException {
+				throw new DatabaseException();
+			}
+
 			@Override
 			public ItemEntity get(Transaction txn, String key, LockMode lockMode)
 					throws DatabaseException {
-				throw new DatabaseException();
+				return null;
 			}
 		}
 		
