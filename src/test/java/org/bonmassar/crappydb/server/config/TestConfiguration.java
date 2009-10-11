@@ -19,6 +19,7 @@
 package org.bonmassar.crappydb.server.config;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -29,6 +30,16 @@ import org.junit.Test;
 
 public class TestConfiguration {
 
+	@Test
+	public void testIsMonoInstance() {
+		assertEquals(1, Configuration.values().length);
+	}
+	
+	@Test
+	public void testValueOfInstance() {
+		assertNotNull(Configuration.valueOf("INSTANCE"));
+	}
+	
 	@Test
 	public void testServerPort() throws ParseException {
 		Configuration.INSTANCE.parse(new String[]{"--port=777"});
