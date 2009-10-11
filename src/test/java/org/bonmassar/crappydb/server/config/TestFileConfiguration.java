@@ -35,7 +35,7 @@ public class TestFileConfiguration {
 	
 	@Before
 	public void setUp() throws FileNotFoundException, IOException, ParseException {
-		config = ConfigurationBuilder.getConfig(new String[] {"--file=src/test/resources/crappytest.conf"});
+		config = new ConfigurationBuilder().getConfig(new String[] {"--file=src/test/resources/crappytest.conf"});
 	}
 
 	@Test

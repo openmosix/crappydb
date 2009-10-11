@@ -28,13 +28,13 @@ public class ConfigurationBuilder {
 	
 	private static Logger logger = Logger.getLogger(ConfigurationBuilder.class);
 	
-	public static CLIConfiguration getConfig(String[] args) throws ParseException {
+	public CLIConfiguration getConfig(String[] args) throws ParseException {
 		CLIConfiguration cliconfig = new CLIConfiguration();
 		cliconfig.parse(args);
 		
 		String filename = cliconfig.getConfigurationFileName();
 		try {
-			 cliconfig =  new FileConfiguration(filename);
+			 cliconfig = getFile(filename);
 			 
 			 cliconfig.parse(args);
 			 return cliconfig;
@@ -48,4 +48,7 @@ public class ConfigurationBuilder {
 		}
 	}
 	
+	protected FileConfiguration getFile(String filename) throws FileNotFoundException, IOException{
+		return new FileConfiguration(filename);
+	}
 }

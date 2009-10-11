@@ -35,12 +35,12 @@ public class TestCLIConfiguration {
 	
 	@Before
 	public void setUp() throws FileNotFoundException, IOException, ParseException {
-		config = ConfigurationBuilder.getConfig(new String[] {"--buffer-size=42", "-h cippalippa", "--dump"});
+		config = new ConfigurationBuilder().getConfig(new String[] {"--buffer-size=42", "-h cippalippa", "--dump"});
 	}
 
 	@Test
 	public void testFilename() throws ParseException {
-		config = ConfigurationBuilder.getConfig(new String[] {"-f terminenzio.conf"});
+		config = new ConfigurationBuilder().getConfig(new String[] {"-f terminenzio.conf"});
 
 		assertEquals("CommandLine", config.getConfigurationFileName());
 	}

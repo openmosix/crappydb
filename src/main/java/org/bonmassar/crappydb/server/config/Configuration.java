@@ -117,7 +117,7 @@ public enum Configuration {
 	}
 	
 	public void parse(String[] args) throws ParseException {
-		config = ConfigurationBuilder.getConfig(args);
+		config = new ConfigurationBuilder().getConfig(args);
 		loadConfiguration(config);
 	}
 
