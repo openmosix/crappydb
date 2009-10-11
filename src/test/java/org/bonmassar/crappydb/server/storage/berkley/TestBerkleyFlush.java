@@ -26,6 +26,7 @@ package org.bonmassar.crappydb.server.storage.berkley;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
@@ -72,6 +73,18 @@ public class TestBerkleyFlush extends TestFlush {
 		fail();
 	}
 
+	@Test
+	public void testExceptionOnCursor() throws DatabaseException {
+		um = new BerkleyPAL(mockExceptionOnCursor());
+		try{
+			um.flush(Long.valueOf(0));
+		}
+		catch(StorageException e){
+			return;
+		}
+		fail();
+	}
+	
 	@SuppressWarnings("unchecked")	//mock because Mockito does not mock that method...
 	private EntityStore mockExceptionOnEntities() throws DatabaseException {
 		final HelperPair pair = builder.createSettingForMock();
@@ -85,6 +98,30 @@ public class TestBerkleyFlush extends TestFlush {
 			public EntityCursor<ItemEntity> entities(Transaction txn,
 					CursorConfig config) throws DatabaseException {
 				throw new DatabaseException();
+			}
+		}
+		
+		EntityStore store = mock(EntityStore.class);
+		doReturn(new PrimaryIndexExceptionOnEntities()).when(store).getPrimaryIndex(String.class, ItemEntity.class);
+		doReturn(mock(Environment.class)).when(store).getEnvironment();
+		return store;
+	}
+	
+	@SuppressWarnings("unchecked")	//mock because Mockito does not mock that method...
+	private EntityStore mockExceptionOnCursor() throws DatabaseException {
+		final HelperPair pair = builder.createSettingForMock();
+		class PrimaryIndexExceptionOnEntities extends PrimaryIndex<String, ItemEntity>{
+			PrimaryIndexExceptionOnEntities() throws DatabaseException {
+				super(new Environment(new File(HelperPair.dbpath), pair.envConfig).openDatabase(null, "tryppy", pair.dbConfig), 
+						String.class, null, ItemEntity.class, null);
+			}
+			
+			@Override
+			public EntityCursor<ItemEntity> entities(Transaction txn,
+					CursorConfig config) throws DatabaseException {
+				EntityCursor<ItemEntity> cursor = mock(EntityCursor.class);
+				doThrow(new DatabaseException()).when(cursor).first();
+				return cursor;
 			}
 		}
 		
