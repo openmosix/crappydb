@@ -44,13 +44,37 @@ public class TestFileConfiguration {
 	}
 	
 	@Test
+	public void testBufferSizeFromFile() throws ParseException {
+		config = new ConfigurationBuilder().getConfig(new String[] {"--file=src/test/resources/crappytest2.conf"});
+		assertEquals(909090 , config.getBufferSize());
+	}
+	
+	@Test
 	public void testGetEngineThreads() throws ParseException {
 		assertEquals(180 , config.getEngineThreads());		
 	}
 	
 	@Test
+	public void testGetEngineThreadsFromDefault() throws ParseException {
+		config = new ConfigurationBuilder().getConfig(new String[] {"--file=src/test/resources/crappytest2.conf"});
+		assertEquals(Runtime.getRuntime().availableProcessors() * 2 , config.getEngineThreads());		
+	}
+	
+	@Test
 	public void testPort() throws ParseException {
 		assertEquals(999 , config.getServerPort());				
+	}
+	
+	@Test
+	public void testPortFromDefault() throws ParseException {
+		config = new ConfigurationBuilder().getConfig(new String[] {"--file=src/test/resources/crappytest2.conf"});
+		assertEquals(11211 , config.getServerPort());				
+	}
+	
+	@Test
+	public void testGetMaxPayloadSizeFromFile() throws ParseException {
+		config = new ConfigurationBuilder().getConfig(new String[] {"--file=src/test/resources/crappytest2.conf"});
+		assertEquals(123 , config.getMaxPayloadSize());						
 	}
 	
 	@Test
@@ -64,7 +88,19 @@ public class TestFileConfiguration {
 	}
 	
 	@Test
+	public void testGetHostnameFromFile() throws ParseException {
+		config = new ConfigurationBuilder().getConfig(new String[] {"--file=src/test/resources/crappytest2.conf"});
+		assertEquals("terminenzio" , config.getHostname());		
+	}
+	
+	@Test
 	public void testIsDumpParams() {
+		assertFalse(config.isDumpParams());
+	}
+	
+	@Test
+	public void testIsDumpParamsFromDefault() throws ParseException {
+		config = new ConfigurationBuilder().getConfig(new String[] {"--file=src/test/resources/crappytest2.conf"});
 		assertFalse(config.isDumpParams());
 	}
 	
