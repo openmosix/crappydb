@@ -45,9 +45,9 @@ public class TestProtocolStats {
 		stats.newHit();
 		stats.newMisses(5);
 		stats.newMisses(3);
-		assertEquals(4, Long.parseLong(stats.getNoHits()));
-		assertEquals(8, Long.parseLong(stats.getNoMisses()));
-		assertEquals(12, Long.parseLong(stats.getCumulativeGets()));
+		assertEquals(4L, Long.parseLong(stats.getNoHits()));
+		assertEquals(8L, Long.parseLong(stats.getNoMisses()));
+		assertEquals(12L, Long.parseLong(stats.getCumulativeGets()));
 	}
 	
 	@Test
@@ -57,7 +57,7 @@ public class TestProtocolStats {
 		stats.newSet();
 		stats.newSet();
 		stats.newSet();
-		assertEquals(5, Long.parseLong(stats.getCumulativeSets()));
+		assertEquals(5L, Long.parseLong(stats.getCumulativeSets()));
 	}
 	
 }
