@@ -83,8 +83,8 @@ function stop() {
         exit 1
     fi
 
-    echo "CrappyDB running with PID ${PID}, sending a kill signal..."
-    kill ${PID}
+    echo "CrappyDB running with PID ${PID}, sending a kill -2 signal..."
+    kill -2 ${PID}
     waitForDeath
     rm ${PIDFILE}
     
