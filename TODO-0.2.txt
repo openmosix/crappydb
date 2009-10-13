@@ -1,3 +1,2 @@
-* Script to start/stop/restart the server
-* BerkleyDB access layer
-* Bounded memory map access layer
+* Bounded memory map access layer - test
+* Test of the script to start/stop

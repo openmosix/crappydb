@@ -42,15 +42,15 @@
  Rel 0.2 <-trunk->
  
 * Added Oracle Berkley DB Engine as storage layer. Now CrappyDB...is a real db :)
-* Added new packaging for the application
 * Parameters of the server are now configurable using command line or config file 
+* Added new packaging for the application
 * Script to start/stop the server
  
 Dependencies (runtime):
 
 * Apache Log4j 1.2.15
 * Apache Commons-CLI 1.2
-
+* Apache Commons-collection 3.2
 
 Bugs:
 
