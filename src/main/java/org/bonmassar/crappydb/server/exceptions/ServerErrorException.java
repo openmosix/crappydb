@@ -28,7 +28,7 @@ public class ServerErrorException extends CrappyDBException {
 	
 	@Override
 	public String clientResponse() {
-		return "SERVER_ERROR "+getReason();
+		return String.format("SERVER_ERROR%s",getReason());
 	}
 
 }

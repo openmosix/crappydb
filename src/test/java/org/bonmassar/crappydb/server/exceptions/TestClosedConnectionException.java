@@ -15,36 +15,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.bonmassar.crappydb.server.exceptions;
 
-public abstract class CrappyDBException extends Exception{
+import static org.junit.Assert.assertEquals;
 
-	private static final long serialVersionUID = -1944815272794785819L;
-	private final static String DEFAULT_REASON="No details";
-	private final String reason;
-	
-	public CrappyDBException(String reason){
-		this.reason = reason;
+import org.junit.Test;
+
+public class TestClosedConnectionException {
+	@Test
+	public void testClientResponse(){
+		assertEquals("ClosedConnectionException", new ClosedConnectionException().clientResponse());
 	}
 	
-	public CrappyDBException(){
-		this.reason = DEFAULT_REASON;
-	}
-	
-	public String toString(){
-		return getClass().getSimpleName() + getReason();
-	}
-	
-	public String clientResponse() {
-		return toString();
+	@Test
+	public void testToString() {
+		assertEquals("ClosedConnectionException", new ClosedConnectionException().toString());
 	}
 
-	protected String getReason() {
-		if(null != reason && reason.length() > 0)
-			return " [" + reason + "]";
-		
-		return "";
-	}
-	
 }

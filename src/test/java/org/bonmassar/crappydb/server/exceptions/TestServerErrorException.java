@@ -18,33 +18,14 @@
 
 package org.bonmassar.crappydb.server.exceptions;
 
-public abstract class CrappyDBException extends Exception{
+import static org.junit.Assert.assertEquals;
 
-	private static final long serialVersionUID = -1944815272794785819L;
-	private final static String DEFAULT_REASON="No details";
-	private final String reason;
-	
-	public CrappyDBException(String reason){
-		this.reason = reason;
-	}
-	
-	public CrappyDBException(){
-		this.reason = DEFAULT_REASON;
-	}
-	
-	public String toString(){
-		return getClass().getSimpleName() + getReason();
-	}
-	
-	public String clientResponse() {
-		return toString();
-	}
+import org.junit.Test;
 
-	protected String getReason() {
-		if(null != reason && reason.length() > 0)
-			return " [" + reason + "]";
-		
-		return "";
+public class TestServerErrorException {
+
+	@Test
+	public void testReason() {
+		assertEquals("SERVER_ERROR [BOOM! BOOM!]", new ServerErrorException("BOOM! BOOM!").clientResponse());
 	}
-	
 }
