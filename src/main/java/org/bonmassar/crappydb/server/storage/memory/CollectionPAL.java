@@ -1,6 +1,5 @@
 package org.bonmassar.crappydb.server.storage.memory;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,7 @@ public class CollectionPAL extends PAL {
 
 	final Map<Key, Item> repository;
 	
-	public CollectionPAL(HashMap<Key, Item> repository) {
+	public CollectionPAL(Map<Key, Item> repository) {
 		this.repository = repository;
 	}
 
