@@ -8,7 +8,7 @@
 ###############################################################################
 #export JAVA_HOME=/opt/jdk1.6.0_13/bin/
 export JAVA_HOME=/usr/bin
-export JAVA_VM_PARAMS=-Xmx768M
+export JAVA_VM_PARAMS="-Xmx768M -server"
 export CRAPPYDB_HOME=`pwd`
 export CRAPPYDB_CONFIG=conf/crappydbd.conf
 export CRAPPYDB_PARAMS=--dump
@@ -16,6 +16,8 @@ export CRAPPYDB_PARAMS=--dump
 ###############################################################################
 ## Private part - you should not touch this area 8-P
 ###############################################################################
+export LIBS="${CRAPPYDB_HOME}"/lib/
+export LIBS="${LIBS}":"${CRAPPYDB_HOME}"/lib/commons-cli-1.2.jar
 
 export PID=0
 export PIDFILE="${CRAPPYDB_HOME}"/run/server.pid
@@ -51,13 +53,13 @@ function start() {
 
     echo "Starting CrappyDB..."
 
-	echo "${JAVA_HOME}"/java "${JAVA_VM_PARAMS}" -jar "${CRAPPYDB_HOME}"/lib/crappydbd.jar \
-		-cp "${CRAPPYDB_HOME}"/lib/ \
+	echo "${JAVA_HOME}"/java "${JAVA_VM_PARAMS}" \
+		-classpath "${LIBS}" \
+		-jar "${CRAPPYDB_HOME}"/lib/crappydbd.jar \
 		--file="${CRAPPYDB_HOME}"/"${CRAPPYDB_CONFIG}" "${CRAPPYDB_PARAMS}"
     
     PID=$!
 
-	echo $PID
     if [ "" == "${PID}" ]; 
     then
         echo "CrappyDB not started, aborting..."
