@@ -6,8 +6,8 @@
 ###############################################################################
 ## Public part - you can customize this area
 ###############################################################################
-export JAVA_HOME=/opt/jdk1.6.0_13/bin/
-export PATH="${JAVA_HOME}"/bin:"${PATH}"
+#export JAVA_HOME=/opt/jdk1.6.0_13/bin/
+export JAVA_HOME=/usr/bin
 export JAVA_VM_PARAMS=-Xmx768M
 export CRAPPYDB_HOME=`pwd`
 export CRAPPYDB_CONFIG=conf/crappydbd.conf
@@ -18,13 +18,13 @@ export CRAPPYDB_PARAMS=--dump
 ###############################################################################
 
 export PID=0
-export PIDFILE="${CRAPPYDB_HOME}"/server.pid
+export PIDFILE="${CRAPPYDB_HOME}"/run/server.pid
 
 function readPID() {
-	if [ -e "$PIDFILE" ]; 
+	if [ -e "${PIDFILE}" ]; 
 	then
-	    PID=`cat "$PIDFILE"`
-	    if [ "x" == "x$PID" ]; then
+	    PID=`cat "${PIDFILE}"`
+	    if [ "x" == "x${PID}" ]; then
 	        PID=0
 	    fi
 	fi
@@ -49,12 +49,22 @@ function checkPIDOrDie() {
 function start() {
 	checkPIDOrDie
 
-    echo "Starting CrappyDB.."
+    echo "Starting CrappyDB..."
 
-	"{JAVA_HOME}"/java "${JAVA_VM_PARAMS}" -jar "${CRAPPYDB_HOME}"/lib/crappydbd.jar \
-		--file="${CRAPPYDB_HOME}"/lib/conf/"${CRAPPYDB_CONFIG}" "${CRAPPYDB_PARAMS}"
+	echo "${JAVA_HOME}"/java "${JAVA_VM_PARAMS}" -jar "${CRAPPYDB_HOME}"/lib/crappydbd.jar \
+		-cp "${CRAPPYDB_HOME}"/lib/ \
+		--file="${CRAPPYDB_HOME}"/"${CRAPPYDB_CONFIG}" "${CRAPPYDB_PARAMS}"
     
-    echo $! > $PIDFILE
+    PID=$!
+
+	echo $PID
+    if [ "" == "${PID}" ]; 
+    then
+        echo "CrappyDB not started, aborting..."
+        exit 1
+    fi
+
+    echo "${PID}" > ${PIDFILE}
 
     sleep 2
     echo "CrappyDB is now running!" 
