@@ -6,8 +6,9 @@
 ###############################################################################
 ## Public part - you can customize this area
 ###############################################################################
-#export JAVA_HOME=/opt/jdk1.6.0_13/bin/
-export JAVA_HOME=/usr/bin
+#export JAVA_HOME="/opt/jdk1.6.0_13/bin/"
+#export JAVA_HOME="/usr/bin"
+export JAVA_HOME="/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/bin/"
 export JAVA_VM_PARAMS="-Xmx768M -server"
 export CRAPPYDB_HOME=`pwd`
 export CRAPPYDB_CONFIG=conf/crappydbd.conf
@@ -16,8 +17,13 @@ export CRAPPYDB_PARAMS=--dump
 ###############################################################################
 ## Private part - you should not touch this area 8-P
 ###############################################################################
-export LIBS="${CRAPPYDB_HOME}"/lib/
-export LIBS="${LIBS}":"${CRAPPYDB_HOME}"/lib/commons-cli-1.2.jar
+export CLASSPATH="${CRAPPYDB_HOME}"/lib/
+export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/commons-cli-1.2.jar
+export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/je-3.3.75.jar
+export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/log4j-1.2.15.jar
+export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/commons-collections-3.2.jar
+export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/crappydbd-0.2.jar
+export EXEC="org.bonmassar.crappydb.server.CrappyDBD"
 
 export PID=0
 export PIDFILE="${CRAPPYDB_HOME}"/run/server.pid
@@ -35,7 +41,7 @@ function readPID() {
 function checkPIDOrDie() {
     if [ 0 -ne "${PID}" ]; 
     then
-        STATUS=`ps --pid "${PID}" | grep "${PID}" | wc -l`
+        STATUS=`ps aux | grep "${PID}" | wc -l`
         if [ "${STATUS}" ]; 
         then
             echo "CrappyDB is already running (PID ${PID}), remove ${PIDFILE} if it is not the case."
@@ -52,11 +58,10 @@ function start() {
 	checkPIDOrDie
 
     echo "Starting CrappyDB..."
-
-	echo "${JAVA_HOME}"/java "${JAVA_VM_PARAMS}" \
-		-classpath "${LIBS}" \
-		-jar "${CRAPPYDB_HOME}"/lib/crappydbd.jar \
-		--file="${CRAPPYDB_HOME}"/"${CRAPPYDB_CONFIG}" "${CRAPPYDB_PARAMS}"
+    "${JAVA_HOME}"/java "${JAVA_VM_PARAMS}" \
+		-classpath "${CLASSPATH}" \
+		"${EXEC}" \
+		--file="${CRAPPYDB_HOME}"/"${CRAPPYDB_CONFIG}" "${CRAPPYDB_PARAMS}" &
     
     PID=$!
 
@@ -76,7 +81,8 @@ function start() {
 function waitForDeath(){
     while [ 1 ];
     do
-        if ps --pid "${PID}" > /dev/null; 
+	STATUS=`ps aux | grep "${PID}" | wc -l`
+        if [ "0" != "$STATUS" ]; 
         then
             echo -n ".";
             sleep 1;
@@ -106,7 +112,7 @@ function stop() {
 function printStatus() {
    if [ 0 -ne "${PID}" ]; 
    then
-        STATUS=`ps --pid "${PID}" | grep "${PID}" | wc -l`
+        STATUS=`ps aux | grep "${PID}" | wc -l`
    fi
 
    if [ "${STATUS}" ]; 
