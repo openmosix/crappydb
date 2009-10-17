@@ -50,7 +50,8 @@ Dependencies (runtime):
 
 * Apache Log4j 1.2.15
 * Apache Commons-CLI 1.2
-* Apache Commons-collection 3.2
+* Apache Commons-Collection 3.2
+* JE SleepyCat (Oracle) 3.3.75
 
 Bugs:
 

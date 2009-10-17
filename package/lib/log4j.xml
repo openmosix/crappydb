@@ -27,7 +27,7 @@
 		<param name="Append" value="true" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
 		<param name="Encoding" value="UTF-8" />
-		<param name="File" value="../logs/error.log" />
+		<param name="File" value="logs/error.log" />
 
 		<layout class="org.apache.log4j.PatternLayout">
 		<!-- See http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html 
@@ -41,7 +41,7 @@
 		<param name="Append" value="true" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
 		<param name="Encoding" value="UTF-8" />
-		<param name="File" value="../logs/info.log" />
+		<param name="File" value="logs/info.log" />
 		
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%t] [%c] [%-5p] %m%n" />
@@ -53,7 +53,7 @@
 		<param name="Append" value="true" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
 		<param name="Encoding" value="UTF-8" />
-		<param name="File" value="../logs/access.log" />
+		<param name="File" value="logs/access.log" />
 		
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5p] %m%n" />
@@ -65,7 +65,7 @@
 		<param name="Append" value="true" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
 		<param name="Encoding" value="UTF-8" />		
-		<param name="File" value="../logs/debug.log" />
+		<param name="File" value="logs/debug.log" />
 
 		<layout class="org.apache.log4j.PatternLayout">
 		<!-- See http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html 
