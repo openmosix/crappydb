@@ -75,7 +75,7 @@ public class TestVersionServerCommand extends TestCase {
 	@Test
 	public void testShouldReturnVersionNumber() {
 		command.execCommand();
-		verify(writer, times(1)).writeToOutstanding("VERSION 0.2\r\n");
+		verify(writer, times(1)).writeToOutstanding("VERSION 0.3\r\n");
 	}
 	
 	@Test

@@ -39,7 +39,7 @@
           :i&H#MBHH329@ ;&#h, .                                           M@@
                 .,,@@h@#&s. .:,                                          hGAAH@
 ===============================================================================
- Rel 0.2 <-trunk->
+ Rel 0.2 <-18.10.09->
  
 * Added Oracle Berkley DB Engine as storage layer. Now CrappyDB...is a real db :)
 * Parameters of the server are now configurable using command line or config file 

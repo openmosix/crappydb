@@ -1,6 +1,6 @@
 #!/bin/bash
 ###
-## Startup / Shutdown script for CrappyDB-0.2 - Luca Bonmassar <23.09.09>
+## Startup / Shutdown script for CrappyDB-0.3 - Luca Bonmassar <23.09.09>
 ###
 
 ###############################################################################
@@ -22,7 +22,7 @@ export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/commons-cli-1.2.jar
 export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/je-3.3.75.jar
 export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/log4j-1.2.15.jar
 export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/commons-collections-3.2.jar
-export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/crappydbd-0.2.jar
+export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/crappydbd-0.3.jar
 export EXEC="org.bonmassar.crappydb.server.CrappyDBD"
 
 export PID=0

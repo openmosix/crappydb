@@ -279,7 +279,7 @@ public class TestNormalUseCases extends AbstractUseCases {
 	@Test
 	public void testVersion() throws IOException {
 		String input = "version\r\n";
-		testServerInOut(input, "VERSION 0.2\r\n");
+		testServerInOut(input, "VERSION 0.3\r\n");
 	}
 	
 	@Test

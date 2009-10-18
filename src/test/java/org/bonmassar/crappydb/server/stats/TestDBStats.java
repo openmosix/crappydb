@@ -39,7 +39,7 @@ public class TestDBStats {
 	
 	@Test
 	public void testDBVersion(){
-		assertEquals("0.2", DBStats.INSTANCE.getDBVersion());
+		assertEquals("0.3", DBStats.INSTANCE.getDBVersion());
 	}
 	
 	@Test
@@ -61,7 +61,7 @@ public class TestDBStats {
 	public void testStats() {
 		Map<String, String> stats = DBStats.INSTANCE.getStats();
 		assertNotNull(stats);
-		assertEquals("0.2", stats.get("version"));
+		assertEquals("0.3", stats.get("version"));
 		assertTrue(Long.parseLong(stats.get("pid"))>0);
 		assertTrue(Long.parseLong(stats.get("limit_maxbytes"))>0);
 		assertTrue(Long.parseLong(stats.get("pointer_size"))>=32);
