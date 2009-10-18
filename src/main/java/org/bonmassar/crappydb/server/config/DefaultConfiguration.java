@@ -34,6 +34,7 @@ abstract class DefaultConfiguration implements ConfigurationIface {
 	protected final static String VERSION = "version";
 	protected final static String HELP = "help";
 	protected final static String FILE = "file";
+	protected final static String UDP = "udp";
 	
 	public Catalogue getStorage() throws ParseException{
 		return Catalogue.INMEMORY_UNBOUNDED_FIXED_RATE_GC;

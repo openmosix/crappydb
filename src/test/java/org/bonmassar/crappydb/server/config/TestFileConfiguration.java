@@ -21,6 +21,7 @@ package org.bonmassar.crappydb.server.config;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -63,6 +64,17 @@ public class TestFileConfiguration {
 	@Test
 	public void testPort() throws ParseException {
 		assertEquals(999 , config.getServerPort());				
+	}
+	
+	@Test
+	public void testUdp() throws ParseException {
+		assertFalse(config.isUdp());				
+	}
+	
+	@Test
+	public void testUdpFromSecondFile() throws ParseException {
+		config = new ConfigurationBuilder().getConfig(new String[] {"--file=src/test/resources/crappytest2.conf"});
+		assertTrue(config.isUdp());				
 	}
 	
 	@Test

@@ -36,6 +36,7 @@ public enum Configuration {
 	private boolean help;
 	private boolean version;
 	private boolean dump;
+	private boolean udp;
 	private String configFile;
 	
 	private String configFileName() {
@@ -70,6 +71,10 @@ public enum Configuration {
 		return dump;
 	}
 	
+	public boolean isUdp() {
+		return udp;
+	}
+	
 	public boolean isVersion() {
 		return version;
 	}
@@ -94,6 +99,7 @@ public enum Configuration {
 		configFile = config.getConfigurationFileName();
 		storage = config.getStorage();
 		dbpath = config.getDBPath();
+		udp = config.isUdp();
 	}
 	
 	public String getConfigParams() {
@@ -109,6 +115,7 @@ public enum Configuration {
 		sb.append(String.format("max-payload-size %d\n", getMaxPayloadSize()));
 		sb.append(String.format("storage %s\n", getStorage()));		
 		sb.append(String.format("dbpath %s\n", getDbPath()));
+		sb.append(String.format("udp %s\n", value(isUdp())));
 		return sb.toString();
 	}
 	

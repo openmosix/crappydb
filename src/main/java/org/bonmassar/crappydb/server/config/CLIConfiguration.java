@@ -120,6 +120,10 @@ class CLIConfiguration extends DefaultConfiguration {
 		return cli.hasOption( VERSION );
 	}
 	
+	public boolean isUdp() {
+		return cli.hasOption( UDP );
+	}
+	
 	private Options buildOptions() {
 		Options options = new Options();
 		options.addOption( null, "help", false, "print this help message." );
@@ -133,6 +137,7 @@ class CLIConfiguration extends DefaultConfiguration {
 		options.addOption( "f", "file", true, "server configuration file (def: ./crappydb.conf)" );
 		options.addOption( "h", "hostname", true, "bind the server to this hostname." );
 		options.addOption( "p", "port", true, "bind the server to this port." );
+		options.addOption( "u", "udp", false, "run the server in UDP mode instead tcp. (def: false)" );
 		return options;
 	}
 	

@@ -19,6 +19,7 @@
 package org.bonmassar.crappydb.server.config;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -119,6 +120,18 @@ public class TestConfiguration {
 	}
 	
 	@Test
+	public void testUdp() throws ParseException {
+		Configuration.INSTANCE.parse(new String[]{"--udp"});
+		assertTrue(Configuration.INSTANCE.isUdp());	
+	}
+	
+	@Test
+	public void testUdpDisabled() throws ParseException {
+		Configuration.INSTANCE.parse(new String[]{"--dump"});
+		assertFalse(Configuration.INSTANCE.isUdp());	
+	}
+	
+	@Test
 	public void testVersion() throws ParseException {
 		Configuration.INSTANCE.parse(new String[]{"--version"});
 		assertTrue(Configuration.INSTANCE.isVersion());	
@@ -159,7 +172,7 @@ public class TestConfiguration {
 		Configuration.INSTANCE.parse(new String[]{"-v", "-p128", "-t12"});
 		String params = Configuration.INSTANCE.getConfigParams();
 		
-		assertEquals("file CommandLine\ndump off\nhelp off\nversion on\nhostname *\nport 128\nthreads 12\nbuffer-size 8192\nmax-payload-size 67108864\nstorage unbounded-memory\ndbpath /var/crappydb/db\n", params);
+		assertEquals("file CommandLine\ndump off\nhelp off\nversion on\nhostname *\nport 128\nthreads 12\nbuffer-size 8192\nmax-payload-size 67108864\nstorage unbounded-memory\ndbpath /var/crappydb/db\nudp off\n", params);
 	}
 	
 	
@@ -168,7 +181,7 @@ public class TestConfiguration {
 		Configuration.INSTANCE.parse(new String[]{"-v", "-p128", "-t12", "--hostname", "terminenzio"});
 		String params = Configuration.INSTANCE.getConfigParams();
 		
-		assertEquals("file CommandLine\ndump off\nhelp off\nversion on\nhostname terminenzio\nport 128\nthreads 12\nbuffer-size 8192\nmax-payload-size 67108864\nstorage unbounded-memory\ndbpath /var/crappydb/db\n", params);
+		assertEquals("file CommandLine\ndump off\nhelp off\nversion on\nhostname terminenzio\nport 128\nthreads 12\nbuffer-size 8192\nmax-payload-size 67108864\nstorage unbounded-memory\ndbpath /var/crappydb/db\nudp off\n", params);
 	}
 	
 	

@@ -87,4 +87,13 @@ class FileConfiguration extends CLIConfiguration{
 		
 		return toBool(dump, DUMP);
 	}
+	
+	@Override
+	public boolean isUdp() {
+		String udp = properties.getProperty(UDP);
+		if(null == udp)
+			return super.isUdp();
+		
+		return toBool(udp, UDP);
+	}
 }

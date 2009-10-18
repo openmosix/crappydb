@@ -39,6 +39,8 @@ public interface ConfigurationIface {
 	
 	boolean isVersion() throws ParseException ;
 	
+	boolean isUdp() throws ParseException ;
+	
 	String getHostname() throws ParseException ;
 	
 	int getMaxPayloadSize()throws ParseException ;

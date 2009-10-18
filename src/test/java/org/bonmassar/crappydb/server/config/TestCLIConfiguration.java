@@ -76,6 +76,18 @@ public class TestCLIConfiguration {
 	}
 	
 	@Test
+	public void testIsUdp() {
+		assertFalse(config.isUdp());
+	}
+	
+	@Test
+	public void testIsUdpEnabled() throws ParseException {
+		config = new ConfigurationBuilder().getConfig(new String[] {"--buffer-size=42", "-h cippalippa", "--dump", "-u"});
+
+		assertTrue(config.isUdp());
+	}
+	
+	@Test
 	public void testIsHelpMessage() {
 		assertFalse(config.isHelpMessage());
 	}
