@@ -223,7 +223,7 @@ public class TestNormalUseCases {
 		assertTrue(client.add("terminenzio", "5000"));
 		for(int i=0, exp=5000; i < 20; i++){
 			exp += 5000;
-			assertEquals(exp, client.incr("terminenzio", 5000L));
+			assertEquals((long)exp, client.incr("terminenzio", 5000L));
 		}
 	}
 	
@@ -267,7 +267,7 @@ public class TestNormalUseCases {
 		assertTrue(client.add("terminenzio", "200000"));
 		for(int i=0, exp=200000; i < 20; i++){
 			exp -= 5000;
-			assertEquals(exp, client.decr("terminenzio", 5000L));
+			assertEquals((long)exp, client.decr("terminenzio", 5000L));
 		}
 	}
 	
