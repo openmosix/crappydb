@@ -16,24 +16,32 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.io;
+package org.bonmassar.crappydb.server.io.tcp;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
 
-class UdpProtocol extends TransportProtocol {
+import org.bonmassar.crappydb.server.io.TransportProtocol;
 
-	UdpProtocol() throws IOException {
-		super( DatagramChannel.open());
+public class TcpProtocol extends TransportProtocol {
 
-		((DatagramChannel) listenChannel).socket().bind(getSocketAddress());
+	public TcpProtocol() throws IOException{
+		super(ServerSocketChannel.open());
+
+		((ServerSocketChannel) listenChannel).socket().bind(getSocketAddress());
 	}
-	
+
 	@Override
-	public void register(Selector selector) throws ClosedChannelException {
-		listenChannel.register(selector, SelectionKey.OP_READ);
+	protected void register(Selector selector) throws ClosedChannelException {
+		listenChannel.register(selector, SelectionKey.OP_ACCEPT);		
 	}
+
+	@Override
+	public String toString() {
+		return "tcp";
+	}
+
 }

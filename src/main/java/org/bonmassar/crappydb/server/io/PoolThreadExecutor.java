@@ -30,18 +30,19 @@ import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 
 class DBPoolThreadExecutor {
 
-	private static CommandFactory cmdFactory;
-	private static Selector serverSelectorForAccept;
+	private final CommandFactory cmdFactory;
+	private final Selector serverSelectorForAccept;
 
 	private int nThreads;
 	protected ExecutorService executor;
 	
-	public DBPoolThreadExecutor() {
-		nThreads = Configuration.INSTANCE.getEngineThreads();
-		initFrontendThreads();
+	public DBPoolThreadExecutor(CommandFactory cmdFactory, Selector serverSelectorForAccept) {
+		this(cmdFactory, serverSelectorForAccept, Configuration.INSTANCE.getEngineThreads());
 	}
 	
-	public DBPoolThreadExecutor(int nThreads) {
+	public DBPoolThreadExecutor(CommandFactory cmdFactory, Selector serverSelectorForAccept, int nThreads) {
+		this.cmdFactory = cmdFactory;
+		this.serverSelectorForAccept = serverSelectorForAccept;
 		this.nThreads = nThreads;
 		initFrontendThreads();
 	}
@@ -53,10 +54,5 @@ class DBPoolThreadExecutor {
 	protected void initFrontendThreads() {
 		executor = Executors.newFixedThreadPool(nThreads);
 		Registry.INSTANCE.book(executor);
-	}
-		
-	public static void setup(CommandFactory cmdFactory, Selector serverSelectorForAccept){
-		DBPoolThreadExecutor.cmdFactory = cmdFactory;
-		DBPoolThreadExecutor.serverSelectorForAccept = serverSelectorForAccept;
 	}
 }

@@ -21,35 +21,50 @@ package org.bonmassar.crappydb.server.io;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.spi.AbstractSelectableChannel;
 
 import org.bonmassar.crappydb.server.config.Configuration;
+import org.bonmassar.crappydb.server.io.tcp.TcpProtocol;
+import org.bonmassar.crappydb.server.io.udp.UdpProtocol;
 
-abstract class TransportProtocol {
-		
-		protected final static boolean asyncOperations = true;
+abstract public class TransportProtocol {
 
-		protected final AbstractSelectableChannel listenChannel;
-		
-		TransportProtocol(AbstractSelectableChannel channel) throws IOException{
-			if(null == channel)
-				throw new NullPointerException("Null channel");
-			
-			listenChannel = channel;
-			listenChannel.configureBlocking(!TransportProtocol.asyncOperations);
-		}
-				
-		public void register(Selector selector) throws ClosedChannelException {
-			listenChannel.register(selector, SelectionKey.OP_ACCEPT);
-		}
-		
-		protected InetSocketAddress getSocketAddress() {
-			if(null == Configuration.INSTANCE.getHostname())
-				return new InetSocketAddress(Configuration.INSTANCE.getServerPort());
-			
-			return new InetSocketAddress(Configuration.INSTANCE.getHostname(), Configuration.INSTANCE.getServerPort());
-		}
+	protected final static boolean asyncOperations = true;
 
+	protected final AbstractSelectableChannel listenChannel;
+	
+	public static TransportProtocol getProtocol() throws IOException {
+		if(Configuration.INSTANCE.isUdp())
+			return new UdpProtocol();
+
+		return new TcpProtocol();
 	}
+
+	
+	public Selector registerListener() throws IOException,
+		ClosedChannelException {
+		Selector selector = Selector.open();
+		register(selector);
+		return selector;
+	}		
+
+	protected TransportProtocol(AbstractSelectableChannel channel) throws IOException{
+		if(null == channel)
+			throw new NullPointerException("Null channel");
+
+		listenChannel = channel;
+		listenChannel.configureBlocking(!TransportProtocol.asyncOperations);
+	}
+
+	protected abstract void register(Selector selector) throws ClosedChannelException;
+
+	protected InetSocketAddress getSocketAddress() {
+		if(null == Configuration.INSTANCE.getHostname())
+			return new InetSocketAddress(Configuration.INSTANCE.getServerPort());
+
+		return new InetSocketAddress(Configuration.INSTANCE.getHostname(), Configuration.INSTANCE.getServerPort());
+	}
+
+
+}

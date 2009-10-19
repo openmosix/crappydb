@@ -19,7 +19,6 @@
 package org.bonmassar.crappydb.server.io;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
@@ -37,42 +36,23 @@ public class CrappyNetworkServer {
 		
 	private Logger logger = Logger.getLogger(CrappyNetworkServer.class);
 
-	private TransportProtocol protocol;
+	private TransportProtocol transport;
 	protected Selector serverSelector;		
-	private CommandFactory cmdFactory;
-	protected DBPoolThreadExecutor frontend;
+	protected DBPoolThreadExecutor workers;
 
 	public CrappyNetworkServer(CommandFactory cmdFactory) {
-		super();
-		this.cmdFactory = cmdFactory;
-	}
-
-	public CrappyNetworkServer serverSetup() {
-		logger.info(String.format("Listening on port %s:%d", printProtocol(), Configuration.INSTANCE.getServerPort()));
 		try {
-			initProtocol();
-			registerMainSocketToListener();
-			
-			DBPoolThreadExecutor.setup(cmdFactory, serverSelector);
-			frontend = new DBPoolThreadExecutor();
+			transport = TransportProtocol.getProtocol();
+			logger.info(String.format("Listening on port %s:%d", transport, Configuration.INSTANCE.getServerPort()));
+
+			serverSelector = transport.registerListener();
+			workers = new DBPoolThreadExecutor(cmdFactory, serverSelector);
 			logger.info(String.format("Server up!"));
 		}
 		catch(IOException ie) {
 			logger.fatal("Cannot init the network server", ie);
 			throw new RuntimeException("Failed starting daemon - see logs");
 		}
-		return this;
-	}
-
-	private String printProtocol() {
-		return Configuration.INSTANCE.isUdp() ? "udp" : "tcp";
-	}
-
-	private void initProtocol() throws IOException {
-		if(Configuration.INSTANCE.isUdp())
-			protocol = new UdpProtocol();
-		else 
-			protocol = new TcpProtocol();
 	}
 
 	public void start() {  
@@ -95,7 +75,7 @@ public class CrappyNetworkServer {
 		List<Future<Void>> result = new ArrayList<Future<Void>>();
 		for(Iterator<SelectionKey> it = pendingRequests.iterator(); it.hasNext();) {
 			SelectionKey key = it.next();
-			result.add(frontend.submit(key));
+			result.add(workers.submit(key));
 			it.remove();
 		}
 		for(Future<Void> f : result)
@@ -119,10 +99,4 @@ public class CrappyNetworkServer {
 		}
 		return serverSelector.selectedKeys();
 	}
-
-	private void registerMainSocketToListener() throws IOException,
-			ClosedChannelException {
-		serverSelector = Selector.open();
-		protocol.register(serverSelector);
-	}		
 }

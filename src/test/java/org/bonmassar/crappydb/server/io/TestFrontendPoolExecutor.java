@@ -47,7 +47,7 @@ public class TestFrontendPoolExecutor extends TestCase {
 	public void setUp() throws ParseException {
 		Registry.INSTANCE.clear();
 		Configuration.INSTANCE.parse(null);
-		frontend = new DBPoolThreadExecutor();
+		frontend = new DBPoolThreadExecutor(null, null);
 	}
 	
 	@After
