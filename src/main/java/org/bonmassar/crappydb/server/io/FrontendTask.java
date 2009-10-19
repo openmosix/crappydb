@@ -27,43 +27,29 @@ import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
-import org.bonmassar.crappydb.server.stats.DBStats;
 
-class FrontendTask implements Callable<Integer> {
+class FrontendTask implements Callable<Void> {
 	
-	private FrontendPoolExecutor frontend;
+	protected SelectionKey key;
 	protected ServerCommandAccepter accepter;
 	private Logger logger = Logger.getLogger(FrontendTask.class);
 
 
 	public FrontendTask(CommandFactory cmdFactory, 
-			Selector parentSelector, 
-			FrontendPoolExecutor frontend) {
-		this.frontend = frontend;
+			Selector parentSelector, SelectionKey key) {
 		this.accepter = new ServerCommandAccepter(cmdFactory, parentSelector);
+		this.key = key;
 	}
 
-	public Integer call() throws Exception {
-		DBStats.INSTANCE.registerThread();
-		
-		while (true) {
-			try{
-				executeTask();
-			}catch(InterruptedException ie) {
-				continue;
-			}catch(java.lang.Throwable t){
-				frontend.getBarrier().countDown();
-				logger.fatal("Internal error executing db operations", t);
-			}
+	public Void call() throws Exception {
+		try{
+			processRequest(key);
+		}catch(java.lang.Throwable t){
+			logger.fatal("Internal error executing db operations", t);
 		}
+		return null;
 	}
-	
-	public void executeTask() throws InterruptedException {
-		SelectionKey key = frontend.take();
-		processRequest(key);
-		frontend.getBarrier().countDown();
-	}
-	
+		
 	private void processRequest(SelectionKey key) {
 		int availOps = key.readyOps();
 

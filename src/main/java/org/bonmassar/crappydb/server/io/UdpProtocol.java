@@ -18,11 +18,22 @@
 
 package org.bonmassar.crappydb.server.io;
 
-class NullCyclicBarrier implements DynamicCyclicBarrier {
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.DatagramChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 
-	public void await(int count) {}
+class UdpProtocol extends TransportProtocol {
 
-	public void countDown() { }
+	UdpProtocol() throws IOException {
+		super( DatagramChannel.open());
 
-	public void reset() { }
+		((DatagramChannel) listenChannel).socket().bind(getSocketAddress());
+	}
+	
+	@Override
+	public void register(Selector selector) throws ClosedChannelException {
+		listenChannel.register(selector, SelectionKey.OP_READ);
+	}
 }

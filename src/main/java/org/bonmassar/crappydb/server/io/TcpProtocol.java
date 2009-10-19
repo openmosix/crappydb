@@ -18,12 +18,14 @@
 
 package org.bonmassar.crappydb.server.io;
 
-interface DynamicCyclicBarrier {
+import java.io.IOException;
+import java.nio.channels.ServerSocketChannel;
 
-	public void countDown();
-	
-	public void await(int count);
-	
-	public void reset();
-	
+class TcpProtocol extends TransportProtocol {
+
+	TcpProtocol() throws IOException{
+		super(ServerSocketChannel.open());
+
+		((ServerSocketChannel) listenChannel).socket().bind(getSocketAddress());
+	}
 }

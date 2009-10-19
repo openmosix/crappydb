@@ -18,63 +18,45 @@
 
 package org.bonmassar.crappydb.server.io;
 
-import java.util.concurrent.Callable;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Future;
+
 import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
+import org.bonmassar.crappydb.server.config.Configuration;
+import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 
-import org.apache.log4j.Logger;
+class DBPoolThreadExecutor {
 
-abstract class PoolThreadExecutor<T> {
+	private static CommandFactory cmdFactory;
+	private static Selector serverSelectorForAccept;
 
 	private int nThreads;
-	protected LinkedBlockingQueue<T> queue;
 	protected ExecutorService executor;
-	protected DynamicCyclicBarrier syncPoint;
-
-	private Logger logger = Logger.getLogger(PoolThreadExecutor.class);
-
-	public PoolThreadExecutor() {
-		nThreads = 1;
-		syncPoint = new NullCyclicBarrier();
+	
+	public DBPoolThreadExecutor() {
+		nThreads = Configuration.INSTANCE.getEngineThreads();
 		initFrontendThreads();
 	}
 	
-	public PoolThreadExecutor(int nThreads) {
+	public DBPoolThreadExecutor(int nThreads) {
 		this.nThreads = nThreads;
-		syncPoint = new NullCyclicBarrier();
 		initFrontendThreads();
 	}
 	
-	public void offer(T key) {
-		boolean result = queue.offer(key);
-		if(result)
-			logger.debug(String.format("Added new item to the processing queue (%s)", key.toString()));
-		else
-			logger.debug(String.format("Failed to add new item (%s) to the processing queue", key.toString()));
+	public Future<Void> submit(SelectionKey key) {
+		return executor.submit (new FrontendTask(cmdFactory, serverSelectorForAccept, key) );
 	}
-	
-	public T take() throws InterruptedException {
-		return queue.take();
-	}
-	
-	public void enableSyncPoint() {
-		syncPoint = new CyclicCountDownLatch();
-	}
-	
-	public DynamicCyclicBarrier getBarrier() {
-		return syncPoint;
-	}
-	
+		
 	protected void initFrontendThreads() {
-		queue = new LinkedBlockingQueue<T>();
 		executor = Executors.newFixedThreadPool(nThreads);
 		Registry.INSTANCE.book(executor);
-		for(int i = 0; i < nThreads; i++)
-			executor.submit (new FutureTask<Integer> ( createNewTask() ));
 	}
-	
-	protected abstract Callable<Integer> createNewTask();	
+		
+	public static void setup(CommandFactory cmdFactory, Selector serverSelectorForAccept){
+		DBPoolThreadExecutor.cmdFactory = cmdFactory;
+		DBPoolThreadExecutor.serverSelectorForAccept = serverSelectorForAccept;
+	}
 }

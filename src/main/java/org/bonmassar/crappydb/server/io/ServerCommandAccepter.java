@@ -66,7 +66,7 @@ class ServerCommandAccepter {
 	}
 
 	private void configureBlocking(SocketChannel socket) throws IOException{
-		socket.configureBlocking(!CrappyNetworkServer.asyncOperations);
+		socket.configureBlocking(!TransportProtocol.asyncOperations);
 	}
 
 	protected void registerNewSocketToSelector(SocketChannel clientChannel, String connectionName) 

@@ -21,6 +21,9 @@ package org.bonmassar.crappydb.server.io;
 import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -38,13 +41,13 @@ import junit.framework.TestCase;
 
 public class TestFrontendPoolExecutor extends TestCase {
 
-	private FrontendPoolExecutor frontend;
+	private DBPoolThreadExecutor frontend;
 	
 	@Before
 	public void setUp() throws ParseException {
 		Registry.INSTANCE.clear();
 		Configuration.INSTANCE.parse(null);
-		frontend = new FrontendPoolExecutor();
+		frontend = new DBPoolThreadExecutor();
 	}
 	
 	@After
@@ -53,16 +56,20 @@ public class TestFrontendPoolExecutor extends TestCase {
 	}
 	
 	@Test
-	public void testBeingExecuted() throws InterruptedException{
+	public void testBeingExecuted() throws InterruptedException, ExecutionException{
 		List<SelectionKey> keys = getKeys();
+		List<Future<Void>> result = new ArrayList<Future<Void>>();
 		for (SelectionKey key : keys)
-			frontend.offer(key);
+			result.add(frontend.submit(key));
 		
 		Thread.sleep(5000);
 		
 		//Not really necessary but to make it explicit
 		for (SelectionKey key : keys)
 			verify(key, times(1)).readyOps();
+		
+		for(Future<Void> r : result)
+			r.get();
 		
 		assertEquals(1, Registry.INSTANCE.size());
 	}

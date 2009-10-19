@@ -28,6 +28,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
@@ -56,8 +57,9 @@ public class TestCrappyNetworkServer extends TestCase {
 	}
 	
 	@Test
-	public void testSetupIOError() {
-		server = new CrappyNetworkServer(cmdFactory, -42);
+	public void testSetupIOError() throws ParseException {
+		Configuration.INSTANCE.parse(new String[]{"--port", "-42"});
+		server = new CrappyNetworkServer(cmdFactory);
 		try{
 			server.serverSetup();
 		}catch(RuntimeException re){
@@ -67,23 +69,30 @@ public class TestCrappyNetworkServer extends TestCase {
 	}
 	
 	@Test
-	public void testSetupOk() {
-		server = new CrappyNetworkServer(cmdFactory, 11211);
+	public void testSetupOk() throws ParseException {
+		Configuration.INSTANCE.parse(new String[]{"--port", "11211"});
+		server = new CrappyNetworkServer(cmdFactory);
 		assertNotNull(server.serverSetup());
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testStartServer() throws IOException {
-		server = new CrappyNetworkServer(cmdFactory, 11211);
+	public void testStartServer() throws IOException, ParseException, InterruptedException {
+		Configuration.INSTANCE.parse(new String[]{"--port", "11211"});
+		server = new CrappyNetworkServer(cmdFactory);
 		server.serverSelector = mock(Selector.class);
-		server.frontend = mock(FrontendPoolExecutor.class);
+		server.frontend = mock(DBPoolThreadExecutor.class);
 		Set<SelectionKey> keys = mock(Set.class);
 		Iterator<SelectionKey> it = mock(Iterator.class);
 		SelectionKey selKey1 = mock(SelectionKey.class);
 		SelectionKey selKey2 = mock(SelectionKey.class);
+		Future<Void> task1= mock(Future.class);
+		Future<Void> task2= mock(Future.class);
 		
 		when(server.serverSelector.select()).thenReturn(8989);
+		when(server.frontend.submit(selKey1)).thenReturn(task1);
+		when(server.frontend.submit(selKey2)).thenReturn(task2);
+
 		when(keys.iterator()).thenReturn(it);
 		when(it.hasNext()).thenReturn(true, true, false);
 		when(it.next()).thenReturn(selKey1, selKey2);
@@ -91,20 +100,22 @@ public class TestCrappyNetworkServer extends TestCase {
 		when(server.serverSelector.selectedKeys()).thenReturn(keys);
 		
 		server.processRequests();
-		verify(server.frontend, times(1)).offer(selKey1);
-		verify(server.frontend, times(1)).offer(selKey2);
+		verify(server.frontend, times(1)).submit(selKey1);
+		verify(server.frontend, times(1)).submit(selKey2);
 	}
 	
 	@Test
-	public void testStartServerIOException() throws IOException {
-		server = new CrappyNetworkServer(cmdFactory, 11211);
+	public void testStartServerIOException() throws IOException, ParseException, InterruptedException {
+		Configuration.INSTANCE.parse(new String[]{"--port", "11211"});
+
+		server = new CrappyNetworkServer(cmdFactory);
 		server.serverSelector = mock(Selector.class);
-		server.frontend = mock(FrontendPoolExecutor.class);
+		server.frontend = mock(DBPoolThreadExecutor.class);
 
 		when(server.serverSelector.select()).thenThrow(new IOException("BOOM!"));
 		
 		server.processRequests();
-		verify(server.frontend, times(0)).offer((SelectionKey) anyObject());
+		verify(server.frontend, times(0)).submit((SelectionKey) anyObject());
 	}
 	
 }

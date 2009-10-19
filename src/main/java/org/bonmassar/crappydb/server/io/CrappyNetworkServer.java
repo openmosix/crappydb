@@ -19,48 +19,42 @@
 package org.bonmassar.crappydb.server.io;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 
 public class CrappyNetworkServer {
-	
-	protected final static boolean asyncOperations = true;
-
+		
 	private Logger logger = Logger.getLogger(CrappyNetworkServer.class);
 
-	private ServerSocket listenSock;
-	private ServerSocketChannel listenChannel;
+	private TransportProtocol protocol;
 	protected Selector serverSelector;		
-	private int serverPort;
 	private CommandFactory cmdFactory;
-	protected FrontendPoolExecutor frontend;
+	protected DBPoolThreadExecutor frontend;
 
-	public CrappyNetworkServer(CommandFactory cmdFactory, int port) {
+	public CrappyNetworkServer(CommandFactory cmdFactory) {
 		super();
-		serverPort = port;
 		this.cmdFactory = cmdFactory;
 	}
 
 	public CrappyNetworkServer serverSetup() {
-		logger.info(String.format("Listening on port %d", serverPort));
+		logger.info(String.format("Listening on port %s:%d", printProtocol(), Configuration.INSTANCE.getServerPort()));
 		try {
-			initListenChannel();
-			initListenSocket();
+			initProtocol();
 			registerMainSocketToListener();
 			
-			FrontendPoolExecutor.setup(cmdFactory, serverSelector);
-			frontend = new FrontendPoolExecutor();
-			frontend.enableSyncPoint();
+			DBPoolThreadExecutor.setup(cmdFactory, serverSelector);
+			frontend = new DBPoolThreadExecutor();
 			logger.info(String.format("Server up!"));
 		}
 		catch(IOException ie) {
@@ -70,24 +64,46 @@ public class CrappyNetworkServer {
 		return this;
 	}
 
+	private String printProtocol() {
+		return Configuration.INSTANCE.isUdp() ? "udp" : "tcp";
+	}
+
+	private void initProtocol() throws IOException {
+		if(Configuration.INSTANCE.isUdp())
+			protocol = new UdpProtocol();
+		else 
+			protocol = new TcpProtocol();
+	}
+
 	public void start() {  
 		while(true){
-			int njobs = processRequests();
-			frontend.getBarrier().await(njobs);
+			try {
+				processRequests();
+			} catch (InterruptedException e) {
+				logger.info("Exiting...");
+				break;
+			}
 		}
 	}
 
-	protected int processRequests() {
+	protected int processRequests() throws InterruptedException {
 		Set<SelectionKey> pendingRequests = select();
 		if(null==pendingRequests)
 			return 0;
 		
 		int taskCounter = pendingRequests.size();
+		List<Future<Void>> result = new ArrayList<Future<Void>>();
 		for(Iterator<SelectionKey> it = pendingRequests.iterator(); it.hasNext();) {
 			SelectionKey key = it.next();
-			frontend.offer(key);
+			result.add(frontend.submit(key));
 			it.remove();
 		}
+		for(Future<Void> f : result)
+			try {
+				f.get();
+			} catch (ExecutionException e) {
+				logger.fatal("Exception executing a subtask", e);
+			}
 		return taskCounter;
 	}
 
@@ -107,28 +123,6 @@ public class CrappyNetworkServer {
 	private void registerMainSocketToListener() throws IOException,
 			ClosedChannelException {
 		serverSelector = Selector.open();
-		listenChannel.register(serverSelector, SelectionKey.OP_ACCEPT);
-	}
-
-	private void initListenSocket() throws IOException {
-		listenSock = listenChannel.socket();
-		listenSock.bind(getSocketAddress());
-	}
-
-	private InetSocketAddress getSocketAddress() {
-		if(null == Configuration.INSTANCE.getHostname())
-			return new InetSocketAddress(serverPort);
-		
-		return new InetSocketAddress(Configuration.INSTANCE.getHostname(), serverPort);
-	}
-
-	private void initListenChannel() throws IOException {
-		listenChannel = ServerSocketChannel.open();
-		configureBlocking(listenChannel);
-	}
-		
-	private void configureBlocking(ServerSocketChannel socket) throws IOException{
-		socket.configureBlocking(!CrappyNetworkServer.asyncOperations);
-	}
-		
+		protocol.register(serverSelector);
+	}		
 }

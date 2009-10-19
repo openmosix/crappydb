@@ -56,7 +56,7 @@ public class CrappyDBD {
 		dumpConfigParams();
 		setHandlers4Shutdown(sal);
 		
-		serverInstance = new CrappyNetworkServer(cmdFactory, Configuration.INSTANCE.getServerPort()).serverSetup();
+		serverInstance = new CrappyNetworkServer(cmdFactory).serverSetup();
 		serverInstance.start();
 	}
 

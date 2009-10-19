@@ -39,21 +39,19 @@ import junit.framework.TestCase;
 
 public class TestFrontendTask extends TestCase {
 
-	private DynamicCyclicBarrier barrier;
 	private FrontendTask frontend;
 	private CommandFactory cmdFactory;
 	private Selector parentSelector; 
 	private ServerCommandAccepter accepter;
 	private SelectionKey selection;
 	private EstablishedConnection esConnection;
-	private FrontendPoolExecutor frontendpool;
 	
 	class FakeFrontendTask extends FrontendTask{
 
 		public FakeFrontendTask(CommandFactory cmdFactory,
 				Selector parentSelector,
-				FrontendPoolExecutor fe) {
-			super(cmdFactory, parentSelector, fe);
+				SelectionKey key) {
+			super(cmdFactory, parentSelector, key);
 		}
 		
 		@Override
@@ -65,82 +63,62 @@ public class TestFrontendTask extends TestCase {
 	
 	@Before
 	public void setUp() {
-		barrier = mock(DynamicCyclicBarrier.class);
 		cmdFactory = mock(CommandFactory.class);
 		parentSelector = mock(Selector.class);
 		accepter = mock(ServerCommandAccepter.class);
-		frontendpool = mock(FrontendPoolExecutor.class);
-		frontend = new FakeFrontendTask(cmdFactory, parentSelector, frontendpool);
-		frontend.accepter = accepter;
 		selection = mock(SelectionKey.class);
+		frontend = new FakeFrontendTask(cmdFactory, parentSelector, selection);
+		frontend.accepter = accepter;
 		esConnection = mock(EstablishedConnection.class);
 	}
 	
 	@Test
 	public void testNoOps() throws Exception {
-		when(frontendpool.take()).thenReturn(selection);
-		when(frontendpool.getBarrier()).thenReturn(barrier);
 		when(selection.readyOps()).thenReturn(0);
 		
-		frontend.executeTask();
+		frontend.call();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());
 		verify(esConnection, times(0)).doWrite();
-		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
 	public void testOnlyReadNoCmds() throws Exception {
-		when(frontendpool.take()).thenReturn(selection);
-		when(frontendpool.getBarrier()).thenReturn(barrier);
-
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		when(esConnection.doRead()).thenReturn(new ArrayList<ServerCommand>());
 		
-		frontend.executeTask();
+		frontend.call();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(esConnection, times(0)).doWrite();
-		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
 	public void testOnlyReadIOError() throws Exception {
-		when(frontendpool.take()).thenReturn(selection);
-		when(frontendpool.getBarrier()).thenReturn(barrier);
-
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		when(esConnection.doRead()).thenReturn(null);
 		
-		frontend.executeTask();
+		frontend.call();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(esConnection, times(0)).doWrite();
-		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
-	public void testOnlyReadMultipleCmds() throws InterruptedException, ClosedConnectionException {
-		when(frontendpool.take()).thenReturn(selection);
-		when(frontendpool.getBarrier()).thenReturn(barrier);
-
+	public void testOnlyReadMultipleCmds() throws Exception {
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
 		ServerCommand cmd2 = mock(ServerCommand.class);
 		ServerCommand cmd3 = mock(ServerCommand.class);
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1, cmd2, cmd3));
 		
-		frontend.executeTask();
+		frontend.call();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(cmd1, times(1)).execCommand();
 		verify(cmd2, times(1)).execCommand();
 		verify(cmd3, times(1)).execCommand();
 		verify(esConnection, times(0)).doWrite();
-		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
-	public void testOnlyReadMultipleCmdsAndQuit() throws InterruptedException, ClosedConnectionException {
-		when(frontendpool.take()).thenReturn(selection);
-		when(frontendpool.getBarrier()).thenReturn(barrier);
-
+	public void testOnlyReadMultipleCmdsAndQuit() throws Exception {
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
 		ServerCommand cmd2 = mock(ServerCommand.class);
@@ -149,92 +127,72 @@ public class TestFrontendTask extends TestCase {
 		doThrow(new ClosedConnectionException()).when(cmd2).execCommand();
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1, cmd2, cmd3));
 		
-		frontend.executeTask();
+		frontend.call();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(cmd1, times(1)).execCommand();
 		verify(cmd2, times(1)).execCommand();
 		verify(cmd3, times(0)).execCommand();
 		verify(esConnection, times(0)).doWrite();
 		verify(esConnection, times(1)).doClose();
-		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
-	public void testOnlyReadOneCmd() throws InterruptedException, ClosedConnectionException {
-		when(frontendpool.take()).thenReturn(selection);
-		when(frontendpool.getBarrier()).thenReturn(barrier);
-
+	public void testOnlyReadOneCmd() throws Exception {
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1));
 		
-		frontend.executeTask();
+		frontend.call();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(cmd1, times(1)).execCommand();
 		verify(esConnection, times(0)).doWrite();
-		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
-	public void testOnlyWrite() throws InterruptedException {
-		when(frontendpool.take()).thenReturn(selection);
+	public void testOnlyWrite() throws Exception {
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_WRITE);
-		when(frontendpool.getBarrier()).thenReturn(barrier);
 
-		frontend.executeTask();
+		frontend.call();
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(esConnection, times(1)).doWrite();
-		verify(barrier, times(1)).countDown();
 	}
 		
 	@Test
-	public void testOnlyAccept() throws InterruptedException{
-		when(frontendpool.take()).thenReturn(selection);
-		when(frontendpool.getBarrier()).thenReturn(barrier);
-
+	public void testOnlyAccept() throws Exception{
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_ACCEPT);
 		
-		frontend.executeTask();
+		frontend.call();
 		verify(accepter, times(1)).doAccept((SelectionKey) anyObject());		
 		verify(esConnection, times(0)).doWrite();
-		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
-	public void testAcceptReadWrite() throws InterruptedException, ClosedConnectionException{
-		when(frontendpool.take()).thenReturn(selection);
-		when(frontendpool.getBarrier()).thenReturn(barrier);
-
+	public void testAcceptReadWrite() throws Exception{
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_ACCEPT | SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
 		ServerCommand cmd2 = mock(ServerCommand.class);
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1, cmd2));
 		
-		frontend.executeTask();
+		frontend.call();
 		
 		verify(accepter, times(1)).doAccept((SelectionKey) anyObject());		
 		verify(cmd1, times(1)).execCommand();
 		verify(cmd2, times(1)).execCommand();
 		verify(esConnection, times(1)).doWrite();
-		verify(barrier, times(1)).countDown();
 	}
 	
 	@Test
-	public void testReadWrite() throws InterruptedException, ClosedConnectionException{
-		when(frontendpool.take()).thenReturn(selection);
-		when(frontendpool.getBarrier()).thenReturn(barrier);
-
+	public void testReadWrite() throws Exception{
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 		ServerCommand cmd1 = mock(ServerCommand.class);
 		ServerCommand cmd2 = mock(ServerCommand.class);
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1, cmd2));
 		
-		frontend.executeTask();
+		frontend.call();
 		
 		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
 		verify(cmd1, times(1)).execCommand();
 		verify(cmd2, times(1)).execCommand();
 		verify(esConnection, times(1)).doWrite();
-		verify(barrier, times(1)).countDown();
 	}
 }
