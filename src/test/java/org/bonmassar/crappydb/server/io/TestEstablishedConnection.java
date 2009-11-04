@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.bonmassar.crappydb.server.memcache.protocol.CommandFactoryDelegate;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,19 +38,19 @@ import static org.mockito.Mockito.verify;
 
 public class TestEstablishedConnection extends TestCase {
 
-	private EstablishedConnection conn;
-	private CommandFactory factory;
+	private TransportSession conn;
+	private CommandFactoryDelegate factory;
 	private SelectionKey selector;
 	
-	class MockEstablishedConnection extends EstablishedConnection {
+	class MockEstablishedConnection extends TransportSession {
 		
 		public MockEstablishedConnection(SelectionKey selector,
-				CommandFactory commandFactory) {
+				CommandFactoryDelegate commandFactory) {
 			super(selector, commandFactory);
 		}
 
 		@Override
-		protected void init(SelectionKey selector, CommandFactory commandFactory) {
+		protected void init(SelectionKey selector, CommandFactoryDelegate commandFactory) {
 			commandWriter = mock(ServerCommandWriter.class);
 			commandReader = mock(ServerCommandReader.class);
 			commandCloser = mock(ServerCommandCloser.class);
@@ -60,7 +60,7 @@ public class TestEstablishedConnection extends TestCase {
 	@Before
 	public void setUp() {
 		selector = mock(SelectionKey.class);
-		factory = mock(CommandFactory.class);
+		factory = mock(CommandFactoryDelegate.class);
 		conn = new MockEstablishedConnection(selector, factory);
 	}
 	

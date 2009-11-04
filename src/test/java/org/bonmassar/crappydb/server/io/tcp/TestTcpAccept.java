@@ -16,7 +16,7 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.io;
+package org.bonmassar.crappydb.server.io.tcp;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -31,7 +31,8 @@ import org.bonmassar.crappydb.mocks.FakeSelectionKey;
 import org.bonmassar.crappydb.mocks.WhateverChannel;
 import org.bonmassar.crappydb.mocks.WhateverServerChannel;
 import org.bonmassar.crappydb.server.config.Configuration;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.bonmassar.crappydb.server.io.tcp.TcpAccept;
+import org.bonmassar.crappydb.server.memcache.protocol.CommandFactoryDelegate;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,36 +40,29 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 import junit.framework.TestCase;
 
-public class TestServerCommandAccepter extends TestCase {
+public class TestTcpAccept extends TestCase {
 
-	private CommandFactory cmdFactory;
+	private CommandFactoryDelegate cmdFactory;
 	private Selector parentSelector;
-	private ServerCommandAccepter accepter;
+	private TcpAccept accepter;
 	private SelectionKey selection;
 	private SelectionKey newSelKey;
 	
-	class FakeServerCommandAccepter extends ServerCommandAccepter{
+	class FakeServerCommandAccepter extends TcpAccept{
 
-		private SelectionKey newSelKey;
 		private boolean blow;
-		
-		public FakeServerCommandAccepter(CommandFactory cmdFactory,
-				Selector parentSelector, SelectionKey newSelKey) {
-			super(cmdFactory, parentSelector);
-			this.newSelKey = newSelKey;
-		}
 		
 		public void pleaseBlow(){
 			blow = true;
 		}
 		
 		@Override
-		protected void registerNewSocketToSelector(SocketChannel clientChannel,
-				String connectionName) throws ClosedChannelException {
+		protected void registerNewSocketToSelector(CommandFactoryDelegate cmdFactory, Selector serverSelector, 
+				SocketChannel clientChannel, String connectionName) throws ClosedChannelException {
 			if(blow)
 				throw new ClosedChannelException();
 			
-			attachNewChannel(newSelKey, connectionName);
+			attachNewChannel(cmdFactory, newSelKey, connectionName);
 		}
 	}
 	
@@ -76,11 +70,11 @@ public class TestServerCommandAccepter extends TestCase {
 	public void setUp() throws ParseException {
 		Configuration.INSTANCE.parse(null);
 
-		cmdFactory = mock(CommandFactory.class);
+		cmdFactory = mock(CommandFactoryDelegate.class);
 		selection = mock(FakeSelectionKey.class);
 		parentSelector = mock(Selector.class);
 		newSelKey = mock(SelectionKey.class);
-		accepter = new FakeServerCommandAccepter(cmdFactory, parentSelector, newSelKey);
+		accepter = new FakeServerCommandAccepter();
 	}
 	
 	@Test
@@ -97,7 +91,7 @@ public class TestServerCommandAccepter extends TestCase {
 		when(socket.getInetAddress()).thenReturn(address);
 		when(socket.getPort()).thenReturn(42, 42);
 		
-		accepter.doAccept(selection);
+		accepter.doAccept(cmdFactory, parentSelector, newSelKey);
 	}
 	
 	@Test
@@ -107,14 +101,14 @@ public class TestServerCommandAccepter extends TestCase {
 		when(selection.channel()).thenReturn(schannel);
 		when(schannel.accept()).thenThrow(new IOException("BOOM!"));
 
-		accepter.doAccept(selection);
+		accepter.doAccept(cmdFactory, parentSelector, newSelKey);
 	}
 	
 	@Test
 	public void testNullChannel(){
 		when(selection.channel()).thenReturn(null);
 
-		accepter.doAccept(selection);
+		accepter.doAccept(cmdFactory, parentSelector, newSelKey);
 	}
 	
 	@Test
@@ -132,7 +126,7 @@ public class TestServerCommandAccepter extends TestCase {
 		when(socket.getPort()).thenReturn(42, 42);
 		
 		((FakeServerCommandAccepter)accepter).pleaseBlow();
-		accepter.doAccept(selection);
+		accepter.doAccept(cmdFactory, parentSelector, newSelKey);
 	}
 	
 	

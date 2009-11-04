@@ -18,58 +18,50 @@
 
 package org.bonmassar.crappydb.server.io;
 
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.util.ArrayList;
-import java.util.Arrays;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.when;
+
+import java.nio.channels.SelectionKey;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import junit.framework.TestCase;
 
 import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.bonmassar.crappydb.server.memcache.protocol.CommandFactoryDelegate;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.TestCase;
-
 public class TestFrontendTask extends TestCase {
 
-	private FrontendTask frontend;
-	private CommandFactory cmdFactory;
-	private Selector parentSelector; 
-	private ServerCommandAccepter accepter;
+	private CommunicationTask frontend;
+	private CommandFactoryDelegate cmdFactory;
+	private TransportProtocol transport; 
 	private SelectionKey selection;
-	private EstablishedConnection esConnection;
+	private TransportSession esConnection;
 	
-	class FakeFrontendTask extends FrontendTask{
+	class FakeFrontendTask extends CommunicationTask{
 
-		public FakeFrontendTask(CommandFactory cmdFactory,
-				Selector parentSelector,
+		public FakeFrontendTask(CommandFactoryDelegate cmdFactory,
+				TransportProtocol protocol,
 				SelectionKey key) {
-			super(cmdFactory, parentSelector, key);
+			super(cmdFactory, protocol, key);
 		}
-		
-		@Override
-		protected EstablishedConnection getChannel(SelectionKey sk) {
-			return esConnection;
-		}
-		
 	}
 	
 	@Before
 	public void setUp() {
-		cmdFactory = mock(CommandFactory.class);
-		parentSelector = mock(Selector.class);
-		accepter = mock(ServerCommandAccepter.class);
+		cmdFactory = mock(CommandFactoryDelegate.class);
+		transport = mock(TransportProtocol.class);
 		selection = mock(SelectionKey.class);
-		frontend = new FakeFrontendTask(cmdFactory, parentSelector, selection);
-		frontend.accepter = accepter;
-		esConnection = mock(EstablishedConnection.class);
+		frontend = new FakeFrontendTask(cmdFactory, transport, selection);
+		esConnection = mock(TransportSession.class);
+		when(transport.getChannel((CommandFactoryDelegate) anyObject(), (SelectionKey) anyObject())).thenReturn(esConnection);
 	}
 	
 	@Test
@@ -77,7 +69,7 @@ public class TestFrontendTask extends TestCase {
 		when(selection.readyOps()).thenReturn(0);
 		
 		frontend.call();
-		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());
+		verify(transport, times(0)).accept((CommandFactoryDelegate)anyObject(), (SelectionKey) anyObject());
 		verify(esConnection, times(0)).doWrite();
 	}
 	
@@ -87,7 +79,7 @@ public class TestFrontendTask extends TestCase {
 		when(esConnection.doRead()).thenReturn(new ArrayList<ServerCommand>());
 		
 		frontend.call();
-		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
+		verify(transport, times(0)).accept((CommandFactoryDelegate)anyObject(), (SelectionKey) anyObject());		
 		verify(esConnection, times(0)).doWrite();
 	}
 	
@@ -97,7 +89,7 @@ public class TestFrontendTask extends TestCase {
 		when(esConnection.doRead()).thenReturn(null);
 		
 		frontend.call();
-		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
+		verify(transport, times(0)).accept((CommandFactoryDelegate)anyObject(), (SelectionKey) anyObject());		
 		verify(esConnection, times(0)).doWrite();
 	}
 	
@@ -110,7 +102,7 @@ public class TestFrontendTask extends TestCase {
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1, cmd2, cmd3));
 		
 		frontend.call();
-		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
+		verify(transport, times(0)).accept((CommandFactoryDelegate)anyObject(), (SelectionKey) anyObject());		
 		verify(cmd1, times(1)).execCommand();
 		verify(cmd2, times(1)).execCommand();
 		verify(cmd3, times(1)).execCommand();
@@ -128,7 +120,7 @@ public class TestFrontendTask extends TestCase {
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1, cmd2, cmd3));
 		
 		frontend.call();
-		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
+		verify(transport, times(0)).accept((CommandFactoryDelegate)anyObject(), (SelectionKey) anyObject());		
 		verify(cmd1, times(1)).execCommand();
 		verify(cmd2, times(1)).execCommand();
 		verify(cmd3, times(0)).execCommand();
@@ -143,7 +135,7 @@ public class TestFrontendTask extends TestCase {
 		when(esConnection.doRead()).thenReturn(Arrays.asList(cmd1));
 		
 		frontend.call();
-		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
+		verify(transport, times(0)).accept((CommandFactoryDelegate)anyObject(), (SelectionKey) anyObject());		
 		verify(cmd1, times(1)).execCommand();
 		verify(esConnection, times(0)).doWrite();
 	}
@@ -153,7 +145,7 @@ public class TestFrontendTask extends TestCase {
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_WRITE);
 
 		frontend.call();
-		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
+		verify(transport, times(0)).accept((CommandFactoryDelegate)anyObject(), (SelectionKey) anyObject());		
 		verify(esConnection, times(1)).doWrite();
 	}
 		
@@ -162,7 +154,7 @@ public class TestFrontendTask extends TestCase {
 		when(selection.readyOps()).thenReturn(SelectionKey.OP_ACCEPT);
 		
 		frontend.call();
-		verify(accepter, times(1)).doAccept((SelectionKey) anyObject());		
+		verify(transport, times(1)).accept((CommandFactoryDelegate)anyObject(), (SelectionKey) anyObject());		
 		verify(esConnection, times(0)).doWrite();
 	}
 	
@@ -175,7 +167,7 @@ public class TestFrontendTask extends TestCase {
 		
 		frontend.call();
 		
-		verify(accepter, times(1)).doAccept((SelectionKey) anyObject());		
+		verify(transport, times(1)).accept((CommandFactoryDelegate)anyObject(), (SelectionKey) anyObject());		
 		verify(cmd1, times(1)).execCommand();
 		verify(cmd2, times(1)).execCommand();
 		verify(esConnection, times(1)).doWrite();
@@ -190,7 +182,7 @@ public class TestFrontendTask extends TestCase {
 		
 		frontend.call();
 		
-		verify(accepter, times(0)).doAccept((SelectionKey) anyObject());		
+		verify(transport, times(0)).accept((CommandFactoryDelegate)anyObject(), (SelectionKey) anyObject());		
 		verify(cmd1, times(1)).execCommand();
 		verify(cmd2, times(1)).execCommand();
 		verify(esConnection, times(1)).doWrite();

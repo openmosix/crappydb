@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.bonmassar.crappydb.server.memcache.protocol.CommandFactoryDelegate;
 import org.bonmassar.crappydb.server.memcache.protocol.ExceptionCommand;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,17 +43,17 @@ import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 public class TestServerCommandReader {
 
 	private ServerCommandReader cmdreader;
-	private InputPipe input;
-	private CommandFactory commandFactory;
+	private BufferReader input;
+	private CommandFactoryDelegate commandFactory;
 	private SelectionKey selector;
 	
 	@Before
 	public void setUp() {
-		input = mock(InputPipe.class);
+		input = mock(BufferReader.class);
 		selector = mock(SelectionKey.class);
-		commandFactory = mock(CommandFactory.class);
+		commandFactory = mock(CommandFactoryDelegate.class);
 		cmdreader = new ServerCommandReader(selector, commandFactory);
-		cmdreader.input = input;
+		cmdreader.inputBuffer = input;
 	}
 	
 	@Test

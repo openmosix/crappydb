@@ -29,12 +29,12 @@ import org.junit.Test;
 
 public class TestCommandFactory {
 	
-	private CommandFactory factory;
+	private CommandFactoryDelegate factory;
 	
 	@Before
 	public void setUp() throws ParseException{
 		Configuration.INSTANCE.parse(null);
-		factory = new CommandFactory(null);
+		factory = new CommandFactoryDelegate(null);
 	}
 	
 	@Test

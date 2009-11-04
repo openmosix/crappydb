@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Matchers.anyString;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.bonmassar.crappydb.server.memcache.protocol.CommandFactoryDelegate;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,11 +34,11 @@ public class TestServerCommandFragment extends TestCase {
 
 	private ServerCommand whatever;
 	private ServerCommandFragment fragment;
-	private CommandFactory commandFactory;
+	private CommandFactoryDelegate commandFactory;
 	
 	@Before
 	public void setUp() {
-		commandFactory = mock(CommandFactory.class);
+		commandFactory = mock(CommandFactoryDelegate.class);
 		fragment = new ServerCommandFragment(commandFactory);
 		whatever = mock(ServerCommand.class);
 	}

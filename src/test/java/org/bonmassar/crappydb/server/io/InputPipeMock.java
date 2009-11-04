@@ -24,9 +24,9 @@ import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.bonmassar.crappydb.server.io.InputPipe;
+import org.bonmassar.crappydb.server.io.BufferReader;
 
-public class InputPipeMock extends InputPipe {
+public class InputPipeMock extends BufferReader {
 	
 	class Chunk {
 		public byte[] packet;

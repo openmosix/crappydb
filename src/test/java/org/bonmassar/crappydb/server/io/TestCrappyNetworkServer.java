@@ -34,7 +34,7 @@ import java.util.concurrent.Future;
 import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
 import org.bonmassar.crappydb.server.config.Configuration;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.bonmassar.crappydb.server.memcache.protocol.CommandFactoryDelegate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,11 +42,11 @@ import org.junit.Test;
 public class TestCrappyNetworkServer {
 
 	private CrappyNetworkServer server;
-	private CommandFactory cmdFactory;
+	private CommandFactoryDelegate cmdFactory;
 	
 	@Before
 	public void setUp() throws ParseException {
-		cmdFactory = mock(CommandFactory.class);
+		cmdFactory = mock(CommandFactoryDelegate.class);
 		Configuration.INSTANCE.parse(null);
 	}
 	
