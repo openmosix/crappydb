@@ -18,36 +18,37 @@
 
 package org.bonmassar.crappydb.server.io.udp;
 
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 
-import org.bonmassar.crappydb.server.io.NetworkTransportProtocol;
+import org.bonmassar.crappydb.server.io.TransportSession;
 import org.bonmassar.crappydb.server.io.CommunicationTask.CommunicationDelegate;
+import org.bonmassar.crappydb.server.stats.DBStats;
 
-public class UdpProtocol extends NetworkTransportProtocol {
+class UdpCommunicationDelegate extends CommunicationDelegate {
 
-	private final UdpCommunicationDelegate delegate;
-	
-	public UdpProtocol() throws IOException {
-		super( DatagramChannel.open());
-
-		((DatagramChannel) listenChannel).socket().bind(getSocketAddress());
-		delegate = new UdpCommunicationDelegate();
+	public TransportSession accept(SelectionKey sk) {
+		throw new IllegalStateException("Accept not available in datagram mode.");
 	}
-	
-	public void register(Selector selector) throws ClosedChannelException {
-		listenChannel.register(selector, SelectionKey.OP_READ);
-	}
-	
+
 	@Override
-	public String toString() {
-		return "udp";
+	public TransportSession read(SelectionKey sk) {
+//		logger.info(String.format("[<=>] New connection from %s", printRemoteAddress(clientSocket)));
+		DBStats.INSTANCE.getConnections().newConnection();
+		TransportSession connHandler = super.read(sk);
+		if(null != connHandler)
+			connHandler.doWrite();
+		DBStats.INSTANCE.getConnections().closeConnection();
+		return connHandler;
 	}
 
-	public CommunicationDelegate comms() {
-		return delegate;
+	public TransportSession write(SelectionKey sk) {
+		throw new IllegalStateException("Accept not available in datagram mode.");
 	}
+
+	@Override
+	public TransportSession getSession(SelectionKey sk) {
+		// TODO Auto-generated method stub
+		return new UdpTransportSession(sk);
+	}
+
 }

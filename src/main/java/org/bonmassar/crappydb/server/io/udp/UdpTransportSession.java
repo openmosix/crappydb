@@ -18,36 +18,18 @@
 
 package org.bonmassar.crappydb.server.io.udp;
 
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 
-import org.bonmassar.crappydb.server.io.NetworkTransportProtocol;
-import org.bonmassar.crappydb.server.io.CommunicationTask.CommunicationDelegate;
+import org.bonmassar.crappydb.server.io.ServerCommandCloser;
+import org.bonmassar.crappydb.server.io.ServerCommandReader;
+import org.bonmassar.crappydb.server.io.TransportSession;
 
-public class UdpProtocol extends NetworkTransportProtocol {
-
-	private final UdpCommunicationDelegate delegate;
+public class UdpTransportSession extends TransportSession {
 	
-	public UdpProtocol() throws IOException {
-		super( DatagramChannel.open());
-
-		((DatagramChannel) listenChannel).socket().bind(getSocketAddress());
-		delegate = new UdpCommunicationDelegate();
-	}
-	
-	public void register(Selector selector) throws ClosedChannelException {
-		listenChannel.register(selector, SelectionKey.OP_READ);
-	}
-	
-	@Override
-	public String toString() {
-		return "udp";
-	}
-
-	public CommunicationDelegate comms() {
-		return delegate;
+	public UdpTransportSession(SelectionKey selection) {
+		super();
+		commandWriter = new UdpCommandWriter(selection);
+		commandReader = new ServerCommandReader(new UdpBufferReader((UdpCommandWriter)commandWriter, selection));
+		commandCloser = new ServerCommandCloser(selection);
 	}
 }
