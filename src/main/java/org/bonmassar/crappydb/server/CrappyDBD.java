@@ -50,13 +50,13 @@ public class CrappyDBD {
 
 	private void start() {
 		StorageAccessLayer sal = SALFactory.newInstance(Configuration.INSTANCE.getStorage());
-		CommandFactory cmdFactory = new CommandFactory(sal);
+		CommandFactory.INSTANCE.setStorageLayer(sal);
 		(new HomerBoot()).splashScreen();
 		
 		dumpConfigParams();
 		setHandlers4Shutdown(sal);
 		
-		serverInstance = new CrappyNetworkServer(cmdFactory);
+		serverInstance = new CrappyNetworkServer();
 		serverInstance.start();
 	}
 
