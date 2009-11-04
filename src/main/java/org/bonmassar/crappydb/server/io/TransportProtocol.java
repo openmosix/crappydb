@@ -19,52 +19,17 @@
 package org.bonmassar.crappydb.server.io;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.channels.ClosedChannelException;
+import java.nio.channels.Channel;
 import java.nio.channels.Selector;
-import java.nio.channels.spi.AbstractSelectableChannel;
 
-import org.bonmassar.crappydb.server.config.Configuration;
-import org.bonmassar.crappydb.server.io.tcp.TcpProtocol;
-import org.bonmassar.crappydb.server.io.udp.UdpProtocol;
+import org.bonmassar.crappydb.server.io.CommunicationTask.CommunicationDelegate;
 
-abstract public class TransportProtocol {
-
-	protected final static boolean asyncOperations = true;
-
-	protected final AbstractSelectableChannel listenChannel;
+interface TransportProtocol {
 	
-	public static TransportProtocol getProtocol() throws IOException {
-		if(Configuration.INSTANCE.isUdp())
-			return new UdpProtocol();
-
-		return new TcpProtocol();
-	}
-
+	public void register(Selector selector) throws IOException;		
 	
-	public Selector registerListener() throws IOException,
-		ClosedChannelException {
-		Selector selector = Selector.open();
-		register(selector);
-		return selector;
-	}		
-
-	protected TransportProtocol(AbstractSelectableChannel channel) throws IOException{
-		if(null == channel)
-			throw new NullPointerException("Null channel");
-
-		listenChannel = channel;
-		listenChannel.configureBlocking(!TransportProtocol.asyncOperations);
-	}
-
-	protected abstract void register(Selector selector) throws ClosedChannelException;
-
-	protected InetSocketAddress getSocketAddress() {
-		if(null == Configuration.INSTANCE.getHostname())
-			return new InetSocketAddress(Configuration.INSTANCE.getServerPort());
-
-		return new InetSocketAddress(Configuration.INSTANCE.getHostname(), Configuration.INSTANCE.getServerPort());
-	}
-
-
+	public boolean isValidChannel(Channel ch);
+	
+	public CommunicationDelegate comms();
+	
 }

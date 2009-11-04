@@ -19,29 +19,27 @@
 package org.bonmassar.crappydb.server.io;
 
 import java.io.IOException;
-import java.nio.channels.SelectionKey;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-class ServerCommandReader {
+public class ServerCommandReader {
 
-	protected InputPipe input;
+	protected BufferReader inputBuffer;
 	private ServerCommandFragment lastCommand;
 	private Logger logger = Logger.getLogger(ServerCommandReader.class);
 	private String connectionid ;
 	
-	public ServerCommandReader(SelectionKey requestsDescriptor, CommandFactory cmdFactory) {
-		input = new InputPipe(requestsDescriptor);
-		lastCommand = new ServerCommandFragment(cmdFactory);
+	public ServerCommandReader(BufferReader br){
+		inputBuffer = br;
+		lastCommand = new ServerCommandFragment();
 		connectionid = "unknown";
 	}
 
 	public List<ServerCommand> decodeCommands() throws IOException{
-		input.precacheDataFromRemote();
+		inputBuffer.precacheDataFromRemote();
 		return decodeIncomingData();
 	}
 
@@ -58,7 +56,7 @@ class ServerCommandReader {
 	}
 	
 	private ServerCommand decodeOneCommand() {
-		if (input.noDataAvailable() || !decodeCommandFromIncomingData())
+		if (inputBuffer.noDataAvailable() || !decodeCommandFromIncomingData())
 			return null;
 						
 		return commandRead();
@@ -68,7 +66,7 @@ class ServerCommandReader {
 		if(lastCommand.commandAlreadyDecoded())
 			return true;
 		
-		return lastCommand.addCommandLineFragment(input.readTextLine());
+		return lastCommand.addCommandLineFragment(inputBuffer.readTextLine());
 	}
 
 	private ServerCommand commandRead() {
@@ -79,7 +77,7 @@ class ServerCommandReader {
 	}
 
 	private ServerCommand readCommandPayload() {
-		if(input.noDataAvailable())
+		if(inputBuffer.noDataAvailable())
 			return null;
 			
 		lastCommand.addPayloadContentPart(getPayloadData());
@@ -97,7 +95,7 @@ class ServerCommandReader {
 	}
 	
 	private byte[] getPayloadData() {		
-		byte[] rawdata = input.getBytes(lastCommand.getContentLength());
+		byte[] rawdata = inputBuffer.getBytes(lastCommand.getContentLength());
 		if(null == rawdata)
 			return new byte[0];
 		
@@ -106,7 +104,7 @@ class ServerCommandReader {
 
 	public void setConnectionId(String id) {
 		connectionid = id;
-		input.setConnectionId(id);
+		inputBuffer.setConnectionId(id);
 		lastCommand.setConnectionId(id);
 	}
 }

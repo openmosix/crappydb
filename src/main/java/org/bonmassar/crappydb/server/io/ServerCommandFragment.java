@@ -23,8 +23,6 @@ import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
 class ServerCommandFragment {
-	private CommandFactory commandFactory; 
-
 	private StringBuilder commandLine;
 	private int payloadContentLength;
 	private ServerCommand decodedCmd;
@@ -33,8 +31,7 @@ class ServerCommandFragment {
 
 	private Object connectionid;
 	
-	ServerCommandFragment(CommandFactory factory) {
-		commandFactory = factory;
+	ServerCommandFragment() {
 		connectionid = "unknown";
 		reset();
 	}
@@ -48,7 +45,7 @@ class ServerCommandFragment {
 	public void getCommandFromCommandLine() {
 		String receivedCommand = removeCrLfOnTail(commandLine.toString());
 		
-		decodedCmd = commandFactory.getCommandFromCommandLine(receivedCommand);	
+		decodedCmd = CommandFactory.INSTANCE.getCommandFromCommandLine(receivedCommand);	
 		payloadContentLength = decodedCmd.payloadContentLength();
 		
 		if(logger.isDebugEnabled())

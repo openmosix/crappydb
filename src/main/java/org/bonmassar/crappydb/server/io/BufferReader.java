@@ -21,32 +21,30 @@ package org.bonmassar.crappydb.server.io;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
-import org.bonmassar.crappydb.server.config.Configuration;
 import org.bonmassar.crappydb.server.stats.DBStats;
 
-class InputPipe {
+public abstract class BufferReader {
 	private static final byte CR = 0x0D;
 	private static final byte LF = 0x0A;
 	
 	private SelectionKey requestsDescriptor;
 	protected ByteBuffer buffer;
 	private int lastLengthRead;
-	private Logger logger = Logger.getLogger(InputPipe.class);
-	private String connectionid;
+	protected Logger logger = Logger.getLogger(BufferReader.class);
+	protected String connectionid;
 	
-	public InputPipe(SelectionKey requestsDescriptor){
+	public BufferReader(SelectionKey requestsDescriptor){
 		this.requestsDescriptor = requestsDescriptor;
-		buffer = ByteBuffer.allocate(Configuration.INSTANCE.getBufferSize());
 		lastLengthRead = 0;
 		connectionid = "unknown";
 	}
 	
 	public void precacheDataFromRemote() throws IOException{
-		SocketChannel channel = (SocketChannel) requestsDescriptor.channel();
+		ReadableByteChannel channel = (ReadableByteChannel) requestsDescriptor.channel();
 		if (invalidSocket(channel))
 			throw new IOException("Read descriptor is closed");
 
@@ -92,11 +90,11 @@ class InputPipe {
 		return (nBytes > buffer.remaining()) ? buffer.remaining() : nBytes;
 	}
 	
-	protected boolean invalidSocket(SocketChannel channel) {
+	protected boolean invalidSocket(ReadableByteChannel channel) {
 		return null == channel || !channel.isOpen();
 	}
 	
-	private void getReceivedData(SocketChannel channel) throws IOException {
+	private void getReceivedData(ReadableByteChannel channel) throws IOException {
 		boolean executed = read(channel);
 		if (!executed) 
 			return;
@@ -104,7 +102,7 @@ class InputPipe {
 		buffer.flip();
 	}
 	
-	private boolean read(SocketChannel channel) throws IOException{
+	private boolean read(ReadableByteChannel channel) throws IOException{
 		buffer.clear();
 		lastLengthRead = channelRead(channel);
 		checkInvalidRead();
@@ -114,15 +112,7 @@ class InputPipe {
 		return lastLengthRead > 0;
 	}
 
-	protected int channelRead(SocketChannel channel) throws IOException {
-		//Mockito does not stub properly function that returns boolean/int
-		try{
-			return channel.read(buffer);
-		}catch(java.nio.BufferOverflowException boe){
-			logger.fatal(String.format("[<= ] [%s] Buffer overflow writing data into chunk buffer", connectionid), boe);
-			throw new IOException("Chunk too large");
-		}
-	}
+	protected abstract int channelRead(ReadableByteChannel channel) throws IOException;
 	
 	private void checkInvalidRead() throws ClosedChannelException{
 		if (lastLengthRead < 0)
@@ -134,14 +124,14 @@ class InputPipe {
 			return 0;
 		
 		for(int i = buffer.position()+1; i < buffer.limit(); i++){
-			if(InputPipe.LF == buffer.get(i) && InputPipe.CR == buffer.get(i-1))
+			if(BufferReader.LF == buffer.get(i) && BufferReader.CR == buffer.get(i-1))
 				return i;
 		}
 		return -1;
 	}
 
 	private boolean brokenLinePacketBeginning() {
-		return buffer.position() == 0 && InputPipe.LF == buffer.get(0);
+		return buffer.position() == 0 && BufferReader.LF == buffer.get(0);
 	}
 
 	public void setConnectionId(String id) {

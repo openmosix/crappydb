@@ -30,23 +30,28 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.config.Configuration;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.bonmassar.crappydb.server.io.tcp.TcpProtocol;
+import org.bonmassar.crappydb.server.io.udp.UdpProtocol;
 
 public class CrappyNetworkServer {
 		
 	private Logger logger = Logger.getLogger(CrappyNetworkServer.class);
 
-	private TransportProtocol transport;
+	private TransportProtocol tcpTransport;
+	private TransportProtocol udpTransport;
 	protected Selector serverSelector;		
 	protected DBPoolThreadExecutor workers;
 
-	public CrappyNetworkServer(CommandFactory cmdFactory) {
+	public CrappyNetworkServer() {
 		try {
-			transport = TransportProtocol.getProtocol();
-			logger.info(String.format("Listening on port %s:%d", transport, Configuration.INSTANCE.getServerPort()));
+			tcpTransport = getTCPProtocol();
+			udpTransport = getUDPProtocol();
+			logger.info(String.format("Listening on %s", printListenConfiguration()));
 
-			serverSelector = transport.registerListener();
-			workers = new DBPoolThreadExecutor(cmdFactory, serverSelector);
+			serverSelector = Selector.open(); 
+			tcpTransport.register(serverSelector);
+			udpTransport.register(serverSelector);
+			workers = new DBPoolThreadExecutor(tcpTransport, udpTransport);
 			logger.info(String.format("Server up!"));
 		}
 		catch(IOException ie) {
@@ -56,35 +61,36 @@ public class CrappyNetworkServer {
 	}
 
 	public void start() {  
-		while(true){
-			try {
+		try {
+			while(true)
 				processRequests();
-			} catch (InterruptedException e) {
-				logger.info("Exiting...");
-				break;
-			}
+		} catch (InterruptedException e) {
+			logger.info("Exiting...");
 		}
 	}
 
-	protected int processRequests() throws InterruptedException {
+	protected void processRequests() throws InterruptedException {
 		Set<SelectionKey> pendingRequests = select();
 		if(null==pendingRequests)
-			return 0;
+			return ;
 		
-		int taskCounter = pendingRequests.size();
 		List<Future<Void>> result = new ArrayList<Future<Void>>();
 		for(Iterator<SelectionKey> it = pendingRequests.iterator(); it.hasNext();) {
 			SelectionKey key = it.next();
 			result.add(workers.submit(key));
 			it.remove();
 		}
+		waitForResults(result);
+	}
+
+	private void waitForResults(List<Future<Void>> result)
+			throws InterruptedException {
 		for(Future<Void> f : result)
 			try {
 				f.get();
 			} catch (ExecutionException e) {
 				logger.fatal("Exception executing a subtask", e);
 			}
-		return taskCounter;
 	}
 
 	private Set<SelectionKey> select() {
@@ -99,4 +105,34 @@ public class CrappyNetworkServer {
 		}
 		return serverSelector.selectedKeys();
 	}
+	
+	public TransportProtocol getTCPProtocol() throws IOException {
+		//FIXME: give possibility to disable tcp
+		return new TcpProtocol();
+	}
+	
+	public TransportProtocol getUDPProtocol() throws IOException {
+		if(Configuration.INSTANCE.isUdp())
+			return new UdpProtocol();
+
+		return new TcpProtocol();
+	}
+	
+	private String printListenConfiguration(){
+		StringBuilder sb = new StringBuilder("host:").append(Configuration.INSTANCE.getHostname());
+		sb.append(" port:").append(Configuration.INSTANCE.getServerPort());
+		sb.append(" protocols:").append(printProtocols(tcpTransport.toString(), udpTransport.toString()));
+		return sb.toString();
+	}
+	
+	private String printProtocols(String tcp, String udp) {
+		if(tcp.length() > 0 && udp.length()>0)
+			return tcp+","+udp;
+		if(tcp.length() > 0)
+			return tcp;
+		if(udp.length() > 0)
+			return udp;
+		return "none";
+	}
+
 }

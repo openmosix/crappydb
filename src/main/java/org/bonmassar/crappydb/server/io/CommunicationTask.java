@@ -18,26 +18,50 @@
 
 package org.bonmassar.crappydb.server.io;
 
+import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-class FrontendTask implements Callable<Void> {
+public class CommunicationTask implements Callable<Void> {
 	
+	public abstract static class CommunicationDelegate {
+		abstract public TransportSession accept(SelectionKey sk);
+		abstract public TransportSession write(SelectionKey sk);
+		
+		public TransportSession read(SelectionKey sk){
+			TransportSession connHandler = getSession(sk);
+
+			List<ServerCommand> cmdlist = connHandler.doRead();
+			if(null == cmdlist)
+				return null;
+			
+			for(ServerCommand cmd : cmdlist)
+				try {
+					cmd.execCommand();
+				} catch (ClosedConnectionException e) {
+					connHandler.doClose();
+					break;
+				}
+			
+			return connHandler;
+		}
+		
+		abstract public TransportSession getSession(SelectionKey sk);
+	}
+	
+	private final TransportProtocol tcp;
+	private final TransportProtocol udp;
 	protected SelectionKey key;
-	protected ServerCommandAccepter accepter;
-	private Logger logger = Logger.getLogger(FrontendTask.class);
+	private Logger logger = Logger.getLogger(CommunicationTask.class);
 
-
-	public FrontendTask(CommandFactory cmdFactory, 
-			Selector parentSelector, SelectionKey key) {
-		this.accepter = new ServerCommandAccepter(cmdFactory, parentSelector);
+	public CommunicationTask(TransportProtocol tcp, TransportProtocol udp, SelectionKey key) {
+		this.tcp = tcp;
+		this.udp = udp;
 		this.key = key;
 	}
 
@@ -56,11 +80,41 @@ class FrontendTask implements Callable<Void> {
 		if(logger.isDebugEnabled())
 			logger.debug(String.format("IO ready for %s => %s", key, selectResultToString(availOps)));
 		
-		read(key, availOps);
-		write(key, availOps);
-		accept(key, availOps);
+		Channel ch = (Channel) key.channel();
+		
+		accept(ch, key, availOps);
+		read(ch, key, availOps);
+		write(ch, key, availOps);		
 	}
 	
+	private void accept(Channel ch, SelectionKey sk, int availOperations){
+		if(!sk.isAcceptable())
+			return;
+		
+		if(tcp.isValidChannel(ch)) 
+			tcp.comms().accept(key);
+	}
+	
+	private void read(Channel ch, SelectionKey sk, int availOperations) {
+		if(!sk.isReadable())
+			return;
+		
+		if(udp.isValidChannel(ch)) 
+			udp.comms().read(key);
+		else
+			tcp.comms().read(key);
+	}
+ 
+	private void write(Channel ch, SelectionKey sk, int availOperations) {
+		if(!sk.isWritable())
+			return;
+		
+		if(udp.isValidChannel(ch)) 
+			udp.comms().write(key);
+		else
+			tcp.comms().write(key);
+	}
+ 		
 	private String selectResultToString(int pendingio){
 		StringBuilder sb = new StringBuilder();
 		if((pendingio & SelectionKey.OP_ACCEPT)==SelectionKey.OP_ACCEPT)
@@ -72,45 +126,5 @@ class FrontendTask implements Callable<Void> {
 		if((pendingio & SelectionKey.OP_WRITE)==SelectionKey.OP_WRITE)
 			sb.append("-WRITE");
 		return sb.toString();
-	}
-	
-	private void read(SelectionKey sk, int availOperations) {
-		if(!isOpAvailable(availOperations, SelectionKey.OP_READ))
-			return;
-		
-		EstablishedConnection connHandler = getChannel(sk);
-
-		List<ServerCommand> cmdlist = connHandler.doRead();
-		if(null != cmdlist)
-			for(ServerCommand cmd : cmdlist)
-				try {
-					cmd.execCommand();
-				} catch (ClosedConnectionException e) {
-					connHandler.doClose();
-					break;
-				}
-	}
- 
-	private void write(SelectionKey sk, int availOperations) {
-		if(!isOpAvailable(availOperations, SelectionKey.OP_WRITE))
-			return;
-
-		EstablishedConnection connHandler = getChannel(sk);
-		connHandler.doWrite();
-	}
-	
-	private void accept(SelectionKey selection, int availOperations){
-		if(!isOpAvailable(availOperations, SelectionKey.OP_ACCEPT))
-			return;
-
-		accepter.doAccept(selection);
-	}
- 
-	protected EstablishedConnection getChannel(SelectionKey sk){
-		return (EstablishedConnection)sk.attachment();
-	}
- 	
-	private boolean isOpAvailable(int availOperations, int reqOp){
-		return (availOperations & reqOp) == reqOp;
 	}
 }

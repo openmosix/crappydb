@@ -21,21 +21,18 @@ package org.bonmassar.crappydb.server.io;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
-import org.bonmassar.crappydb.server.stats.DBStats;
 
-class ServerCommandWriter implements OutputCommandWriter {
+public abstract class ServerCommandWriter implements OutputCommandWriter {
 
-	private SelectionKey requestsDescriptor;
+	protected SelectionKey requestsDescriptor;
 	protected LinkedList<ByteBuffer> bufferList;
 	
-	private Logger logger = Logger.getLogger(ServerCommandWriter.class);
-	private String connectionid;
+	protected Logger logger = Logger.getLogger(ServerCommandWriter.class);
+	protected String connectionid;
 	
 	public ServerCommandWriter(SelectionKey requestsDescriptor) {
 		this.requestsDescriptor = requestsDescriptor;
@@ -61,25 +58,10 @@ class ServerCommandWriter implements OutputCommandWriter {
 		writeToOutstanding(exception.clientResponse()+"\r\n");
 	}
 	
-	public void write() throws IOException {
-		requestsDescriptor.interestOps(SelectionKey.OP_READ);
-
-		SocketChannel sc = (SocketChannel)requestsDescriptor.channel();
-		assertOpenChannel(sc); 
-		
-		writeToSocketChannel(sc);
-	}
+	public abstract void write() throws IOException;
 	
 	public void setConnectionId(String id) {
 		connectionid = id;
-	}
-
-	protected void assertOpenChannel(SocketChannel sc) throws IOException {
-		if(null != sc && sc.isOpen())
-			return;
-		
-		logger.warn(String.format("[ =>] [%s] Write closed", connectionid));
-		throw new IOException("Channel closed while writing");
 	}
 	
 	private ByteBuffer newBufferItem(byte[] data) {
@@ -89,47 +71,11 @@ class ServerCommandWriter implements OutputCommandWriter {
 		return bb;
 	}
 
-	private void addToQueue(ByteBuffer bb) {
+	protected void addToQueue(ByteBuffer bb) {
 		synchronized(bufferList){
 			bufferList.addLast(bb);
 			requestsDescriptor.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 		}
-	}
-
-	private void writeToSocketChannel(SocketChannel sc) throws IOException {
-		synchronized(bufferList){
-			if(0 == bufferList.size())
-				return;
-			
-			for(Iterator<ByteBuffer> bit = bufferList.iterator(); bit.hasNext();){
-				if(!writeBufferElementToSocketChannel(sc, bit.next()))
-					break;
-				bit.remove();
-			}
-		}
-	}
-	
-	private boolean writeBufferElementToSocketChannel(SocketChannel sc, ByteBuffer buffer) throws IOException {
-		if(!buffer.hasRemaining())
-			return true;
-		
-		int nbytes = sc.write(buffer);
-		if(logger.isDebugEnabled())
-			logger.debug(String.format("[ =>] [%s] Sent %d bytes", connectionid, nbytes));
-		
-		DBStats.INSTANCE.getConnections().newSend(nbytes);
-		return continueWritingIfCurrentCompleted(buffer);
-	}
-
-	private boolean continueWritingIfCurrentCompleted(ByteBuffer buffer) {
-		if(!buffer.hasRemaining()) 
-			return true;
-		
-		if(logger.isDebugEnabled())
-			logger.debug(String.format("[ =>] [%s] Write blocked", connectionid));
-		
-		requestsDescriptor.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-		return false;
 	}
 
 }

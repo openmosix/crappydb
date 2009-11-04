@@ -25,7 +25,7 @@ import java.nio.channels.SocketChannel;
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.stats.DBStats;
 
-class ServerCommandCloser {
+public class ServerCommandCloser {
 
 	protected DBConnectionStatus state;
 	private Logger logger = Logger.getLogger(ServerCommandCloser.class);

@@ -19,40 +19,31 @@
 package org.bonmassar.crappydb.server.io;
 
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
 import org.bonmassar.crappydb.server.config.Configuration;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 
 class DBPoolThreadExecutor {
 
-	private final CommandFactory cmdFactory;
-	private final Selector serverSelectorForAccept;
-
-	private int nThreads;
-	protected ExecutorService executor;
+	private final ExecutorService executor;
+	private TransportProtocol tcp;
+	private TransportProtocol udp;
 	
-	public DBPoolThreadExecutor(CommandFactory cmdFactory, Selector serverSelectorForAccept) {
-		this(cmdFactory, serverSelectorForAccept, Configuration.INSTANCE.getEngineThreads());
+	public DBPoolThreadExecutor(TransportProtocol tcp, TransportProtocol udp) {
+		this(tcp, udp, Configuration.INSTANCE.getEngineThreads());
 	}
 	
-	public DBPoolThreadExecutor(CommandFactory cmdFactory, Selector serverSelectorForAccept, int nThreads) {
-		this.cmdFactory = cmdFactory;
-		this.serverSelectorForAccept = serverSelectorForAccept;
-		this.nThreads = nThreads;
-		initFrontendThreads();
+	public DBPoolThreadExecutor(TransportProtocol tcp, TransportProtocol udp, int nThreads) {
+		this.tcp = tcp;
+		this.udp = udp;
+		executor = Executors.newFixedThreadPool(nThreads);
+		Registry.INSTANCE.book(executor);
 	}
 	
 	public Future<Void> submit(SelectionKey key) {
-		return executor.submit (new FrontendTask(cmdFactory, serverSelectorForAccept, key) );
-	}
-		
-	protected void initFrontendThreads() {
-		executor = Executors.newFixedThreadPool(nThreads);
-		Registry.INSTANCE.book(executor);
+		return executor.submit (new CommunicationTask(tcp, udp, key) );
 	}
 }
