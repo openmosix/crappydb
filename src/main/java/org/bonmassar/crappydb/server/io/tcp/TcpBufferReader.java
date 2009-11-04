@@ -19,35 +19,26 @@
 package org.bonmassar.crappydb.server.io.tcp;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
 
-import org.bonmassar.crappydb.server.io.NetworkTransportProtocol;
-import org.bonmassar.crappydb.server.io.CommunicationTask.CommunicationDelegate;
+import org.bonmassar.crappydb.server.config.Configuration;
+import org.bonmassar.crappydb.server.io.BufferReader;
 
-public class TcpProtocol extends NetworkTransportProtocol {
-	
-	private final TcpCommunicationDelegate delegate;
-	
-	public TcpProtocol() throws IOException{
-		super(ServerSocketChannel.open());
+public class TcpBufferReader extends BufferReader {
 
-		((ServerSocketChannel) listenChannel).socket().bind(getSocketAddress());
-		delegate = new TcpCommunicationDelegate();
+	public TcpBufferReader(SelectionKey requestsDescriptor) {
+		super(requestsDescriptor);
+		buffer = ByteBuffer.allocate(Configuration.INSTANCE.getBufferSize());
 	}
 
-	public void register(Selector selector) throws ClosedChannelException {
-		listenChannel.register(selector, SelectionKey.OP_ACCEPT);		
-	}
-
-	@Override
-	public String toString() {
-		return "tcp";
-	}
-
-	public CommunicationDelegate comms() {
-		return delegate;
+	protected int channelRead(ReadableByteChannel channel) throws IOException {
+		try{
+			return channel.read(buffer);
+		}catch(java.nio.BufferOverflowException boe){
+			logger.fatal(String.format("[<= ] [%s] Buffer overflow writing data into chunk buffer", connectionid), boe);
+			throw new IOException("Chunk too large");
+		}
 	}
 }
