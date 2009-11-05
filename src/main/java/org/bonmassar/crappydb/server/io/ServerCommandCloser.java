@@ -26,9 +26,9 @@ import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.stats.DBStats;
 
 public class ServerCommandCloser {
+	private final static Logger logger = Logger.getLogger(ServerCommandCloser.class);
 
 	protected DBConnectionStatus state;
-	private Logger logger = Logger.getLogger(ServerCommandCloser.class);
 	private SelectionKey selector;
 	private String connectionid;
 

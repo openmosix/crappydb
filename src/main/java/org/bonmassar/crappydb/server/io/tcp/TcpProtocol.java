@@ -24,8 +24,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
+import org.bonmassar.crappydb.server.io.CommunicationDelegateAbstract;
 import org.bonmassar.crappydb.server.io.NetworkTransportProtocol;
-import org.bonmassar.crappydb.server.io.CommunicationTask.CommunicationDelegate;
 
 public class TcpProtocol extends NetworkTransportProtocol {
 	
@@ -47,7 +47,7 @@ public class TcpProtocol extends NetworkTransportProtocol {
 		return "tcp";
 	}
 
-	public CommunicationDelegate comms() {
+	public CommunicationDelegateAbstract comms() {
 		return delegate;
 	}
 }

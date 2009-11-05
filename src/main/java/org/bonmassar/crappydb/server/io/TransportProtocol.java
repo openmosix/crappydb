@@ -31,5 +31,4 @@ interface TransportProtocol {
 	public boolean isValidChannel(Channel ch);
 	
 	public CommunicationDelegate comms();
-	
 }

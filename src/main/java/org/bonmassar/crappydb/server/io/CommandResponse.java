@@ -16,21 +16,16 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.memcache.protocol;
+package org.bonmassar.crappydb.server.io;
 
-import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
-import org.bonmassar.crappydb.server.io.CommandResponse;
-import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 
-public interface ServerCommand {
-		
-	public int payloadContentLength();
-	
-	public void addPayloadContentPart(byte[] data);
+public interface CommandResponse {
 
-	public void attachCommandWriter(CommandResponse writer);
+	void writeToOutstanding(byte[] data);
 	
-	public void setStorage(StorageAccessLayer storage);
+	void writeToOutstanding(String text);
 	
-	public void execCommand() throws ClosedConnectionException;
+	void writeException(CrappyDBException exception);
+	
 }

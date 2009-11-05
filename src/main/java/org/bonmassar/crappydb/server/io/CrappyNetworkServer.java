@@ -107,7 +107,9 @@ public class CrappyNetworkServer {
 	}
 	
 	public TransportProtocol getTCPProtocol() throws IOException {
-		//FIXME: give possibility to disable tcp
+		if(false)	//TODO: no way to disable TCP for the moment
+			return new DisabledTransportProtocol();
+		
 		return new TcpProtocol();
 	}
 	
@@ -115,7 +117,7 @@ public class CrappyNetworkServer {
 		if(Configuration.INSTANCE.isUdp())
 			return new UdpProtocol();
 
-		return new TcpProtocol();
+		return new DisabledTransportProtocol();
 	}
 	
 	private String printListenConfiguration(){
@@ -134,5 +136,4 @@ public class CrappyNetworkServer {
 			return udp;
 		return "none";
 	}
-
 }

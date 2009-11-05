@@ -28,27 +28,29 @@ import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.stats.DBStats;
 
 public abstract class BufferReader {
+	
+	protected final static Logger logger = Logger.getLogger(BufferReader.class);
+	
 	private static final byte CR = 0x0D;
 	private static final byte LF = 0x0A;
 	
-	private SelectionKey requestsDescriptor;
+	private SelectionKey selectionKey;
 	protected ByteBuffer buffer;
 	private int lastLengthRead;
-	protected Logger logger = Logger.getLogger(BufferReader.class);
 	protected String connectionid;
 	
-	public BufferReader(SelectionKey requestsDescriptor){
-		this.requestsDescriptor = requestsDescriptor;
+	public BufferReader(SelectionKey selectionKey){
+		this.selectionKey = selectionKey;
 		lastLengthRead = 0;
 		connectionid = "unknown";
 	}
 	
 	public void precacheDataFromRemote() throws IOException{
-		ReadableByteChannel channel = (ReadableByteChannel) requestsDescriptor.channel();
+		ReadableByteChannel channel = (ReadableByteChannel) selectionKey.channel();
 		if (invalidSocket(channel))
 			throw new IOException("Read descriptor is closed");
 
-		getReceivedData(channel);
+		read(channel);
 	}
 	
 	public boolean noDataAvailable(){
@@ -67,14 +69,6 @@ public abstract class BufferReader {
 		return new String(rawString);
 	}
 	
-	public String getRemainingDataAsText() {
-		byte[] data = getBytes(buffer.remaining());
-		if(null!=data)
-			return new String(data);
-		
-		return "";
-	}
-	
 	public byte[] getBytes(int nBytes){
 		if( nBytes <= 0 )
 			return new byte[0];
@@ -85,6 +79,12 @@ public abstract class BufferReader {
 		DBStats.INSTANCE.getConnections().newReceive(nBytesToRead);
 		return tmpBuffer;
 	}
+	
+	public void setConnectionId(String id) {
+		connectionid = id;
+	}
+
+	protected abstract int channelRead(ReadableByteChannel channel) throws IOException;
 
 	private int getMaximumBytesLength(int nBytes) {
 		return (nBytes > buffer.remaining()) ? buffer.remaining() : nBytes;
@@ -92,14 +92,6 @@ public abstract class BufferReader {
 	
 	protected boolean invalidSocket(ReadableByteChannel channel) {
 		return null == channel || !channel.isOpen();
-	}
-	
-	private void getReceivedData(ReadableByteChannel channel) throws IOException {
-		boolean executed = read(channel);
-		if (!executed) 
-			return;
-		
-		buffer.flip();
 	}
 	
 	private boolean read(ReadableByteChannel channel) throws IOException{
@@ -112,8 +104,6 @@ public abstract class BufferReader {
 		return lastLengthRead > 0;
 	}
 
-	protected abstract int channelRead(ReadableByteChannel channel) throws IOException;
-	
 	private void checkInvalidRead() throws ClosedChannelException{
 		if (lastLengthRead < 0)
 			throw new ClosedChannelException();
@@ -133,10 +123,4 @@ public abstract class BufferReader {
 	private boolean brokenLinePacketBeginning() {
 		return buffer.position() == 0 && BufferReader.LF == buffer.get(0);
 	}
-
-	public void setConnectionId(String id) {
-		connectionid = id;
-	}
-
-
 }

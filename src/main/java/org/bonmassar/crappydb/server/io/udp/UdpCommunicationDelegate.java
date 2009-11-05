@@ -20,11 +20,11 @@ package org.bonmassar.crappydb.server.io.udp;
 
 import java.nio.channels.SelectionKey;
 
+import org.bonmassar.crappydb.server.io.CommunicationDelegateAbstract;
 import org.bonmassar.crappydb.server.io.TransportSession;
-import org.bonmassar.crappydb.server.io.CommunicationTask.CommunicationDelegate;
 import org.bonmassar.crappydb.server.stats.DBStats;
 
-class UdpCommunicationDelegate extends CommunicationDelegate {
+class UdpCommunicationDelegate extends CommunicationDelegateAbstract {
 
 	public TransportSession accept(SelectionKey sk) {
 		throw new IllegalStateException("Accept not available in datagram mode.");
@@ -45,7 +45,6 @@ class UdpCommunicationDelegate extends CommunicationDelegate {
 		throw new IllegalStateException("Accept not available in datagram mode.");
 	}
 
-	@Override
 	public TransportSession getSession(SelectionKey sk) {
 		// TODO Auto-generated method stub
 		return new UdpTransportSession(sk);

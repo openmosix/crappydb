@@ -15,19 +15,28 @@
  *  You should have received a copy of the GNU General Public License
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.bonmassar.crappydb.server.io;
 
-import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+import java.nio.channels.SelectionKey;
 
-public enum DevNullCommandWriter implements OutputCommandWriter {
-	
-	INSTANCE;
-	
-	public void writeToOutstanding(byte[] data) { }
+import org.bonmassar.crappydb.server.io.CommunicationTask.CommunicationDelegate;
 
-	public void writeToOutstanding(String text) { }
+class DisabledCommunicationDelegate implements CommunicationDelegate {
 
-	public void writeException(CrappyDBException exception) { }
+	public TransportSession accept(SelectionKey sk) {
+		return null;
+	}
+
+	public TransportSession getSession(SelectionKey sk) {
+		return null;
+	}
+
+	public TransportSession read(SelectionKey sk) {
+		return null;
+	}
+
+	public TransportSession write(SelectionKey sk) {
+		return null;
+	}
 
 }

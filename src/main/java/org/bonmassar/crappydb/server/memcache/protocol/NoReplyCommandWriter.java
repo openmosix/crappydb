@@ -16,16 +16,19 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.io;
+package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+import org.bonmassar.crappydb.server.io.CommandResponse;
 
-public interface OutputCommandWriter {
+enum NoReplyCommandWriter implements CommandResponse {
+	
+	INSTANCE;
+	
+	public void writeToOutstanding(byte[] data) { }
 
-	void writeToOutstanding(byte[] data);
-	
-	void writeToOutstanding(String text);
-	
-	void writeException(CrappyDBException exception);
-	
+	public void writeToOutstanding(String text) { }
+
+	public void writeException(CrappyDBException exception) { }
+
 }

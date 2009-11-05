@@ -19,14 +19,13 @@
 package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
-import org.bonmassar.crappydb.server.io.OutputCommandWriter;
+import org.bonmassar.crappydb.server.io.CommandResponse;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
-import org.bonmassar.crappydb.server.io.DevNullCommandWriter;
 
 abstract class ServerCommandAbstract implements ServerCommand {
 	
 	protected StorageAccessLayer storage;
-	protected OutputCommandWriter channel;
+	protected CommandResponse channel;
 	
 	protected String[] params;
 	
@@ -41,11 +40,11 @@ abstract class ServerCommandAbstract implements ServerCommand {
 			throw new ErrorException("Null parameters");
 	}
 		
-	public void attachCommandWriter(OutputCommandWriter writer) {
+	public void attachCommandWriter(CommandResponse writer) {
 		if(isResponseRequested())
 			channel = writer;
 		else
-			channel = DevNullCommandWriter.INSTANCE;
+			channel = NoReplyCommandWriter.INSTANCE;
 	}
 	
 	public void setStorage(StorageAccessLayer storage) {

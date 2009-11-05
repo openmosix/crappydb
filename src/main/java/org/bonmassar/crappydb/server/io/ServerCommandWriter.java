@@ -26,7 +26,7 @@ import java.util.LinkedList;
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 
-public abstract class ServerCommandWriter implements OutputCommandWriter {
+public abstract class ServerCommandWriter implements CommandResponse {
 
 	protected SelectionKey requestsDescriptor;
 	protected LinkedList<ByteBuffer> bufferList;

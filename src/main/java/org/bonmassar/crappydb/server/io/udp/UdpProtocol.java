@@ -24,8 +24,8 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
+import org.bonmassar.crappydb.server.io.CommunicationDelegateAbstract;
 import org.bonmassar.crappydb.server.io.NetworkTransportProtocol;
-import org.bonmassar.crappydb.server.io.CommunicationTask.CommunicationDelegate;
 
 public class UdpProtocol extends NetworkTransportProtocol {
 
@@ -47,7 +47,7 @@ public class UdpProtocol extends NetworkTransportProtocol {
 		return "udp";
 	}
 
-	public CommunicationDelegate comms() {
+	public CommunicationDelegateAbstract comms() {
 		return delegate;
 	}
 }

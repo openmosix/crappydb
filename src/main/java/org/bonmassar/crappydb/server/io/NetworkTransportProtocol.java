@@ -9,8 +9,6 @@ import org.bonmassar.crappydb.server.config.Configuration;
 
 public abstract class NetworkTransportProtocol implements TransportProtocol {
 
-	protected final static boolean asyncOperations = true;
-
 	protected final AbstractSelectableChannel listenChannel;
 
 	protected NetworkTransportProtocol(AbstractSelectableChannel channel)
@@ -19,7 +17,7 @@ public abstract class NetworkTransportProtocol implements TransportProtocol {
 			throw new NullPointerException("Null channel");
 
 		listenChannel = channel;
-		listenChannel.configureBlocking(!NetworkTransportProtocol.asyncOperations);
+		listenChannel.configureBlocking(false);
 	}
 
 	protected InetSocketAddress getSocketAddress() {

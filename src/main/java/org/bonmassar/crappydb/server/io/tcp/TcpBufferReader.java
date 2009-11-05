@@ -35,7 +35,10 @@ public class TcpBufferReader extends BufferReader {
 
 	protected int channelRead(ReadableByteChannel channel) throws IOException {
 		try{
-			return channel.read(buffer);
+			int len = channel.read(buffer);
+			if(len > 0) 
+				buffer.flip();
+			return len;
 		}catch(java.nio.BufferOverflowException boe){
 			logger.fatal(String.format("[<= ] [%s] Buffer overflow writing data into chunk buffer", connectionid), boe);
 			throw new IOException("Chunk too large");

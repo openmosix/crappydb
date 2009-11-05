@@ -20,44 +20,24 @@ package org.bonmassar.crappydb.server.io;
 
 import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
-import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
-import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
 public class CommunicationTask implements Callable<Void> {
 	
-	public abstract static class CommunicationDelegate {
-		abstract public TransportSession accept(SelectionKey sk);
-		abstract public TransportSession write(SelectionKey sk);
-		
-		public TransportSession read(SelectionKey sk){
-			TransportSession connHandler = getSession(sk);
-
-			List<ServerCommand> cmdlist = connHandler.doRead();
-			if(null == cmdlist)
-				return null;
-			
-			for(ServerCommand cmd : cmdlist)
-				try {
-					cmd.execCommand();
-				} catch (ClosedConnectionException e) {
-					connHandler.doClose();
-					break;
-				}
-			
-			return connHandler;
-		}
-		
-		abstract public TransportSession getSession(SelectionKey sk);
+	private static final Logger logger = Logger.getLogger(CommunicationTask.class);
+	
+	static interface CommunicationDelegate {
+		TransportSession accept(SelectionKey sk);
+		TransportSession write(SelectionKey sk);
+		TransportSession read(SelectionKey sk);
+		TransportSession getSession(SelectionKey sk);
 	}
 	
 	private final TransportProtocol tcp;
 	private final TransportProtocol udp;
 	protected SelectionKey key;
-	private Logger logger = Logger.getLogger(CommunicationTask.class);
 
 	public CommunicationTask(TransportProtocol tcp, TransportProtocol udp, SelectionKey key) {
 		this.tcp = tcp;
@@ -93,6 +73,8 @@ public class CommunicationTask implements Callable<Void> {
 		
 		if(tcp.isValidChannel(ch)) 
 			tcp.comms().accept(key);
+		else
+			udp.comms().accept(key);
 	}
 	
 	private void read(Channel ch, SelectionKey sk, int availOperations) {

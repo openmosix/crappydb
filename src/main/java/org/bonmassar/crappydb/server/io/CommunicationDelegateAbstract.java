@@ -16,21 +16,31 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.memcache.protocol;
+package org.bonmassar.crappydb.server.io;
+
+import java.nio.channels.SelectionKey;
+import java.util.List;
 
 import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
-import org.bonmassar.crappydb.server.io.CommandResponse;
-import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
+import org.bonmassar.crappydb.server.io.CommunicationTask.CommunicationDelegate;
+import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
-public interface ServerCommand {
-		
-	public int payloadContentLength();
-	
-	public void addPayloadContentPart(byte[] data);
+public abstract class CommunicationDelegateAbstract implements CommunicationDelegate {
+	public TransportSession read(SelectionKey sk){
+		TransportSession connHandler = getSession(sk);
 
-	public void attachCommandWriter(CommandResponse writer);
-	
-	public void setStorage(StorageAccessLayer storage);
-	
-	public void execCommand() throws ClosedConnectionException;
+		List<ServerCommand> cmdlist = connHandler.doRead();
+		if(null == cmdlist)
+			return null;
+
+		for(ServerCommand cmd : cmdlist)
+			try {
+				cmd.execCommand();
+			} catch (ClosedConnectionException e) {
+				connHandler.doClose();
+				break;
+			}
+
+			return connHandler;
+	}
 }

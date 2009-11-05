@@ -29,8 +29,8 @@ import org.bonmassar.crappydb.server.config.Configuration;
 class DBPoolThreadExecutor {
 
 	private final ExecutorService executor;
-	private TransportProtocol tcp;
-	private TransportProtocol udp;
+	private final TransportProtocol tcp;
+	private final TransportProtocol udp;
 	
 	public DBPoolThreadExecutor(TransportProtocol tcp, TransportProtocol udp) {
 		this(tcp, udp, Configuration.INSTANCE.getEngineThreads());

@@ -26,10 +26,10 @@ import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 
 public class ServerCommandReader {
+	private static final Logger logger = Logger.getLogger(ServerCommandReader.class);
 
 	protected BufferReader inputBuffer;
 	private ServerCommandFragment lastCommand;
-	private Logger logger = Logger.getLogger(ServerCommandReader.class);
 	private String connectionid ;
 	
 	public ServerCommandReader(BufferReader br){

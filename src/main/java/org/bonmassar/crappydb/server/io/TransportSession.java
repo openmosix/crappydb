@@ -31,7 +31,7 @@ public class TransportSession {
 	protected ServerCommandWriter commandWriter;
 	protected ServerCommandCloser commandCloser;
 
-	private Logger logger = Logger.getLogger(TransportSession.class);
+	private final static Logger logger = Logger.getLogger(TransportSession.class);
 
 	public List<ServerCommand> doRead()
 	{
