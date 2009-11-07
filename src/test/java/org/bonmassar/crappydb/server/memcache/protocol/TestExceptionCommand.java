@@ -19,7 +19,7 @@
 package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
-import org.bonmassar.crappydb.server.io.OutputCommandWriter;
+import org.bonmassar.crappydb.server.io.CommandResponse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,13 +32,13 @@ public class TestExceptionCommand extends TestCase {
 
 	private ExceptionCommand command;
 	private CrappyDBException exception;
-	private OutputCommandWriter writer;
+	private CommandResponse writer;
 	
 	@Before
 	public void setUp() {
 		exception = mock(CrappyDBException.class);
 		command = new ExceptionCommand(exception);
-		writer = mock(OutputCommandWriter.class);
+		writer = mock(CommandResponse.class);
 		command.attachCommandWriter(writer);
 	}
 	

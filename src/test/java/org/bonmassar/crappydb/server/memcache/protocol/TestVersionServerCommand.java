@@ -19,7 +19,7 @@
 package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
-import org.bonmassar.crappydb.server.io.OutputCommandWriter;
+import org.bonmassar.crappydb.server.io.CommandResponse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,12 +31,12 @@ import static org.mockito.Mockito.times;
 public class TestVersionServerCommand extends TestCase {
 
 	private VersionServerCommand command;
-	private OutputCommandWriter writer;
+	private CommandResponse writer;
 	
 	@Before
 	public void setUp(){
 		command = new VersionServerCommand();
-		writer = mock(OutputCommandWriter.class);
+		writer = mock(CommandResponse.class);
 		command.attachCommandWriter(writer);
 	}
 	

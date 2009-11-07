@@ -19,8 +19,7 @@
 package org.bonmassar.crappydb.server.memcache.protocol;
 
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
-import org.bonmassar.crappydb.server.io.DevNullCommandWriter;
-import org.bonmassar.crappydb.server.io.OutputCommandWriter;
+import org.bonmassar.crappydb.server.io.CommandResponse;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,12 +44,12 @@ public class TestServerCommandAbstract extends TestCase {
 	}
 	
 	private CommandAbstractImpl command;
-	private OutputCommandWriter writer;
+	private CommandResponse writer;
 	
 	@Before
 	public void setUp() {
 		command = new CommandAbstractImpl();
-		writer = mock(OutputCommandWriter.class);
+		writer = mock(CommandResponse.class);
 	}
 	
 	@Test
@@ -155,6 +154,6 @@ public class TestServerCommandAbstract extends TestCase {
 		command.parseCommandParams("     param1  param2    param3     noreply ");
 		command.replyPosition = 3;
 		command.attachCommandWriter(writer);
-		assertEquals(DevNullCommandWriter.INSTANCE, command.channel);
+		assertEquals(NoReplyCommandWriter.INSTANCE, command.channel);
 	}
 }

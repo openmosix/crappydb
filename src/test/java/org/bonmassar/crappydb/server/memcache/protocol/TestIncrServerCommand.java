@@ -29,7 +29,7 @@ import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.NotFoundException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
-import org.bonmassar.crappydb.server.io.OutputCommandWriter;
+import org.bonmassar.crappydb.server.io.CommandResponse;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
@@ -42,13 +42,13 @@ public class TestIncrServerCommand extends TestCase {
 
 	private IncrServerCommand command;
 	private StorageAccessLayer storage;
-	private OutputCommandWriter output;
+	private CommandResponse output;
 	
 	@Before
 	public void setUp() {
 		command = new IncrServerCommand();
 		storage = mock(StorageAccessLayer.class);
-		output = mock(OutputCommandWriter.class);
+		output = mock(CommandResponse.class);
 		command.setStorage(storage);
 		command.channel = output;
 	}

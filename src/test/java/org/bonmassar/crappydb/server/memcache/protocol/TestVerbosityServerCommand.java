@@ -21,7 +21,7 @@ package org.bonmassar.crappydb.server.memcache.protocol;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
-import org.bonmassar.crappydb.server.io.OutputCommandWriter;
+import org.bonmassar.crappydb.server.io.CommandResponse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,12 +35,12 @@ import static org.mockito.Matchers.anyObject;
 public class TestVerbosityServerCommand extends TestCase {
 
 	private VerbosityServerCommand command;
-	private OutputCommandWriter writer;
+	private CommandResponse writer;
 	private Logger logger;
 	
 	@Before
 	public void setUp() {
-		writer = mock(OutputCommandWriter.class);
+		writer = mock(CommandResponse.class);
 		logger = mock(Logger.class);
 		command = new VerbosityServerCommand();
 		command.channel = writer;

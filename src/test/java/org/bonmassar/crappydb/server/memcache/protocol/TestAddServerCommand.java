@@ -24,7 +24,7 @@ import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
 import org.bonmassar.crappydb.server.exceptions.ErrorException;
 import org.bonmassar.crappydb.server.exceptions.NotStoredException;
 import org.bonmassar.crappydb.server.exceptions.StorageException;
-import org.bonmassar.crappydb.server.io.OutputCommandWriter;
+import org.bonmassar.crappydb.server.io.CommandResponse;
 import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
 import org.bonmassar.crappydb.server.storage.data.Item;
 import org.bonmassar.crappydb.server.storage.data.Key;
@@ -46,14 +46,14 @@ public class TestAddServerCommand extends TestCase {
 
 	private AddServerCommand command;
 	private StorageAccessLayer storage;
-	private OutputCommandWriter output;
+	private CommandResponse output;
 	
 	@Before
 	public void setUp() throws ParseException {
 		Configuration.INSTANCE.parse(null);
 		command = new AddServerCommand();
 		storage = mock(StorageAccessLayer.class);
-		output = mock(OutputCommandWriter.class);
+		output = mock(CommandResponse.class);
 		command.setStorage(storage);
 		command.channel = output;
 	}
