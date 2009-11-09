@@ -18,42 +18,34 @@
 
 package org.bonmassar.crappydb.server.io;
 
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-import static org.mockito.Matchers.anyString;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactoryDelegate;
-import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
+import junit.framework.TestCase;
+
+import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.config.Configuration;
+import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.TestCase;
-
 public class TestServerCommandFragment extends TestCase {
 
-	private ServerCommand whatever;
 	private ServerCommandFragment fragment;
-	private CommandFactoryDelegate commandFactory;
 	
 	@Before
-	public void setUp() {
-		commandFactory = mock(CommandFactoryDelegate.class);
-		fragment = new ServerCommandFragment(commandFactory);
-		whatever = mock(ServerCommand.class);
+	public void setUp() throws ParseException {
+		fragment = new ServerCommandFragment();
+		CommandFactory.INSTANCE.setStorageLayer(null);
+		Configuration.INSTANCE.parse(null);
 	}
 	
 	@Test
 	public void testInitStatus() {
 		assertStatusZero();
-		verify(commandFactory, times(0)).getCommandFromCommandLine(anyString());
 	}
 	
 	@Test
 	public void testReset() {
-		when(commandFactory.getCommandFromCommandLine("gaat testkey noreply")).thenReturn(whatever);
-		assertTrue(fragment.addCommandLineFragment("gaat testkey noreply\r\n"));
-		assertEquals(whatever, fragment.getCommand());
+		assertTrue(fragment.addCommandLineFragment("get testkey noreply\r\n"));
+		assertNotNull(fragment.getCommand());
 
 		fragment.reset();
 		assertStatusZero();
@@ -61,71 +53,64 @@ public class TestServerCommandFragment extends TestCase {
 	
 	@Test
 	public void testAddAllDataInOneShot() {
-		when(commandFactory.getCommandFromCommandLine("gaat testkey noreply")).thenReturn(whatever);
-		boolean result = fragment.addCommandLineFragment("gaat testkey noreply\r\n");
+		boolean result = fragment.addCommandLineFragment("get testkey noreply\r\n");
 		assertTrue(result);
 		assertTrue(fragment.commandAlreadyDecoded());
 		assertTrue(fragment.isCommandLineCompleted());
 		assertEquals(0, fragment.getContentLength());
 		assertTrue(fragment.payloadReadCompleted());
-		assertEquals(whatever, fragment.getCommand());
+		assertNotNull(fragment.getCommand());
 	}
 	
 	@Test
 	public void testAddProgressivelyData(){
-		when(commandFactory.getCommandFromCommandLine("gaat testkey noreply")).thenReturn(whatever);
-		when(whatever.payloadContentLength()).thenReturn(17);
-		assertFalse(fragment.addCommandLineFragment("gaat tes"));
+		assertFalse(fragment.addCommandLineFragment("set term"));
 		assertFalse(fragment.isCommandLineCompleted());
-		assertFalse(fragment.addCommandLineFragment("tkey nor"));
+		assertFalse(fragment.addCommandLineFragment("inenzio 12"));
 		assertFalse(fragment.isCommandLineCompleted());
-		assertFalse(fragment.addCommandLineFragment("eply\r"));
+		assertFalse(fragment.addCommandLineFragment(" 500 4\r"));
 		assertFalse(fragment.isCommandLineCompleted());
 		assertTrue(fragment.addCommandLineFragment("\n"));
 		
 		assertTrue(fragment.commandAlreadyDecoded());
 		assertTrue(fragment.isCommandLineCompleted());
-		assertEquals(17, fragment.getContentLength());
+		assertEquals(6, fragment.getContentLength());
 		assertFalse(fragment.payloadReadCompleted());
-		assertEquals(whatever, fragment.getCommand());
+		assertNotNull(fragment.getCommand());
 	}
 	
 	@Test
 	public void testAddProgressivelyDataWithCrappyEnd(){
-		when(commandFactory.getCommandFromCommandLine("gaat testkey noreply")).thenReturn(whatever);
-		when(whatever.payloadContentLength()).thenReturn(17);
-		assertFalse(fragment.addCommandLineFragment("gaat tes"));
-		assertFalse(fragment.addCommandLineFragment("tkey nor"));
-		assertFalse(fragment.addCommandLineFragment("eply\r"));
+		assertFalse(fragment.addCommandLineFragment("set term"));
+		assertFalse(fragment.addCommandLineFragment("inenzio 12"));
+		assertFalse(fragment.addCommandLineFragment(" 500 4\r"));
 		assertTrue(fragment.addCommandLineFragment("\n      "));
 		
 		assertTrue(fragment.commandAlreadyDecoded());
 		assertTrue(fragment.isCommandLineCompleted());
-		assertEquals(17, fragment.getContentLength());
+		assertEquals(6, fragment.getContentLength());
 		assertFalse(fragment.payloadReadCompleted());
-		assertEquals(whatever, fragment.getCommand());
+		assertNotNull(fragment.getCommand());
 	}
 	
 	@Test
 	public void testAddProgressivelyDataAndPayload(){
-		when(commandFactory.getCommandFromCommandLine("gaat testkey noreply")).thenReturn(whatever);
-		when(whatever.payloadContentLength()).thenReturn(17);
-		assertFalse(fragment.addCommandLineFragment("gaat testkey nor"));
-		assertTrue(fragment.addCommandLineFragment("eply\r\n"));
-		
+		assertFalse(fragment.addCommandLineFragment("set term"));
+		assertFalse(fragment.addCommandLineFragment("inenzio 12"));
+		assertFalse(fragment.addCommandLineFragment(" 500 17\r"));
+		assertTrue(fragment.addCommandLineFragment("\n"));
+
 		assertTrue(fragment.commandAlreadyDecoded());
 		assertTrue(fragment.isCommandLineCompleted());
-		assertEquals(17, fragment.getContentLength());
+		assertEquals(19, fragment.getContentLength());
 		assertFalse(fragment.payloadReadCompleted());
-		assertEquals(whatever, fragment.getCommand());
+		assertNotNull(fragment.getCommand());
 		
 		fragment.addPayloadContentPart("0123456789".getBytes());
 		assertFalse(fragment.payloadReadCompleted());
-		fragment.addPayloadContentPart("1234567".getBytes());
-		assertTrue(fragment.payloadReadCompleted());
-		
-		verify(whatever, times(1)).addPayloadContentPart("0123456789".getBytes());
-		verify(whatever, times(1)).addPayloadContentPart("1234567".getBytes());
+		assertEquals(9, fragment.getContentLength());
+		fragment.addPayloadContentPart("1234567\r\n".getBytes());
+		assertTrue(fragment.payloadReadCompleted());		
 	}
 		
 	private void assertStatusZero() {

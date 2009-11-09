@@ -18,39 +18,30 @@
 
 package org.bonmassar.crappydb.server.io;
 
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
-import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactoryDelegate;
+import junit.framework.TestCase;
+
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
 import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.TestCase;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-public class TestEstablishedConnection extends TestCase {
+public class TestTransportSession extends TestCase {
 
 	private TransportSession conn;
-	private CommandFactoryDelegate factory;
-	private SelectionKey selector;
 	
-	class MockEstablishedConnection extends TransportSession {
+	class MockTransportSession extends TransportSession {
 		
-		public MockEstablishedConnection(SelectionKey selector,
-				CommandFactoryDelegate commandFactory) {
-			super(selector, commandFactory);
-		}
-
-		@Override
-		protected void init(SelectionKey selector, CommandFactoryDelegate commandFactory) {
+		public MockTransportSession() {
 			commandWriter = mock(ServerCommandWriter.class);
 			commandReader = mock(ServerCommandReader.class);
 			commandCloser = mock(ServerCommandCloser.class);
@@ -59,9 +50,7 @@ public class TestEstablishedConnection extends TestCase {
 	
 	@Before
 	public void setUp() {
-		selector = mock(SelectionKey.class);
-		factory = mock(CommandFactoryDelegate.class);
-		conn = new MockEstablishedConnection(selector, factory);
+		conn = new MockTransportSession();
 	}
 	
 	@Test

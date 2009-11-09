@@ -18,42 +18,52 @@
 
 package org.bonmassar.crappydb.server.io;
 
-import java.io.IOException;
-import java.nio.channels.SelectionKey;
-import java.util.List;
-
-import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
-import org.bonmassar.crappydb.server.exceptions.NotFoundException;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactoryDelegate;
-import org.bonmassar.crappydb.server.memcache.protocol.ExceptionCommand;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.AdditionalMatchers.aryEq;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.commons.cli.ParseException;
+import org.bonmassar.crappydb.server.config.Configuration;
+import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
+import org.bonmassar.crappydb.server.exceptions.CrappyDBException;
+import org.bonmassar.crappydb.server.exceptions.StorageException;
+import org.bonmassar.crappydb.server.memcache.protocol.CommandFactory;
+import org.bonmassar.crappydb.server.memcache.protocol.ExceptionCommand;
 import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
+import org.bonmassar.crappydb.server.storage.StorageAccessLayer;
+import org.bonmassar.crappydb.server.storage.data.Item;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class TestServerCommandReader {
 
+	private CommandResponse resp;
 	private ServerCommandReader cmdreader;
 	private BufferReader input;
-	private CommandFactoryDelegate commandFactory;
-	private SelectionKey selector;
+	private StorageAccessLayer sal;
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws ParseException {
 		input = mock(BufferReader.class);
-		selector = mock(SelectionKey.class);
-		commandFactory = mock(CommandFactoryDelegate.class);
-		cmdreader = new ServerCommandReader(selector, commandFactory);
+		cmdreader = new ServerCommandReader(input);
 		cmdreader.inputBuffer = input;
+		resp = mock(CommandResponse.class);
+		sal = mock(StorageAccessLayer.class);
+		CommandFactory.INSTANCE.setStorageLayer(sal);
+		Configuration.INSTANCE.parse(null);
 	}
 	
 	@Test
@@ -67,12 +77,10 @@ public class TestServerCommandReader {
 	public void testDecodeGetCommandCompletedInvalidCommand() throws IOException, CrappyDBException {	
 		when(input.noDataAvailable()).thenReturn(false, true);
 		when(input.readTextLine()).thenReturn("gaat testkey noreply\r\n");
-		ServerCommand command = new ExceptionCommand(new NotFoundException());
-		when(commandFactory.getCommandFromCommandLine("gaat testkey noreply")).thenReturn(command);
 		
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
-		assertEquals(command, cmds.get(0));
+		assertTrue((cmds.get(0) instanceof ExceptionCommand));
 		verify(input, times(1)).precacheDataFromRemote();
 	}
 	
@@ -92,26 +100,24 @@ public class TestServerCommandReader {
 	public void testDecodeGetCommandCompletedIOError() throws IOException, CrappyDBException {	
 		when(input.noDataAvailable()).thenReturn(false, true);
 		when(input.readTextLine()).thenReturn("gaat testkey noreply\r\n");
-		ServerCommand command = new ExceptionCommand(new NotFoundException());
-		when(commandFactory.getCommandFromCommandLine("gaat testkey noreply")).thenReturn(command);
 		
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
-		assertEquals(command, cmds.get(0));
+		assertTrue((cmds.get(0) instanceof ExceptionCommand));
 		verify(input, times(1)).precacheDataFromRemote();
 	}
+	
 	
 	@Test
 	public void testDecodeGetCommandCompleted() throws IOException, CrappyDBException {	
 		when(input.noDataAvailable()).thenReturn(false, true);
 		when(input.readTextLine()).thenReturn("get testkey noreply\r\n");
-		ServerCommand command = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("get testkey noreply")).thenReturn(command);
-		when(command.payloadContentLength()).thenReturn(0);
 		
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
-		assertEquals(command, cmds.get(0));
+		assertNotNull(cmds.get(0));
+		assertFalse((cmds.get(0) instanceof ExceptionCommand));
+
 		verify(input, times(1)).precacheDataFromRemote();
 	}
 	
@@ -119,17 +125,15 @@ public class TestServerCommandReader {
 	public void testDecode2GetCommandsCompleted() throws IOException, CrappyDBException {	
 		when(input.noDataAvailable()).thenReturn(false, false, true);
 		when(input.readTextLine()).thenReturn("get testkey noreply\r\n", "get testotherkey noreply\r\n");
-		ServerCommand command1 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("get testkey noreply")).thenReturn(command1);
-		when(command1.payloadContentLength()).thenReturn(0);
-		ServerCommand command2 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("get testotherkey noreply")).thenReturn(command2);
-		when(command2.payloadContentLength()).thenReturn(0);
 		
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(2, cmds.size());
-		assertEquals(command1, cmds.get(0));
-		assertEquals(command2, cmds.get(1));
+		assertNotNull(cmds.get(0));
+		assertFalse((cmds.get(0) instanceof ExceptionCommand));
+
+		assertNotNull(cmds.get(1));
+		assertFalse((cmds.get(1) instanceof ExceptionCommand));
+
 		verify(input, times(1)).precacheDataFromRemote();
 	}
 	
@@ -138,16 +142,23 @@ public class TestServerCommandReader {
 		when(input.noDataAvailable()).thenReturn(false, false, true);
 		when(input.readTextLine()).thenReturn("set testkey 888 0 20\r\n");
 		when(input.getBytes(22)).thenReturn("aaaabbbbccccddddeeee\r\n".getBytes());
-				
-		ServerCommand command1 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("set testkey 888 0 20")).thenReturn(command1);
-		when(command1.payloadContentLength()).thenReturn(22);
-				
+		
+		when(sal.set((Item) anyObject())).thenAnswer(new Answer<Item>() {
+
+			public Item answer(InvocationOnMock invocation) throws Throwable {
+				Item it = (Item)(invocation.getArguments()[0]);
+				assertEquals("aaaabbbbccccddddeeee", new String(it.getData()));
+				return null;
+			}
+			
+		});
+		
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
-		assertEquals(command1, cmds.get(0));
+		assertFalse((cmds.get(0) instanceof ExceptionCommand));
+		cmds.get(0).attachCommandWriter(resp);
+		cmds.get(0).execCommand();
 		verify(input, times(1)).precacheDataFromRemote();
-		verify(command1, times(1)).addPayloadContentPart(aryEq("aaaabbbbccccddddeeee\r\n".getBytes()));
 	}
 	
 	@Test
@@ -156,19 +167,24 @@ public class TestServerCommandReader {
 		when(input.readTextLine()).thenReturn("get testkey noreply\r\n", "set testkey 888 0 20\r\n");
 		when(input.getBytes(22)).thenReturn("aaaabbbbccccddddeeee\r\n".getBytes());
 		
-		ServerCommand command1 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("get testkey noreply")).thenReturn(command1);
-		when(command1.payloadContentLength()).thenReturn(0);
-		ServerCommand command2 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("set testkey 888 0 20")).thenReturn(command2);
-		when(command2.payloadContentLength()).thenReturn(22);
+		when(sal.set((Item) anyObject())).thenAnswer(new Answer<Item>() {
+
+			public Item answer(InvocationOnMock invocation) throws Throwable {
+				Item it = (Item)(invocation.getArguments()[0]);
+				assertEquals("aaaabbbbccccddddeeee", new String(it.getData()));
+				return null;
+			}
+			
+		});
 				
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(2, cmds.size());
-		assertEquals(command1, cmds.get(0));
-		assertEquals(command2, cmds.get(1));
+		assertFalse((cmds.get(0) instanceof ExceptionCommand));
+		assertFalse((cmds.get(1) instanceof ExceptionCommand));
+		cmds.get(1).attachCommandWriter(resp);
+		cmds.get(1).execCommand();
+
 		verify(input, times(1)).precacheDataFromRemote();
-		verify(command2, times(1)).addPayloadContentPart(aryEq("aaaabbbbccccddddeeee\r\n".getBytes()));
 	}
 	
 	@Test
@@ -177,37 +193,37 @@ public class TestServerCommandReader {
 		when(input.readTextLine()).thenReturn( "set testkey 888 0 20\r\n", "get testkey noreply\r\n");
 		when(input.getBytes(22)).thenReturn("aaaabbbbccccddddeeee\r\n".getBytes());
 		
-		ServerCommand command1 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("set testkey 888 0 20")).thenReturn(command1);
-		when(command1.payloadContentLength()).thenReturn(22);
-		ServerCommand command2 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("get testkey noreply")).thenReturn(command2);
-		when(command2.payloadContentLength()).thenReturn(0);
-				
+		when(sal.set((Item) anyObject())).thenAnswer(new Answer<Item>() {
+
+			public Item answer(InvocationOnMock invocation) throws Throwable {
+				Item it = (Item)(invocation.getArguments()[0]);
+				assertEquals("aaaabbbbccccddddeeee", new String(it.getData()));
+				return null;
+			}
+			
+		});
+		
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(2, cmds.size());
-		assertEquals(command1, cmds.get(0));
-		assertEquals(command2, cmds.get(1));
+		assertFalse((cmds.get(0) instanceof ExceptionCommand));
+		assertFalse((cmds.get(1) instanceof ExceptionCommand));
+		cmds.get(0).attachCommandWriter(resp);
+		cmds.get(0).execCommand();
 		verify(input, times(1)).precacheDataFromRemote();
-		verify(command1, times(1)).addPayloadContentPart(aryEq("aaaabbbbccccddddeeee\r\n".getBytes()));
 	}
 	
 	@Test
 	public void testDecodeGetCommand8Fragments() throws IOException, CrappyDBException {	
 		when(input.noDataAvailable()).thenReturn(false, false, false, false, false, false, false, false, true);
 		when(input.readTextLine()).thenReturn("g", "et ", "test", "key n", "or", "epl","y\r", "\n");
-		ServerCommand command = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("get testkey noreply")).thenReturn(command);
-		when(command.payloadContentLength()).thenReturn(0);
 		
 		for(int i = 0; i < 7; i++)
 			assertEquals(0, cmdreader.decodeCommands().size());
 
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
-		assertEquals(command, cmds.get(0));
 		verify(input, times(8)).precacheDataFromRemote();
-		verify(commandFactory, times(1)).getCommandFromCommandLine(anyString());
+		assertFalse((cmds.get(0) instanceof ExceptionCommand));
 	}
 
 	@Test
@@ -220,22 +236,26 @@ public class TestServerCommandReader {
 		when(input.getBytes(18)).thenReturn("bbbbcccc".getBytes());
 		when(input.getBytes(10)).thenReturn("ddddeeee\r".getBytes());
 		when(input.getBytes(1)).thenReturn("\n".getBytes());
-				
-		ServerCommand command1 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("set testkey 888 0 20")).thenReturn(command1);
-		when(command1.payloadContentLength()).thenReturn(22);
+		
+		when(sal.set((Item) anyObject())).thenAnswer(new Answer<Item>() {
+
+			public Item answer(InvocationOnMock invocation) throws Throwable {
+				Item it = (Item)(invocation.getArguments()[0]);
+				assertEquals("aaaabbbbccccddddeeee", new String(it.getData()));
+				return null;
+			}
+			
+		});
 		
 		for(int i = 0; i < 11; i++)
 			assertEquals(0, cmdreader.decodeCommands().size());
 				
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
-		assertEquals(command1, cmds.get(0));
+		assertFalse((cmds.get(0) instanceof ExceptionCommand));
+		cmds.get(0).attachCommandWriter(resp);
+		cmds.get(0).execCommand();
 		verify(input, times(12)).precacheDataFromRemote();
-		verify(command1, times(1)).addPayloadContentPart(aryEq("aaaa".getBytes()));
-		verify(command1, times(1)).addPayloadContentPart(aryEq("bbbbcccc".getBytes()));
-		verify(command1, times(1)).addPayloadContentPart(aryEq("ddddeeee\r".getBytes()));
-		verify(command1, times(1)).addPayloadContentPart(aryEq("\n".getBytes()));
 	}
 	
 	@Test
@@ -248,22 +268,26 @@ public class TestServerCommandReader {
 		when(input.getBytes(18)).thenReturn("bbbbcccc".getBytes());
 		when(input.getBytes(10)).thenReturn("ddddeeee\r".getBytes());
 		when(input.getBytes(1)).thenReturn("\n".getBytes());
-				
-		ServerCommand command1 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("set testkey 888 0 20")).thenReturn(command1);
-		when(command1.payloadContentLength()).thenReturn(22);
 		
+		when(sal.set((Item) anyObject())).thenAnswer(new Answer<Item>() {
+
+			public Item answer(InvocationOnMock invocation) throws Throwable {
+				Item it = (Item)(invocation.getArguments()[0]);
+				assertEquals("aaaabbbbccccddddeeee", new String(it.getData()));
+				return null;
+			}
+			
+		});
+
 		for(int i = 0; i < 10; i++)
 			assertEquals(0, cmdreader.decodeCommands().size());
 				
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(1, cmds.size());
-		assertEquals(command1, cmds.get(0));
+		assertFalse((cmds.get(0) instanceof ExceptionCommand));
+		cmds.get(0).attachCommandWriter(resp);
+		cmds.get(0).execCommand();
 		verify(input, times(11)).precacheDataFromRemote();
-		verify(command1, times(1)).addPayloadContentPart(aryEq("aaaa".getBytes()));
-		verify(command1, times(1)).addPayloadContentPart(aryEq("bbbbcccc".getBytes()));
-		verify(command1, times(1)).addPayloadContentPart(aryEq("ddddeeee\r".getBytes()));
-		verify(command1, times(1)).addPayloadContentPart(aryEq("\n".getBytes()));
 	}
 	
 	@Test
@@ -278,14 +302,17 @@ public class TestServerCommandReader {
 		when(input.getBytes(18)).thenReturn("bbbbcccc".getBytes());
 		when(input.getBytes(10)).thenReturn("ddddeeee\r".getBytes());
 		when(input.getBytes(1)).thenReturn("\n".getBytes());
-					
-		ServerCommand command1 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("set testkey 888 0 20")).thenReturn(command1);
-		when(command1.payloadContentLength()).thenReturn(22);
-		ServerCommand command2 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("get testkey noreply")).thenReturn(command2);
-		when(command2.payloadContentLength()).thenReturn(0);
+		
+		when(sal.set((Item) anyObject())).thenAnswer(new Answer<Item>() {
 
+			public Item answer(InvocationOnMock invocation) throws Throwable {
+				Item it = (Item)(invocation.getArguments()[0]);
+				assertEquals("aaaabbbbccccddddeeee", new String(it.getData()));
+				return null;
+			}
+			
+		});
+		
 		for(int i = 0; i < 10; i++)
 			assertEquals(0, cmdreader.decodeCommands().size());
 				
@@ -297,36 +324,39 @@ public class TestServerCommandReader {
 		List<ServerCommand> cmds2 = cmdreader.decodeCommands();
 		
 		assertEquals(1, cmds.size());
-		assertEquals(command1, cmds.get(0));
+		assertFalse((cmds.get(0) instanceof ExceptionCommand));
+		cmds.get(0).attachCommandWriter(resp);
+		cmds.get(0).execCommand();
+
 		verify(input, times(16)).precacheDataFromRemote();
-		verify(command1, times(1)).addPayloadContentPart(aryEq("aaaa".getBytes()));
-		verify(command1, times(1)).addPayloadContentPart(aryEq("bbbbcccc".getBytes()));
-		verify(command1, times(1)).addPayloadContentPart(aryEq("ddddeeee\r".getBytes()));
-		verify(command1, times(1)).addPayloadContentPart(aryEq("\n".getBytes()));
 		
 		assertEquals(1, cmds2.size());
-		assertEquals(command2, cmds2.get(0));
+		assertFalse((cmds2.get(0) instanceof ExceptionCommand));
+
 	}
 	
 	@Test
-	public void testCrappyDataBetweenCommands() throws IOException{
+	public void testCrappyDataBetweenCommands() throws IOException, StorageException, ClosedConnectionException{
 		when(input.noDataAvailable()).thenReturn(false, false, false, true);
 		when(input.readTextLine()).thenReturn("get testkey noreply\r\n     ", "     set testkey 888 0 20\r\n      ");
 		when(input.getBytes(22)).thenReturn("aaaabbbbccccddddeeee\r\n".getBytes());
 		
-		ServerCommand command1 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("get testkey noreply")).thenReturn(command1);
-		when(command1.payloadContentLength()).thenReturn(0);
-		ServerCommand command2 = mock(ServerCommand.class);
-		when(commandFactory.getCommandFromCommandLine("set testkey 888 0 20")).thenReturn(command2);
-		when(command2.payloadContentLength()).thenReturn(22);
-				
+		when(sal.set((Item) anyObject())).thenAnswer(new Answer<Item>() {
+
+			public Item answer(InvocationOnMock invocation) throws Throwable {
+				Item it = (Item)(invocation.getArguments()[0]);
+				assertEquals("aaaabbbbccccddddeeee", new String(it.getData()));
+				return null;
+			}
+			
+		});
+		
 		List<ServerCommand> cmds = cmdreader.decodeCommands();
 		assertEquals(2, cmds.size());
-		assertEquals(command1, cmds.get(0));
-		assertEquals(command2, cmds.get(1));
+		assertFalse((cmds.get(0) instanceof ExceptionCommand));
+		assertFalse((cmds.get(1) instanceof ExceptionCommand));
+		cmds.get(1).attachCommandWriter(resp);
+		cmds.get(1).execCommand();
 		verify(input, times(1)).precacheDataFromRemote();
-		verify(command2, times(1)).addPayloadContentPart(aryEq("aaaabbbbccccddddeeee\r\n".getBytes()));
-
 	}
 }

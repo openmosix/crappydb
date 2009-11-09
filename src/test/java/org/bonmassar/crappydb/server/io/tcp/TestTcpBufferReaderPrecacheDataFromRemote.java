@@ -16,7 +16,7 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.io;
+package org.bonmassar.crappydb.server.io.tcp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,10 +34,10 @@ import org.bonmassar.crappydb.server.config.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestInputPipePrecacheDataFromRemote {
+public class TestTcpBufferReaderPrecacheDataFromRemote {
 
 	private SocketChannel socketchannel;
-	private InputPipeMock input;
+	private TcpBufferReaderMock input;
 	private SelectionKey fakeSelector;
 	
 	@Before
@@ -45,7 +45,7 @@ public class TestInputPipePrecacheDataFromRemote {
 		Configuration.INSTANCE.parse(null);
 		fakeSelector = mock(SelectionKey.class);
 		socketchannel = mock(SocketChannel.class);
-		input = new InputPipeMock(fakeSelector);
+		input = new TcpBufferReaderMock(fakeSelector);
 	}
 	
 	@Test
@@ -109,9 +109,9 @@ public class TestInputPipePrecacheDataFromRemote {
 		input.precacheDataFromRemote();
 		assertFalse(input.noDataAvailable());
 		
-		assertTrue(input.buffer.hasRemaining());
-		assertEquals(1, input.buffer.remaining());
-		assertEquals('A', (char)input.buffer.get());
+		assertTrue(input.getBuffer().hasRemaining());
+		assertEquals(1, input.getBuffer().remaining());
+		assertEquals('A', (char)input.getBuffer().get());
 	}
 	
 	@Test
@@ -122,11 +122,11 @@ public class TestInputPipePrecacheDataFromRemote {
 		when(fakeSelector.channel()).thenReturn(socketchannel);
 		input.precacheDataFromRemote();
 		
-		assertTrue(input.buffer.hasRemaining());
+		assertTrue(input.getBuffer().hasRemaining());
 		assertFalse(input.noDataAvailable());
-		assertEquals(16, input.buffer.remaining());
+		assertEquals(16, input.getBuffer().remaining());
 		byte[] result = new byte[16];
-		input.buffer.get(result);
+		input.getBuffer().get(result);
 		assertEquals("This is a string", new String(result));
 	}
 	
@@ -142,11 +142,11 @@ public class TestInputPipePrecacheDataFromRemote {
 		input.precacheDataFromRemote();
 		input.precacheDataFromRemote();
 		
-		assertTrue(input.buffer.hasRemaining());
+		assertTrue(input.getBuffer().hasRemaining());
 		assertFalse(input.noDataAvailable());
-		assertEquals(22, input.buffer.remaining());
+		assertEquals(22, input.getBuffer().remaining());
 		byte[] result = new byte[22];
-		input.buffer.get(result);
+		input.getBuffer().get(result);
 		assertEquals("ould be concatenated\r\n", new String(result));
 	}
 	
@@ -158,11 +158,11 @@ public class TestInputPipePrecacheDataFromRemote {
 		when(fakeSelector.channel()).thenReturn(socketchannel);
 		input.precacheDataFromRemote();
 		
-		assertTrue(input.buffer.hasRemaining());
-		assertEquals(Configuration.INSTANCE.getBufferSize(), input.buffer.remaining());
+		assertTrue(input.getBuffer().hasRemaining());
+		assertEquals(Configuration.INSTANCE.getBufferSize(), input.getBuffer().remaining());
 		assertFalse(input.noDataAvailable());
 		byte[] result = new byte[Configuration.INSTANCE.getBufferSize()];
-		input.buffer.get(result);
+		input.getBuffer().get(result);
 		assertEquals(new String(longLongText()), new String(result));
 	}
 	

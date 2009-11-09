@@ -34,7 +34,6 @@ import java.util.concurrent.Future;
 import org.apache.commons.cli.ParseException;
 import org.bonmassar.crappydb.server.ShutdownExecutionRegister.Registry;
 import org.bonmassar.crappydb.server.config.Configuration;
-import org.bonmassar.crappydb.server.memcache.protocol.CommandFactoryDelegate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,11 +41,9 @@ import org.junit.Test;
 public class TestCrappyNetworkServer {
 
 	private CrappyNetworkServer server;
-	private CommandFactoryDelegate cmdFactory;
 	
 	@Before
 	public void setUp() throws ParseException {
-		cmdFactory = mock(CommandFactoryDelegate.class);
 		Configuration.INSTANCE.parse(null);
 	}
 	
@@ -60,7 +57,7 @@ public class TestCrappyNetworkServer {
 	public void testSetupIOError() throws ParseException {
 		Configuration.INSTANCE.parse(new String[]{"--port", "-42"});
 		try{
-			server = new CrappyNetworkServer(cmdFactory);
+			server = new CrappyNetworkServer();
 		}catch(RuntimeException re){
 			return;
 		}
@@ -70,14 +67,14 @@ public class TestCrappyNetworkServer {
 	@Test
 	public void testSetupOk() throws ParseException {
 		Configuration.INSTANCE.parse(new String[]{"--port", "11211"});
-		server = new CrappyNetworkServer(cmdFactory);
+		server = new CrappyNetworkServer();
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testStartServer() throws IOException, ParseException, InterruptedException {
 		Configuration.INSTANCE.parse(new String[]{"--port", "11213"});
-		server = new CrappyNetworkServer(cmdFactory);
+		server = new CrappyNetworkServer();
 		server.serverSelector = mock(Selector.class);
 		server.workers = mock(DBPoolThreadExecutor.class);
 		Set<SelectionKey> keys = mock(Set.class);
@@ -106,7 +103,7 @@ public class TestCrappyNetworkServer {
 	public void testStartServerIOException() throws IOException, ParseException, InterruptedException {
 		Configuration.INSTANCE.parse(new String[]{"--port", "11215"});
 
-		server = new CrappyNetworkServer(cmdFactory);
+		server = new CrappyNetworkServer();
 		server.serverSelector = mock(Selector.class);
 		server.workers = mock(DBPoolThreadExecutor.class);
 
@@ -115,5 +112,4 @@ public class TestCrappyNetworkServer {
 		server.processRequests();
 		verify(server.workers, times(0)).submit((SelectionKey) anyObject());
 	}
-	
 }

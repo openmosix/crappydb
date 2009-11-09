@@ -53,6 +53,7 @@ public class TestNormalUseCases {
 		client = new MemCachedClient();
 		// compression is enabled by default    
         client.setCompressEnable(true);
+        
         // set compression threshold to 4 KB (default: 15 KB)  
         client.setCompressThreshold(4096);
 	}

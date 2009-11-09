@@ -16,7 +16,7 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.io;
+package org.bonmassar.crappydb.server.io.tcp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -37,7 +37,7 @@ import org.junit.Test;
 public class TestInputGetBytes {
 
 	private SocketChannel socketchannel;
-	private InputPipeMock input;
+	private TcpBufferReaderMock input;
 	private SelectionKey fakeSelector;
 	
 	@Before
@@ -45,10 +45,11 @@ public class TestInputGetBytes {
 		Configuration.INSTANCE.parse(null);
 		fakeSelector = mock(SelectionKey.class);
 		socketchannel = mock(SocketChannel.class);
-		input = new InputPipeMock(fakeSelector);
+		input = new TcpBufferReaderMock(fakeSelector);
 		input.openChannel();
 		when(fakeSelector.channel()).thenReturn(socketchannel);
 	}
+	
 
 	@Test
 	public void testReadZeroBytes() throws IOException {
@@ -129,4 +130,5 @@ public class TestInputGetBytes {
 		
 		assertFalse(input.noDataAvailable());
 	}
+
 }

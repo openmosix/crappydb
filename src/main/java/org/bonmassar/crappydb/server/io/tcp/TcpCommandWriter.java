@@ -55,7 +55,7 @@ public class TcpCommandWriter extends ServerCommandWriter {
 		}
 	}
 	
-	private void assertOpenChannel(SocketChannel sc) throws IOException {
+	protected void assertOpenChannel(SocketChannel sc) throws IOException {
 		if(null != sc && sc.isOpen())
 			return;
 		

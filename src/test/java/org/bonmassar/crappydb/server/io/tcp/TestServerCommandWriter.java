@@ -16,7 +16,7 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.io;
+package org.bonmassar.crappydb.server.io.tcp;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 
 public class TestServerCommandWriter extends TestCase {
 	
-	private ServerCommandWriter writer;
+	private TcpCommandWriterMock writer;
 	private SelectionKey selector;
 	private WhateverChannel channel;
 	private OutputChannelMock dataTransfer;
@@ -58,7 +58,7 @@ public class TestServerCommandWriter extends TestCase {
 	@Before
 	public void setUp() {
 		selector = mock(SelectionKey.class);
-		writer = new ServerCommandWriterMock(selector);
+		writer = new TcpCommandWriterMock(selector);
 		channel = mock(WhateverChannel.class);
 		dataTransfer = new OutputChannelMock();
 	}
@@ -66,20 +66,20 @@ public class TestServerCommandWriter extends TestCase {
 	@Test
 	public void testNoop() {
 		writer.writeToOutstanding("");
-		assertEquals(0, writer.bufferList.size());
+		assertEquals(0, writer.getBuffer().size());
 	}
 	
 	@Test
 	public void testNull() {
 		writer.writeToOutstanding((byte[])null);
-		assertEquals(0, writer.bufferList.size());
+		assertEquals(0, writer.getBuffer().size());
 	}
 		
 	@Test
 	public void testWriteOutstanding() {
 		writer.writeToOutstanding("ma che bel castello marcondirondirondello!!!\n\r\n\r\n");
-		assertEquals(1, writer.bufferList.size());
-		ByteBuffer b = writer.bufferList.get(0);
+		assertEquals(1, writer.getBuffer().size());
+		ByteBuffer b = writer.getBuffer().get(0);
 		assertNotNull(b);
 		assertEquals("ma che bel castello marcondirondirondello!!!\n\r\n\r\n", getDataFromBuffer(b, 49));
 		verify(selector , times(1)).interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
@@ -195,7 +195,7 @@ public class TestServerCommandWriter extends TestCase {
 	@Test
 	public void testWriteText() {
 		writeAText();
-		assertEquals(10, writer.bufferList.size());
+		assertEquals(10, writer.getBuffer().size());
 		assertIHaveTheText();
 		verify(selector , times(10)).interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 	}
@@ -204,15 +204,15 @@ public class TestServerCommandWriter extends TestCase {
 	public void testWriteException() {
 		CrappyDBException exception = new StorageException("BOOM!");
 		writer.writeException(exception);
-		assertEquals(1, writer.bufferList.size());
-		assertEquals("StorageException [BOOM!]\r\n", getDataFromBuffer(writer.bufferList.get(0), 26));
+		assertEquals(1, writer.getBuffer().size());
+		assertEquals("StorageException [BOOM!]\r\n", getDataFromBuffer(writer.getBuffer().get(0), 26));
 		verify(selector , times(1)).interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 	}
 	
 	@Test
 	public void testWriteNullException() {
 		writer.writeException(null);
-		assertEquals(0, writer.bufferList.size());
+		assertEquals(0, writer.getBuffer().size());
 		verify(selector , times(0)).interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 	}
 
@@ -223,16 +223,16 @@ public class TestServerCommandWriter extends TestCase {
 	}
 	
 	private void assertIHaveTheText() {
-		assertEquals(text[0], getDataFromBuffer(writer.bufferList.get(0), 71));		
-		assertEquals(text[1], getDataFromBuffer(writer.bufferList.get(1), 70));		
-		assertEquals(text[2], getDataFromBuffer(writer.bufferList.get(2), 72));		
-		assertEquals(text[3], getDataFromBuffer(writer.bufferList.get(3), 72));		
-		assertEquals(text[4], getDataFromBuffer(writer.bufferList.get(4), 70));		
-		assertEquals(text[5], getDataFromBuffer(writer.bufferList.get(5), 66));		
-		assertEquals(text[6], getDataFromBuffer(writer.bufferList.get(6), 72));		
-		assertEquals(text[7], getDataFromBuffer(writer.bufferList.get(7), 70));		
-		assertEquals(text[8], getDataFromBuffer(writer.bufferList.get(8), 71));		
-		assertEquals(text[9], getDataFromBuffer(writer.bufferList.get(9), 20));		
+		assertEquals(text[0], getDataFromBuffer(writer.getBuffer().get(0), 71));		
+		assertEquals(text[1], getDataFromBuffer(writer.getBuffer().get(1), 70));		
+		assertEquals(text[2], getDataFromBuffer(writer.getBuffer().get(2), 72));		
+		assertEquals(text[3], getDataFromBuffer(writer.getBuffer().get(3), 72));		
+		assertEquals(text[4], getDataFromBuffer(writer.getBuffer().get(4), 70));		
+		assertEquals(text[5], getDataFromBuffer(writer.getBuffer().get(5), 66));		
+		assertEquals(text[6], getDataFromBuffer(writer.getBuffer().get(6), 72));		
+		assertEquals(text[7], getDataFromBuffer(writer.getBuffer().get(7), 70));		
+		assertEquals(text[8], getDataFromBuffer(writer.getBuffer().get(8), 71));		
+		assertEquals(text[9], getDataFromBuffer(writer.getBuffer().get(9), 20));		
 	}
 	
 	private void writeAText() {
@@ -249,7 +249,7 @@ public class TestServerCommandWriter extends TestCase {
 	}
 	
 	private void stubClosedSocket(){
-		((ServerCommandWriterMock)writer).blowOnSocketClosed();
+		((TcpCommandWriterMock)writer).blowOnSocketClosed();
 	}
 	
 }

@@ -16,7 +16,7 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.io;
+package org.bonmassar.crappydb.server.io.tcp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,7 +38,7 @@ import org.junit.Test;
 public class TestInputPipeReadTextLine {
 
 	private SocketChannel socketchannel;
-	private InputPipeMock input;
+	private TcpBufferReaderMock input;
 	private SelectionKey fakeSelector;
 	
 	@Before
@@ -46,7 +46,7 @@ public class TestInputPipeReadTextLine {
 		Configuration.INSTANCE.parse(null);
 		fakeSelector = mock(SelectionKey.class);
 		socketchannel = mock(SocketChannel.class);
-		input = new InputPipeMock(fakeSelector);
+		input = new TcpBufferReaderMock(fakeSelector);
 		input.openChannel();
 		when(fakeSelector.channel()).thenReturn(socketchannel);
 	}
@@ -57,7 +57,6 @@ public class TestInputPipeReadTextLine {
 		input.precacheDataFromRemote();
 		assertEquals("ma che bel castello marcondirondirondello!\r\n", input.readTextLine());
 		assertTrue(input.noDataAvailable());
-		assertEquals("", input.getRemainingDataAsText());
 	}
 	
 	@Test
@@ -66,7 +65,7 @@ public class TestInputPipeReadTextLine {
 		input.precacheDataFromRemote();
 		assertEquals("ma che bel castello marcondirondirondello!\r\n", input.readTextLine());
 		assertFalse(input.noDataAvailable());
-		assertEquals("MiaoMiaoMiaoooooo", input.getRemainingDataAsText());
+		assertEquals("MiaoMiaoMiaoooooo", new String(input.getBytes(17)));
 	}
 	
 	@Test
@@ -75,7 +74,7 @@ public class TestInputPipeReadTextLine {
 		input.precacheDataFromRemote();
 		assertEquals("ma che bel castello marcondirondirondello!\r\n", input.readTextLine());
 		assertFalse(input.noDataAvailable());
-		assertEquals("MiaoMiaoMiaoooooo\r\n", input.getRemainingDataAsText());
+		assertEquals("MiaoMiaoMiaoooooo\r\n", new String(input.getBytes(19)));
 	}
 	
 	@Test
@@ -86,7 +85,6 @@ public class TestInputPipeReadTextLine {
 		assertFalse(input.noDataAvailable());
 		assertEquals("MiaoMiaoMiaoooooo\r\n", input.readTextLine());
 		assertTrue(input.noDataAvailable());
-		assertEquals("", input.getRemainingDataAsText());
 	}
 	
 	@Test

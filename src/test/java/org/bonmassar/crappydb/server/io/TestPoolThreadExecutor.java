@@ -39,7 +39,7 @@ import org.junit.Test;
 
 import junit.framework.TestCase;
 
-public class TestFrontendPoolExecutor extends TestCase {
+public class TestPoolThreadExecutor extends TestCase {
 
 	private DBPoolThreadExecutor frontend;
 	
@@ -66,7 +66,7 @@ public class TestFrontendPoolExecutor extends TestCase {
 		
 		//Not really necessary but to make it explicit
 		for (SelectionKey key : keys)
-			verify(key, times(1)).readyOps();
+			verify(key, times(4)).readyOps();
 		
 		for(Future<Void> r : result)
 			r.get();

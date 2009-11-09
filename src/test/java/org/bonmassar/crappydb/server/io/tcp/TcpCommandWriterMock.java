@@ -16,19 +16,19 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.io;
+package org.bonmassar.crappydb.server.io.tcp;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.LinkedList;
 
-import org.bonmassar.crappydb.server.io.ServerCommandWriter;
-
-public class ServerCommandWriterMock extends ServerCommandWriter {
+public class TcpCommandWriterMock extends TcpCommandWriter {
 	
 	private boolean blow;
 
-	public ServerCommandWriterMock(SelectionKey requestsDescriptor) {
+	public TcpCommandWriterMock(SelectionKey requestsDescriptor) {
 		super(requestsDescriptor);
 		blow = false;
 	}
@@ -41,5 +41,9 @@ public class ServerCommandWriterMock extends ServerCommandWriter {
 	protected void assertOpenChannel(SocketChannel sc) throws IOException {
 		if(blow)
 			throw new IOException("BOOOM!");
+	}
+	
+	public LinkedList<ByteBuffer> getBuffer() {
+		return bufferList;
 	}
 }

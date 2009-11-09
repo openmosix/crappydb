@@ -16,17 +16,16 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.io;
+package org.bonmassar.crappydb.server.io.tcp;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.bonmassar.crappydb.server.io.BufferReader;
-
-public class InputPipeMock extends BufferReader {
+public class TcpBufferReaderMock extends TcpBufferReader {
 	
 	class Chunk {
 		public byte[] packet;
@@ -35,7 +34,7 @@ public class InputPipeMock extends BufferReader {
 	private boolean channelOpened;
 	private List<Chunk> wire;
 
-	public InputPipeMock(SelectionKey requestsDescriptor) {
+	public TcpBufferReaderMock(SelectionKey requestsDescriptor) {
 		super(requestsDescriptor);
 		channelOpened = false;
 		wire = new LinkedList<Chunk>();
@@ -52,7 +51,7 @@ public class InputPipeMock extends BufferReader {
 	}
 	
 	@Override
-	protected boolean invalidSocket(SocketChannel channel) {
+	protected boolean invalidSocket(ReadableByteChannel channel) {
 		if(null == channel)
 			return true;
 		
@@ -60,8 +59,7 @@ public class InputPipeMock extends BufferReader {
 	}
 	
 	@Override
-	protected int channelRead(SocketChannel channel)
-			throws IOException {
+	protected int channelRead(ReadableByteChannel channel) throws IOException {
 		
 		if(wire.size() == 0 || null == wire.get(0).packet)
 			return -1;
@@ -71,10 +69,15 @@ public class InputPipeMock extends BufferReader {
 		if(chk.packet.length>0)
 			try{
 				buffer.put(chk.packet);
+				buffer.flip();
 			}catch(java.nio.BufferOverflowException boe){
 				throw new IOException("Chunk too large");
 			}
 		
 		return chk.packet.length;
+	}
+	
+	public ByteBuffer getBuffer() {
+		return buffer;
 	}
 }
