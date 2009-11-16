@@ -63,9 +63,9 @@ public class UdpCommandWriter extends ServerCommandWriter {
 				bufferWithHeader.putChar(reqId);
 				bufferWithHeader.putChar(packetNo++);
 				bufferWithHeader.putChar(totPackets);
-				bufferWithHeader.putChar((char)0x00);
+				bufferWithHeader.putChar((char)0x0000);
 				
-				bufferWithHeader.put(buffer.array());
+				bufferWithHeader.put(buffer.array(), 0, buffer.remaining()-1);
 				bufferWithHeader.flip();
 				channel.send(bufferWithHeader, client);
 			}
