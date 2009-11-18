@@ -46,7 +46,6 @@ class UdpCommunicationDelegate extends CommunicationDelegateAbstract {
 	}
 
 	public TransportSession getSession(SelectionKey sk) {
-		// TODO Auto-generated method stub
 		return new UdpTransportSession(sk);
 	}
 

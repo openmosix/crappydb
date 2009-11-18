@@ -16,31 +16,18 @@
  *  along with CrappyDB-Server.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.bonmassar.crappydb.server.io;
+package org.bonmassar.crappydb.server.io.udp;
 
 import java.nio.channels.SelectionKey;
-import java.util.List;
 
-import org.bonmassar.crappydb.server.exceptions.ClosedConnectionException;
-import org.bonmassar.crappydb.server.io.CommunicationTask.CommunicationDelegate;
-import org.bonmassar.crappydb.server.memcache.protocol.ServerCommand;
+import org.junit.Test;
+import org.mockito.Mockito;
 
-public abstract class CommunicationDelegateAbstract implements CommunicationDelegate {
-	public TransportSession read(SelectionKey sk){
-		TransportSession connHandler = getSession(sk);
-
-		List<ServerCommand> cmdlist = connHandler.doRead();
-		if(null == cmdlist)
-			return null;
-
-		for(ServerCommand cmd : cmdlist)
-			try {
-				cmd.execCommand();
-			} catch (ClosedConnectionException e) {
-				connHandler.doClose();
-				break;
-			}
-
-		return connHandler;
+public class TestUdpTransportSession {
+	
+	@Test
+	public void testCreateSession() {
+		SelectionKey key = Mockito.mock(SelectionKey.class);
+		new UdpTransportSession(key);
 	}
 }

@@ -23,6 +23,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.spi.AbstractSelectableChannel;
 
 import org.bonmassar.crappydb.server.io.CommunicationDelegateAbstract;
 import org.bonmassar.crappydb.server.io.NetworkTransportProtocol;
@@ -32,10 +33,15 @@ public class UdpProtocol extends NetworkTransportProtocol {
 	private final UdpCommunicationDelegate delegate;
 	
 	public UdpProtocol() throws IOException {
-		super( DatagramChannel.open());
+		super( DatagramChannel.open() );
 
 		((DatagramChannel) listenChannel).socket().bind(getSocketAddress());
 		delegate = new UdpCommunicationDelegate();
+	}
+	
+	UdpProtocol(AbstractSelectableChannel channel) throws IOException {
+		super(channel);
+		delegate = null;
 	}
 	
 	public void register(Selector selector) throws ClosedChannelException {
