@@ -39,6 +39,20 @@
           :i&H#MBHH329@ ;&#h, .                                           M@@
                 .,,@@h@#&s. .:,                                          hGAAH@
 ===============================================================================
+ Rel 0.3 <-22.11.09->
+ 
+* IO refactory
+* Support for UDP using -udp parameter
+* Performance improvements
+ 
+Dependencies (runtime):
+
+* Apache Log4j 1.2.15
+* Apache Commons-CLI 1.2
+* Apache Commons-Collection 3.2
+* JE SleepyCat (Oracle) 3.3.75
+
+===============================================================================
  Rel 0.2 <-18.10.09->
  
 * Added Oracle Berkley DB Engine as storage layer. Now CrappyDB...is a real db :)

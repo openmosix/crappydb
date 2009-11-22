@@ -3,7 +3,7 @@
   <groupId>org.bonmassar.crappydb</groupId>
   <artifactId>crappydbd</artifactId>
   <name>Crappy db - server</name>
-  <version>0.3.0-SNAPSHOT</version>
+  <version>0.3</version>
   <description>A memcached implementation with persistency and sharding</description>
   <repositories>
   	<repository>
