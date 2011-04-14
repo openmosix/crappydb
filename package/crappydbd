@@ -1,0 +1,157 @@
+#!/bin/bash
+###
+## Startup / Shutdown script for CrappyDB-0.3 - Luca Bonmassar <23.09.09>
+###
+
+###############################################################################
+## Public part - you can customize this area
+###############################################################################
+#export JAVA_HOME="/opt/jdk1.6.0_13/bin/"
+#export JAVA_HOME="/usr/bin"
+export JAVA_HOME="/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/bin/"
+export JAVA_VM_PARAMS="-Xmx768m"
+export CRAPPYDB_HOME=`pwd`
+export CRAPPYDB_CONFIG=conf/crappydbd.conf
+export CRAPPYDB_PARAMS=--dump
+
+###############################################################################
+## Private part - you should not touch this area 8-P
+###############################################################################
+export CLASSPATH="${CRAPPYDB_HOME}"/lib/
+export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/commons-cli-1.2.jar
+export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/je-3.3.75.jar
+export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/log4j-1.2.15.jar
+export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/commons-collections-3.2.jar
+export CLASSPATH="${CLASSPATH}":"${CRAPPYDB_HOME}"/lib/crappydbd-0.3.jar
+export EXEC="org.bonmassar.crappydb.server.CrappyDBD"
+
+export PID=0
+export PIDFILE="${CRAPPYDB_HOME}"/run/server.pid
+
+function readPID() {
+	if [ -e "${PIDFILE}" ]; 
+	then
+	    PID=`cat "${PIDFILE}"`
+	    if [ "x" == "x${PID}" ]; then
+	        PID=0
+	    fi
+	fi
+}
+
+function checkPIDOrDie() {
+    if [ 0 -ne "${PID}" ]; 
+    then
+        STATUS=`ps -p ${PID} | grep "${PID}" | wc -l`
+	if [ 1 -eq ${STATUS} ]; 
+        then
+            echo "CrappyDB is already running (PID ${PID}), remove ${PIDFILE} if it is not the case."
+            exit -1
+        fi
+
+        echo "Dangling pidfile but the process (PID ${PID}) is not found. Resetting pidfile."
+        rm "$PIDFILE"
+        PID=0
+    fi
+}
+
+function start() {
+    readPID
+    checkPIDOrDie
+
+    echo "Starting CrappyDB..."
+    "${JAVA_HOME}"/java "${JAVA_VM_PARAMS}" \
+		-classpath "${CLASSPATH}" \
+		"${EXEC}" \
+		--file="${CRAPPYDB_HOME}"/"${CRAPPYDB_CONFIG}" "${CRAPPYDB_PARAMS}" &
+    
+    PID=$!
+
+    if [ "" == "${PID}" ]; 
+    then
+        echo "CrappyDB not started, aborting..."
+        exit 1
+    fi
+
+    echo "${PID}" > ${PIDFILE}
+
+    sleep 2
+    echo "CrappyDB is now running!" 
+    echo "Pid: $!"
+}
+
+function waitForDeath(){
+    while [ 1 ];
+    do
+	STATUS=`ps -p "${PID}" | grep "${PID}" | wc -l`
+	if [ 0 -ne $STATUS ]; 
+        then
+            echo -n ".";
+            sleep 1;
+        else
+            break;
+        fi
+    done
+}
+
+function stop() {
+    readPID
+	
+    if [ 0 -eq "${PID}" ]; 
+    then
+        echo "CrappyDB is not running, noop"
+        exit 1
+    fi
+
+    echo -n "CrappyDB running with PID ${PID}, sending a kill -1 signal..."
+    kill -1 ${PID} >> /dev/null
+    waitForDeath
+    rm ${PIDFILE}
+    
+    echo "CrappyDB stopped."
+}
+
+function printStatus() {
+   STATUS=0
+   if [ 0 -ne "${PID}" ]; 
+   then
+        STATUS=`ps -p "${PID}" | grep "${PID}" | wc -l`
+   fi
+
+   if [ 1 -eq ${STATUS} ]; 
+   then
+        echo "CrappyDB is running with PID ${PID}"
+   else
+        echo "Cannot find running instances of CrappyDB."
+   fi
+}
+
+function printUsage() {
+    echo "Usage: "`basename $0`" (status|start|stop|restart)"
+ }
+
+case "$1" in
+
+	status)
+		readPID
+		printStatus
+		;;
+		
+    start)
+		start
+        ;;
+  
+    stop)
+		stop
+        ;;
+
+    restart)
+        $0 stop
+        $0 start
+        ;;
+
+    *)
+		printUsage
+
+        exit 1
+        ;;
+esac

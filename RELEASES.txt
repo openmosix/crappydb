@@ -1,0 +1,92 @@
+      ,;   .r3&952;            / __)(  _ \  /__\  (  _ \(  _ \( \/ )(  _ \(  _ \
+     ##5rh@@GSrrrs5A@#2       ( (__  )   / /(__)\  )___/ )___/ \  /  )(_) )) _ <
+    @i  5@9,,::::::,:r&@Hr .   \___)(_)\_)(__)(__)(__)  (__)   (__) (____/(____/
+  .#@;5@B,,::::::::::::SMA#@&GBA
+ s@s@,@r,:::::::::::::::.X@2:. .rH@:            <- Release Notes ->
+ @  r@&:,::;:::::::,:s5i@.       @ r@
+ A@ @r:;:::::::::;::A#9r:rX#h     .;#@   rr
+  B@@:;ss;:::;::;:;@r       &@  s@#S;M@2@M#@.
+   .@Mrrsir;:::::,@:         i@@#;...;@M::,@H
+    .@r;rrsisr::,,@   :@,     @..;h@G:.::.3#
+     s@2;;rrsisr,.5@,  .    ,@;.3#h;.,:,rM@                          i2i
+       @@S;;rrssr;.r@Ar,,;5#Br2#X:.,,;ih2#M                        :@&2M@.
+        ;#@X;rrrr;;:,r9A#B3;2B5,..:sXG9@ii                        .@...X@2s
+          ,A@r;@MAG5r;:,,..#h. ;5X2&@i2,                      ,:.  H#.:.B@:X
+             r&X@2i9irsr,.@S.i2iX@A#2                       .@###HB#M.:,.@#&
+             ,iH@@ri2X;rsX#ri9Ai@@@i;                       .@h;.@A .:::.,@
+             G@, .@G9Ai;;@3@r@@@@@@2A                         ;X@# ,::,.;@&AAX,
+               &;@;9@rrG:@X@@@@@@@@@@#5                         @:.::::,,,ris5@;
+                 r@S59@A,@s@@@@@@hi92@@;rr                     @9.:;;::::,,;r2@,
+ r92               ::M@,,SA:@@@@3:2@@@@#i@@:r                :@3 ::;:;rr;GM2r;
+ @iG@;                G#,,92:#@@X;rG@@A:3@B@@MG.            ,A@;.::::;isr@9
+ @..r@                 @A,,X9:rA#&Ahs. .@@ .2 ;#9         iM@S.,:::::ss;@r
+ @5..MH                 @r:,;9Xsrsrrs@B#@:9#@ @@XhiSr;h@,.;X##&r.,:;:;ss;
+ A:..;@                9#:;,.;h@@5, 5S ,S2@@;#@;:@@AA2;,,,:::;:::ss:#9
+  .2GH@2                @;r2h9;      #        ;3S @;.,,::::::::;sr;#&
+ S@A;,,5@s              @MXs;.       #r        r@G,@.,::;:;:::;srr@2
+ @@..;X;s@             B3   .,:.   ,5#r         i@2 @i,::;::::rs;3@,
+ .SHAB3.&H      .5iXhG3@h;:..,:i&##G:             9@i@.::::::;rrr#9
+   .,..:@#3r:. 2@@X     ,rhMA993s,                 ,@A,@.::rsrrA@:
+ ,:,::::,,SA#M#A@r2@B        B@                     h@: @,;rssrsA#
+ :::::::,:,,,:::.,.,@M        .@;                        &ASA@B&SrHBs
+ ;:;:::::::::::,,,,,;@;         @.                             rA#@M.
+ ;:::::::::::::::::,;A@         AA                                r9r
+ @s::::::::::;:::::::rs@         #h                                 ;#H
+ r@#r;;:::::::::;::::r;@,   .,::;@                                    r@,
+  2@MSrr;;:::::::::rr;@X,;rrr::@;                               .       5r
+    s##Girrr;;;;;;rsr:@3,;;,:2@r                                        @@M
+      .iM#A35irrrr;;;,@s .:X#G:                                           @B
+          :i&H#MBHH329@ ;&#h, .                                           M@@
+                .,,@@h@#&s. .:,                                          hGAAH@
+===============================================================================
+ Rel 0.3 <-22.11.09->
+ 
+* IO refactory
+* Support for UDP using -udp parameter
+* Performance improvements
+ 
+Dependencies (runtime):
+
+* Apache Log4j 1.2.15
+* Apache Commons-CLI 1.2
+* Apache Commons-Collection 3.2
+* JE SleepyCat (Oracle) 3.3.75
+
+===============================================================================
+ Rel 0.2 <-18.10.09->
+ 
+* Added Oracle Berkley DB Engine as storage layer. Now CrappyDB...is a real db :)
+* Parameters of the server are now configurable using command line or config file 
+* Added new packaging for the application
+* Script to start/stop the server
+ 
+Dependencies (runtime):
+
+* Apache Log4j 1.2.15
+* Apache Commons-CLI 1.2
+* Apache Commons-Collection 3.2
+* JE SleepyCat (Oracle) 3.3.75
+
+Bugs:
+
+* Removed wrong dependency from JUnit at runtime
+
+===============================================================================
+ Rel 0.1 <-20.09.09->
+
+Dependencies (runtime):
+
+* Log4j 1.2.15
+
+Notes:
+
+* First release of CrappyDB. Only the inmemory storage layer is available
+* No configuration params available - the server run on 11211 port
+* To execute the server:
+
+java -classpath /yourclasspath/log4j-1.2.15.jar:crappydbd-0.1.jar org.bonmassar.crappydb.server.CrappyDBD
+
+* AcceptanceTests under src/acceptancetests/java are meant to test the database e2e.
+  You need to have an instance of crappydb running on port 11211. If your server is 
+  running on a different port, change the AcceptanceConfig.port
+  
